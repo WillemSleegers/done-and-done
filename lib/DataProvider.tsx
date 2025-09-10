@@ -283,7 +283,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       id: localId,
       remoteId: undefined, // No remote ID yet
       created_at: new Date().toISOString(),
-      syncState: 'local', // Start as local-only
+      syncState: 'local' as const, // Start as local-only
       ...projectData
     }
 
@@ -306,7 +306,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       completed: false,
       project_id: projectId, // Uses local project ID
       created_at: new Date().toISOString(),
-      syncState: 'local' // Start as local-only
+      syncState: 'local' as const // Start as local-only
     }
 
     // Optimistic update - add immediately as local-only
@@ -339,7 +339,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const newTodos = {
         ...prev,
         [projectId]: (prev[projectId] || []).map(t => 
-          t.id === localId ? { ...t, syncState: 'syncing' } : t
+          t.id === localId ? { ...t, syncState: 'syncing' as const } : t
         )
       }
       updateTodoCounts(newTodos)
@@ -359,7 +359,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         const newTodos = {
           ...prev,
           [projectId]: (prev[projectId] || []).map(t => 
-            t.id === localId ? { ...t, syncState: 'synced' } : t
+            t.id === localId ? { ...t, syncState: 'synced' as const } : t
           )
         }
         updateTodoCounts(newTodos)
@@ -374,7 +374,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             t.id === localId 
               ? { 
                   ...t, 
-                  syncState: 'failed',
+                  syncState: 'failed' as const,
                   lastError: error instanceof Error ? error.message : 'Update failed'
                 }
               : t

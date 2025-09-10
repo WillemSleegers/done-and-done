@@ -77,7 +77,6 @@ export default function AuthForm() {
                   loading_button_label: 'Signing in ...',
                   social_provider_text: 'Sign in with {{provider}}',
                   link_text: "Don't have an account? Sign up",
-                  confirmation_text: 'Check your email for the confirmation link',
                 },
                 sign_up: {
                   email_label: 'Email address',
@@ -88,7 +87,6 @@ export default function AuthForm() {
                   loading_button_label: 'Signing up ...',
                   social_provider_text: 'Sign up with {{provider}}',
                   link_text: 'Already have an account? Sign in',
-                  confirmation_text: 'Check your email for the confirmation link',
                 },
                 magic_link: {
                   email_input_label: 'Email address',
@@ -96,7 +94,6 @@ export default function AuthForm() {
                   button_label: 'Send magic link',
                   loading_button_label: 'Sending magic link ...',
                   link_text: 'Send a magic link email',
-                  confirmation_text: 'Check your email for the magic link',
                 },
               },
             }}
