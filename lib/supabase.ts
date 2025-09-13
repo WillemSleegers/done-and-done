@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { Database } from './database.types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -10,7 +11,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-export const supabase = createClient(
+export const supabase = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key',
   {
@@ -24,23 +25,25 @@ export const supabase = createClient(
 
 export type SyncState = 'local' | 'syncing' | 'synced' | 'failed'
 
-export type Project = {
-  id: string              // Stable local UUID, never changes
-  remoteId?: string       // Server ID once synced to database
-  name: string
-  description?: string
-  created_at: string
+// Use auto-generated types from database
+export type ProjectStatus = Database['public']['Enums']['status']
+export type ProjectPriority = Database['public']['Enums']['priority']
+export type DatabaseProject = Database['public']['Tables']['projects']['Row']
+export type DatabaseTodo = Database['public']['Tables']['todos']['Row']
+
+// Extended types for local app state (includes sync state)
+export type Project = DatabaseProject & {
+  id: string              // Override to use local UUID
+  remoteId?: string       // Server ID once synced to database  
   syncState: SyncState
   lastError?: string
 }
 
-export type Todo = {
-  id: string              // Stable local UUID, never changes
+export type Todo = DatabaseTodo & {
+  id: string              // Override to use local UUID
   remoteId?: string       // Server ID once synced to database
-  text: string
-  completed: boolean
-  project_id: string      // References local Project.id
-  created_at: string
+  completed: boolean      // Override to make non-nullable
+  project_id: string      // Override to make non-nullable (References local Project.id)
   syncState: SyncState
   lastError?: string
 }

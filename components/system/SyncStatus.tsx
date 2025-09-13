@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useData } from '@/lib/DataProvider'
+import { useProjectStore } from '@/lib/store/projectStore'
 import { AlertCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export default function SyncStatus() {
-  const { projects, todos, retryFailedProject, retryFailedTodo } = useData()
+  const { projects, todos, retryFailedProject, retryFailedTodo } = useProjectStore()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isRetryingAll, setIsRetryingAll] = useState(false)
 
@@ -87,16 +88,17 @@ export default function SyncStatus() {
     <div className="fixed bottom-4 right-4 z-50 max-w-80">
       <div className={`border rounded-lg shadow-lg ${bgColor}`}>
         {/* Main Status Bar */}
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between p-3 text-sm font-medium"
+          className="w-full flex items-center justify-between p-3 text-sm font-medium h-auto"
         >
           <div className="flex items-center gap-2">
             {icon}
             <span>{text}</span>
           </div>
           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
+        </Button>
 
         {/* Expanded Details */}
         {isExpanded && (
@@ -108,13 +110,14 @@ export default function SyncStatus() {
                     <h4 className="text-xs font-semibold text-destructive uppercase tracking-wide">
                       Failed to Sync
                     </h4>
-                    <button
+                    <Button
                       onClick={handleRetryAll}
                       disabled={isRetryingAll}
-                      className="text-xs px-2 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      size="sm"
+                      className="text-xs"
                     >
                       {isRetryingAll ? 'Retrying...' : 'Retry All'}
-                    </button>
+                    </Button>
                   </div>
                   {failedItems.map(item => (
                     <div key={item.id} className="flex items-center justify-between text-xs">
@@ -123,7 +126,9 @@ export default function SyncStatus() {
                         <span className="truncate">{item.name}</span>
                         <span className="text-muted-foreground">({item.type})</span>
                       </div>
-                      <button 
+                      <Button 
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           if (item.type === 'project') {
                             retryFailedProject(item.id)
@@ -131,10 +136,10 @@ export default function SyncStatus() {
                             retryFailedTodo(item.id, item.projectId!)
                           }
                         }}
-                        className="text-primary hover:text-primary/80 ml-2 flex-shrink-0"
+                        className="text-primary hover:text-primary/80 ml-2 flex-shrink-0 text-xs h-6 px-2"
                       >
                         Retry
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>

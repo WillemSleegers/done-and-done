@@ -1,35 +1,40 @@
 'use client'
 
-import { useRouter, useParams } from 'next/navigation'
-import { useData } from '@/lib/DataProvider'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+import { useProjectStore } from '@/lib/store/projectStore'
 import ProjectTodoView from '@/components/project/ProjectTodoView'
 import SyncStatus from '@/components/system/SyncStatus'
-import { ModeToggle } from '@/components/ui/ModeToggle'
-import UserMenu from '@/components/ui/UserMenu'
+import { ModeToggle } from '@/components/layout/ModeToggle'
+import UserMenu from '@/components/navigation/UserMenu'
 import AuthGuard from '@/components/auth/AuthGuard'
-import { useEffect } from 'react'
 
 export default function ProjectPage() {
   const router = useRouter()
   const params = useParams()
-  const { projects, isLoading } = useData()
+  const searchParams = useSearchParams()
+  const { projects, isLoading } = useProjectStore()
   
   const projectId = params.id as string
   const project = projects.find(p => p.id === projectId)
+  const isNewProject = searchParams.get('new') === 'true'
 
   const handleBack = () => {
     router.push('/')
   }
 
-  // If data is loaded but project not found, redirect to home
+  // Only show loading if we're in initial load state AND have no projects data at all
+  const shouldShowLoading = isLoading && projects.length === 0
+  
+  // If we have projects loaded but this specific project doesn't exist, redirect
   useEffect(() => {
-    if (!isLoading && !project) {
+    if (!isLoading && projects.length > 0 && !project) {
       router.push('/')
     }
-  }, [isLoading, project, router])
+  }, [isLoading, projects.length, project, router])
 
-  // Show loading state only while initial data is loading
-  if (isLoading) {
+  // Show loading only if we truly don't have any data yet
+  if (shouldShowLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground">Loading project...</div>
@@ -37,9 +42,18 @@ export default function ProjectPage() {
     )
   }
 
-  // If project not found after loading, don't render anything (redirect is happening)
-  if (!project) {
+  // If project not found (and we have data), don't render anything (redirect is happening)
+  if (!project && projects.length > 0) {
     return null
+  }
+
+  // If we don't have the project yet but we're still loading, show loading
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading project...</div>
+      </div>
+    )
   }
 
   return (
@@ -53,6 +67,7 @@ export default function ProjectPage() {
         <ProjectTodoView 
           project={project}
           onBack={handleBack}
+          isNewProject={isNewProject}
         />
       </div>
     </AuthGuard>

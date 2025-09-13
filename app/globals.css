@@ -22,6 +22,12 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-priority-high: var(--priority-high);
+  --color-priority-high-foreground: var(--priority-high-foreground);
+  --color-priority-normal: var(--priority-normal);
+  --color-priority-normal-foreground: var(--priority-normal-foreground);
+  --color-priority-low: var(--priority-low);
+  --color-priority-low-foreground: var(--priority-low-foreground);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -90,6 +96,12 @@
   --warning-foreground: oklch(0.205 0 0);
   --info: oklch(0.581 0.155 222.559);
   --info-foreground: oklch(0.985 0 0);
+  --priority-high: hsl(21, 55%, 46%);
+  --priority-high-foreground: hsl(21, 55%, 95%);
+  --priority-normal: hsl(216, 15%, 37%);
+  --priority-normal-foreground: hsl(216, 15%, 95%);
+  --priority-low: hsl(165, 35%, 67%);
+  --priority-low-foreground: hsl(165, 35%, 15%);
 }
 
 .dark {
@@ -131,6 +143,12 @@
   --warning-foreground: oklch(0.205 0 0);
   --info: oklch(0.581 0.155 222.559);
   --info-foreground: oklch(0.985 0 0);
+  --priority-high: hsl(21, 35%, 25%);
+  --priority-high-foreground: hsl(21, 55%, 95%);
+  --priority-normal: hsl(216, 25%, 20%);
+  --priority-normal-foreground: hsl(216, 15%, 95%);
+  --priority-low: hsl(165, 25%, 22%);
+  --priority-low-foreground: hsl(165, 35%, 90%);
 }
 
 @layer base {
