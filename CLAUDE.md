@@ -7,11 +7,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 "Done and Done" is a modern project and todo management application built with Next.js 15. 
 
 **Core Features:**
-- **Project Management** - Create and organize projects with descriptions
+- **Project Management** - Create and organize projects with descriptions, priority levels, and status tracking
+- **Priority System** - Three-tier priority system (high/normal/low) with visual color coding
+- **Project Status** - Active, inactive, and complete project states with appropriate visual treatment
 - **Todo Lists** - Add, complete, and delete todos within projects  
 - **Progress Tracking** - Visual progress indicators showing completion status
 - **User Authentication** - Secure login via email/password, magic links, or social providers (Google, GitHub)
 - **Real-time Sync** - Seamless data synchronization with Supabase backend
+- **Optimistic Updates** - Immediate UI responses with background synchronization
 - **Mobile-First Design** - Responsive interface optimized for phone and desktop use
 - **Dark/Light Theme** - System-aware theme switching
 
@@ -19,8 +22,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Next.js 15 with App Router architecture
 - React 19 with TypeScript 5
 - Supabase for backend, database, and authentication
+- Zustand for client-side state management
 - Tailwind CSS v4 with TailwindCSS PostCSS
 - Shadcn/ui components (configured with "new-york" style)
+
+## Environment Setup
+
+### Required Environment Variables
+Create a `.env.local` file in the project root with:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+**Note:** You'll need to create these environment variables when setting up the app on a new computer. The app will show a "Missing Supabase environment variables" warning without them.
+
+### Supabase Setup
+1. Create a Supabase project at https://supabase.com
+2. Get your project URL and anon key from Settings > API
+3. Set up the database schema (tables: `projects`, `todos`)
+4. Configure authentication providers if needed
 
 ## Development Commands
 
@@ -39,15 +60,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Component Architecture
 - `components/` - Organized component library:
-  - `components/ui/` - UI components (ModeToggle, ThemeProvider, UserMenu)
-  - `components/project/` - Project-related components (ProjectGrid, ProjectTodoView, NewProjectModal)  
-  - `components/system/` - System components (SyncStatus)
+  - `components/ui/` - Shadcn/ui components (Button, Dialog, Input, etc.)
+  - `components/layout/` - Layout components (ModeToggle, ThemeProvider)
+  - `components/navigation/` - Navigation components (UserMenu)
+  - `components/project/` - Project-related components (ProjectGrid, ProjectTile, ProjectTodoView)  
+  - `components/system/` - System components (SyncStatus, DataInitializer)
   - `components/auth/` - Authentication components (AuthForm, AuthGuard)
 - `components.json` - Shadcn/ui configuration
-- `lib/utils.ts` - Utility functions including `cn()` for className merging
+
+### State Management & Data Layer
+- `lib/store/projectStore.ts` - Zustand-based global state management for projects and todos
+- `lib/services/syncService.ts` - Handles data synchronization with Supabase backend
+- `lib/hooks/useInitializeData.ts` - Custom hook for data initialization
 - `lib/supabase.ts` - Supabase client configuration and types
-- `lib/DataProvider.tsx` - Global data state management
+- `lib/database.types.ts` - TypeScript types generated from Supabase schema
 - `lib/AuthProvider.tsx` - Authentication state management
+- `lib/utils.ts` - Utility functions including `cn()` for className merging
 - Path aliases configured: `@/*` maps to project root
 
 ### Styling
@@ -67,9 +95,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - React 19 
 - Tailwind CSS v4
 - Supabase (@supabase/supabase-js, @supabase/auth-ui-react)
-- Shadcn/ui component system
+- Zustand 5.0.8 for state management
+- Shadcn/ui component system (@radix-ui components)
 - Lucide React for icons
 - Next Themes for theme switching
+- Class Variance Authority & Tailwind Merge for styling utilities
+
+## Project System Architecture
+
+### Priority Levels
+- **High Priority** - Red-tinted background (`bg-priority-high`)
+- **Normal Priority** - Default blue-tinted background (`bg-priority-normal`) 
+- **Low Priority** - Muted gray background (`bg-priority-low`)
+- Priority affects visual prominence and tile styling
+
+### Project Status States
+- **Active** - Full opacity, normal interaction, shows todo counts
+- **Inactive** - Reduced opacity (25%), hover to show (90%), muted text, shows todo counts
+- **Complete** - Reduced opacity (25%), muted text, hides todo counts, grouped separately
+
+### Data Flow Architecture
+1. **UI Layer** - Components make optimistic updates to Zustand store
+2. **State Layer** - Zustand store manages local state and triggers sync
+3. **Sync Layer** - Background service handles Supabase synchronization
+4. **Database Layer** - Supabase provides persistence and real-time updates
 
 ## UX Philosophy
 - **Minimal Clicks** - Optimize for efficiency by minimizing the number of clicks required for common actions
@@ -80,6 +129,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Minimal Error Exposure** - Only show sync status/errors when something actually fails
 - **No Sync Spinners** - Avoid loading indicators for sync operations that should "just work"
 - **Graceful Degradation** - App should work offline and sync when connection is restored
+- **CRITICAL: Maximum Smoothness** - The app must feel as smooth as possible. Eliminate ALL unnecessary loading states, delays, and UI flashes. Navigation between pages should be instant since all data is pre-loaded. This is a top priority - any loading delays or UI jank significantly degrades the user experience.
 
 ## Component Standards
 - **Use shadcn/ui components** - Always prefer shadcn/ui components over custom HTML elements
@@ -110,3 +160,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Sync Service Alignment** - Ensure all type definitions in sync service match the database schema and include all fields that need to be persisted
 - **Full Stack Changes** - Any data model changes must be implemented across: Database → Sync Service Types → Store → UI Components
 - **No Partial Implementations** - Never add fields to types that aren't properly synced to the database, as this creates data loss on refresh
+
+## Current Implementation Patterns
+
+- **Optimistic UI Updates** - All user actions update the UI immediately, then sync in background
+- **Error Recovery** - Failed syncs revert UI state and provide retry mechanisms
+- **Priority-First Design** - Project tiles use priority for visual hierarchy (high → normal → low)
+- **Status-Based Sorting** - Projects sorted by status (active → inactive → complete) then by creation date
+- **Zustand Store Architecture** - Single store manages all projects, todos, and derived state (counts, loading)
+- **Component Composition** - Prefer composition over prop drilling, use context sparingly
+- **Type Safety** - All database operations use generated TypeScript types from Supabase

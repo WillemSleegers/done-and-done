@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 
 interface ProjectTileProps {
@@ -11,85 +13,52 @@ interface ProjectTileProps {
 export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
   const remainingTodos = todoCounts.total - todoCounts.completed
 
-  // Priority-based background styling
-  const getPriorityBackgroundClass = () => {
-    switch (project.priority) {
-      case "high":
-        return "bg-priority-high text-priority-high-foreground"
-      case "low":
-        return "bg-priority-low text-priority-low-foreground"
-      case "normal":
-      default:
-        return "bg-priority-normal text-priority-normal-foreground"
+  const showTodos = project.status !== "complete"
+
+  const text = () => {
+    if (remainingTodos === 0 && todoCounts.total > 0) {
+      return "All tasks complete"
+    } else if (todoCounts.total === 0) {
+      return "No tasks yet"
+    } else if (remainingTodos === 1) {
+      return "1 task"
+    } else {
+      return remainingTodos + " tasks"
     }
   }
 
-  // Status-based styling
-  const getStatusStyles = () => {
-    switch (project.status) {
-      case "active":
-        return {
-          cardClass: "bg-card",
-          titleClass: "text-foreground",
-          opacity: "",
-          showTodos: true,
-        }
-      case "inactive":
-        return {
-          cardClass: "bg-card",
-          titleClass: "text-muted-foreground",
-          opacity: "opacity-25 hover:opacity-90",
-          showTodos: true,
-        }
-      case "complete":
-        return {
-          cardClass: "bg-card",
-          titleClass: "text-muted-foreground",
-          opacity: "opacity-25",
-          showTodos: false,
-        }
-      default:
-        return {
-          cardClass: "bg-card",
-          titleClass: "text-foreground",
-          opacity: "",
-          showTodos: true,
-        }
-    }
-  }
+  const getPriorityBadge = () => {
+    if (project.priority === "normal") return null
 
-  const styles = getStatusStyles()
+    const variant = project.priority === "high" ? "destructive" : "secondary"
+
+    return (
+      <Badge variant={variant} className="text-xs">
+        {project.priority} priority
+      </Badge>
+    )
+  }
 
   return (
     <Link
       href={`/projects/${project.id}`}
-      className={`w-48 h-24 p-4 rounded-md transition-all duration-200 transform hover:scale-105 ${
-        styles.opacity
-      } ${getPriorityBackgroundClass()}`}
+      className="flex-1 w-fit h-24 p-4 rounded-md border transition-all duration-200 transform hover:scale-105 bg-card"
     >
-      <div className="flex flex-col justify-center h-full">
+      <div className="h-full flex flex-col justify-center">
         <h3
-          className={`font-semibold text-lg truncate mb-1 ${styles.titleClass}`}
+          className={cn(
+            "font-semibold text-lg truncate flex-1 text-card-foreground"
+          )}
         >
           {project.name}
         </h3>
 
-        <p className="text-sm opacity-70">
-          {styles.showTodos && remainingTodos > 0 && (
-            <>
-              {remainingTodos} {remainingTodos === 1 ? "task" : "tasks"}
-            </>
-          )}
-
-          {styles.showTodos &&
-            remainingTodos === 0 &&
-            todoCounts.total > 0 &&
-            "All tasks complete"}
-
-          {styles.showTodos && todoCounts.total === 0 && "No tasks yet"}
-
-          {!styles.showTodos && "\u00A0"}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm whitespace-nowrap text-card-foreground/50">
+            {showTodos ? text() : "\u00A0"}
+          </p>
+          {getPriorityBadge()}
+        </div>
       </div>
     </Link>
   )

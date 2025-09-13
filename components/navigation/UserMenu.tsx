@@ -19,11 +19,11 @@ export default function UserMenu() {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
+        className="flex items-center gap-2 px-2 h-10 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
       >
         <User size={20} />
         <span className="hidden sm:inline text-sm">
-          {user.email?.split('@')[0] || 'User'}
+          {user.email || 'User'}
         </span>
       </button>
 
