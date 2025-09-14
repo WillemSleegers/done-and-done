@@ -38,7 +38,6 @@ const sortProjectsByPriority = (projects: Project[]) => {
   })
 }
 
-
 export default function ProjectGrid({ onProjectSelect }: ProjectGridProps) {
   const { projects, todoCounts, isLoading, addProject } = useProjectStore()
   const router = useRouter()

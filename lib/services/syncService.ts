@@ -41,7 +41,7 @@ class SyncService {
         id: this.generateId(),
         remoteId: remote.id,
         name: remote.name,
-        description: remote.description,
+        notes: remote.notes,
         status: remote.status || 'active',
         priority: remote.priority || 'normal',
         created_at: remote.created_at,
@@ -100,7 +100,7 @@ class SyncService {
         .from('projects')
         .insert([{
           name: project.name,
-          description: project.description,
+          notes: project.notes,
           status: project.status
         }])
         .select()
@@ -213,7 +213,7 @@ class SyncService {
     }
   }
 
-  async updateProject(project: Project, updates: Partial<Pick<Project, 'name' | 'description' | 'status' | 'priority'>>, onUpdate: (updatedProject: Project) => void): Promise<void> {
+  async updateProject(project: Project, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority'>>, onUpdate: (updatedProject: Project) => void): Promise<void> {
     if (!project.remoteId) return
 
     onUpdate({ ...project, ...updates, syncState: 'syncing' })

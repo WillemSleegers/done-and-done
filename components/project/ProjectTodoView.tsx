@@ -5,7 +5,10 @@ import { type Project } from "@/lib/services/syncService"
 import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
 import { Plus, Check, X, ArrowLeft } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
-import { RichTextEditor, type RichTextEditorRef } from "@/components/ui/rich-text-editor"
+import {
+  RichTextEditor,
+  type RichTextEditorRef,
+} from "@/components/ui/rich-text-editor"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -48,9 +51,7 @@ export default function ProjectTodoView({
   const [newTodo, setNewTodo] = useState("")
   const [isAdding, setIsAdding] = useState(false)
   const [nameValue, setNameValue] = useState(project.name)
-  const [notesValue, setNotesValue] = useState(
-    project.description || ""
-  )
+  const [notesValue, setNotesValue] = useState(project.notes || "")
   const [showDeleteAlert, setShowDeleteAlert] = useState(false)
 
   const nameInputRef = useRef<HTMLInputElement>(null)
@@ -66,7 +67,6 @@ export default function ProjectTodoView({
     }
   }, [isNewProject])
 
-
   const handleNameSave = async () => {
     const trimmedName = nameValue.trim()
 
@@ -76,7 +76,7 @@ export default function ProjectTodoView({
         await addProject({
           id: project.id, // Use the existing ID from the URL
           name: trimmedName,
-          description: notesValue.trim() || null,
+          notes: notesValue.trim() || null,
           status: project.status,
           priority: project.priority,
         })
@@ -107,7 +107,7 @@ export default function ProjectTodoView({
         await addProject({
           id: project.id, // Use the existing ID from the URL
           name: nameValue.trim() || "Untitled Project",
-          description: htmlContent || null,
+          notes: htmlContent || null,
           status: project.status,
           priority: project.priority,
         })
@@ -118,13 +118,10 @@ export default function ProjectTodoView({
         console.error("Failed to create project:", error)
         return
       }
-    } else if (
-      !isNewProject &&
-      htmlContent !== (project.description || "")
-    ) {
+    } else if (!isNewProject && htmlContent !== (project.notes || "")) {
       // Normal edit of existing project
       updateProject(project.id, {
-        description: htmlContent || undefined,
+        notes: htmlContent || undefined,
       })
     }
   }
@@ -145,7 +142,7 @@ export default function ProjectTodoView({
       notesInputRef.current?.blur() // Remove focus to "finish" editing
     } else if (e.key === "Escape") {
       e.preventDefault()
-      const originalContent = project.description || ""
+      const originalContent = project.notes || ""
       setNotesValue(originalContent)
       notesInputRef.current?.setContent(originalContent)
       notesInputRef.current?.blur() // Remove focus to cancel editing
@@ -171,7 +168,7 @@ export default function ProjectTodoView({
         await addProject({
           id: project.id, // Use the existing ID from the URL
           name: nameValue.trim() || "Untitled Project",
-          description: notesInputRef.current?.getHTML() || null,
+          notes: notesInputRef.current?.getHTML() || null,
           status: project.status,
           priority: project.priority,
         })
@@ -230,9 +227,9 @@ export default function ProjectTodoView({
 
   return (
     <div className="p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-4">
         {/* Header with back button and project info */}
-        <div className="mb-6">
+        <div>
           <Button
             variant="ghost"
             onClick={onBack}
@@ -259,7 +256,11 @@ export default function ProjectTodoView({
               {/* Status dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-10" disabled={isNewProject}>
+                  <Button
+                    variant="outline"
+                    className="h-10 shadow-none"
+                    disabled={isNewProject}
+                  >
                     {project.status.charAt(0).toUpperCase() +
                       project.status.slice(1)}
                   </Button>
@@ -291,7 +292,7 @@ export default function ProjectTodoView({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="gap-2 h-10"
+                    className="gap-2 h-10 shadow-none"
                     disabled={isNewProject}
                   >
                     <div
@@ -335,7 +336,7 @@ export default function ProjectTodoView({
               {/* Delete button */}
               <Button
                 variant="outline"
-                className="text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/10 h-10 w-10"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 h-10 w-10 shadow-none"
                 onClick={() => setShowDeleteAlert(true)}
                 disabled={isNewProject}
               >
@@ -346,14 +347,14 @@ export default function ProjectTodoView({
         </div>
 
         {/* Add new todo form */}
-        <form onSubmit={handleAddTodo} className="mb-6">
+        <form onSubmit={handleAddTodo}>
           <div className="flex gap-2">
             <Input
               type="text"
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               placeholder="What needs to be done?"
-              className="flex-1 h-10 px-4 text-base"
+              className="flex-1 h-10 px-4 text-base shadow-none"
             />
             <Button
               type="submit"
@@ -371,55 +372,48 @@ export default function ProjectTodoView({
 
         {/* Todo list */}
         <div className="space-y-3">
-          {todos.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">
-              <p>No todos yet in this project.</p>
-              <p className="text-sm mt-1">Add one above to get started!</p>
-            </div>
-          ) : (
-            todos.map((todo) => (
+          {todos.map((todo) => (
+            <div
+              key={todo.id}
+              className={`flex items-center gap-3 h-10 ps-3 pe-2 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
+                todo.completed ? "border-border" : "border-border"
+              }`}
+              onClick={() => handleToggleTodo(todo.id, todo.completed)}
+            >
               <div
-                key={todo.id}
-                className={`flex items-center gap-3 h-10 ps-3 pe-2 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
-                  todo.completed ? "border-border" : "border-border shadow-sm"
+                className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
+                  todo.completed
+                    ? "border-success text-success-foreground"
+                    : "border-border hover:border-success"
                 }`}
-                onClick={() => handleToggleTodo(todo.id, todo.completed)}
               >
-                <div
-                  className={`flex-shrink-0 size-5 rounded-full border-2 transition-all flex items-center justify-center ${
-                    todo.completed
-                      ? "border-success text-success-foreground"
-                      : "border-border hover:border-success"
-                  }`}
-                >
-                  {todo.completed && <Check size={14} />}
-                </div>
-
-                <span
-                  className={`flex-1 text-base ${
-                    todo.completed
-                      ? "line-through text-muted-foreground"
-                      : "text-foreground"
-                  }`}
-                >
-                  {todo.text}
-                </span>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteTodo(todo.id)}
-                  className="flex-shrink-0 text-destructive hover:text-destructive/80 h-8 w-8"
-                >
-                  <X size={18} />
-                </Button>
+                {todo.completed && <Check size={14} />}
               </div>
-            ))
-          )}
+
+              <span
+                className={`flex-1 text-base ${
+                  todo.completed
+                    ? "line-through text-muted-foreground"
+                    : "text-foreground"
+                }`}
+              >
+                {todo.text}
+              </span>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDeleteTodo(todo.id)}
+                className="flex-shrink-0 text-destructive hover:text-destructive/80 h-8 w-8"
+              >
+                <X size={18} />
+              </Button>
+            </div>
+          ))}
         </div>
 
         {/* Notes section */}
-        <div className="mt-8 pt-6 border-t border-border">
+        <div>
           <h3 className="text-sm font-medium text-foreground mb-3">Notes</h3>
           <RichTextEditor
             ref={notesInputRef}

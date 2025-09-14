@@ -15,7 +15,7 @@ interface ProjectActions {
   
   // Project actions
   addProject: (data: Omit<Project, 'created_at' | 'syncState' | 'remoteId'> & { id?: string }) => Promise<Project>
-  updateProject: (projectId: string, updates: Partial<Pick<Project, 'name' | 'description' | 'status' | 'priority'>>) => Promise<void>
+  updateProject: (projectId: string, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority'>>) => Promise<void>
   deleteProject: (projectId: string) => Promise<void>
   retryFailedProject: (projectId: string) => Promise<void>
   

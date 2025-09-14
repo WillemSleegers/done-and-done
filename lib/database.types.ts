@@ -17,7 +17,7 @@ export type Database = {
       projects: {
         Row: {
           created_at: string
-          description: string | null
+          notes: string | null
           id: string
           name: string
           priority: Database["public"]["Enums"]["priority"]
@@ -25,7 +25,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          description?: string | null
+          notes?: string | null
           id?: string
           name: string
           priority?: Database["public"]["Enums"]["priority"]
@@ -33,7 +33,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          description?: string | null
+          notes?: string | null
           id?: string
           name?: string
           priority?: Database["public"]["Enums"]["priority"]
