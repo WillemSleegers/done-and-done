@@ -1,22 +1,12 @@
 # TODO
 
-## High Priority
-
-
-### Code Quality
+## Code Quality
 
 - [ ] **Standardize component patterns**
   - Consistent prop interfaces and naming conventions
   - Standardize loading states and error handling patterns
 
-### Features
-
-- [ ] **Todo Features**
-  - Todo due dates
-
-## Low Priority
-
-### Developer Experience
+## Developer Experience
 
 - [ ] **Accessibility**
   - Add proper ARIA labels
