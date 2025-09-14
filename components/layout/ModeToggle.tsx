@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Moon, Sun, Monitor } from "lucide-react"
 import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()
@@ -15,10 +16,10 @@ export function ModeToggle() {
 
   if (!mounted) {
     return (
-      <button className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border bg-background hover:bg-muted h-10 w-10">
+      <Button variant="outline" size="icon">
         <Monitor className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">Toggle theme</span>
-      </button>
+      </Button>
     )
   }
 
@@ -68,13 +69,14 @@ export function ModeToggle() {
   }
 
   return (
-    <button
+    <Button
+      variant="outline"
+      size="icon"
       onClick={toggleTheme}
-      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-border bg-background hover:bg-muted h-10 w-10"
       title={getLabel()}
     >
       {getIcon()}
       <span className="sr-only">{getLabel()}</span>
-    </button>
+    </Button>
   )
 }

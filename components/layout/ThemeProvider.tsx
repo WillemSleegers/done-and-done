@@ -3,16 +3,9 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 
-interface ThemeProviderProps {
-  children: React.ReactNode
-  attribute?: string
-  defaultTheme?: string
-  enableSystem?: boolean
-  disableTransitionOnChange?: boolean
-}
-
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  // Type assertion to handle next-themes internal types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return <NextThemesProvider {...(props as any)}>{children}</NextThemesProvider>
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }

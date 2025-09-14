@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { User, LogOut, Settings } from 'lucide-react'
+import { User, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/AuthProvider'
 
 export default function UserMenu() {
@@ -36,22 +36,8 @@ export default function UserMenu() {
           />
           
           {/* Dropdown menu */}
-          <div className="absolute right-0 top-full mt-1 w-48 bg-popover rounded-lg shadow-lg border border-border z-20">
-            <div className="p-3 border-b border-border">
-              <p className="text-sm font-medium text-foreground">{user.email}</p>
-              <p className="text-xs text-muted-foreground">
-                {user.user_metadata?.full_name || 'User'}
-              </p>
-            </div>
-            
+          <div className="absolute right-0 top-full mt-1 w-36 bg-popover rounded-lg shadow-lg border border-border z-20">
             <div className="py-1">
-              <button
-                onClick={() => setShowDropdown(false)}
-                className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"
-              >
-                <Settings size={16} />
-                Settings
-              </button>
               <button
                 onClick={handleSignOut}
                 className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"

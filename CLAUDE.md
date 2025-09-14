@@ -21,10 +21,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Technical Stack:**
 - Next.js 15 with App Router architecture
 - React 19 with TypeScript 5
+- **Shadcn/ui component system** (configured with "new-york" style) - **Primary UI framework**
+- Tailwind CSS v4 with CSS variables and TailwindCSS PostCSS
 - Supabase for backend, database, and authentication
 - Zustand for client-side state management
-- Tailwind CSS v4 with TailwindCSS PostCSS
-- Shadcn/ui components (configured with "new-york" style)
 
 ## Environment Setup
 
@@ -84,6 +84,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Lucide React icons
 - Custom utilities via `class-variance-authority`, `clsx`, and `tailwind-merge`
 
+### Theme Colors
+- **Always use theme colors** - Never hardcode colors like `text-green-600` or `bg-red-100`
+- **Use CSS variables** - `text-foreground`, `bg-background`, `border-border`, etc.
+- **Semantic color tokens** - `text-destructive`, `bg-muted`, `border-destructive/20`
+- **Available theme colors**: `background`, `foreground`, `card`, `muted`, `muted-foreground`, `primary`, `primary-foreground`, `secondary`, `secondary-foreground`, `destructive`, `destructive-foreground`, `border`, `ring`
+
 ### TypeScript Configuration
 - Target: ES2017
 - Strict mode enabled
@@ -132,10 +138,25 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **CRITICAL: Maximum Smoothness** - The app must feel as smooth as possible. Eliminate ALL unnecessary loading states, delays, and UI flashes. Navigation between pages should be instant since all data is pre-loaded. This is a top priority - any loading delays or UI jank significantly degrades the user experience.
 
 ## Component Standards
-- **Use shadcn/ui components** - Always prefer shadcn/ui components over custom HTML elements
-- **Consistent Design System** - Button, Input, Dialog, DropdownMenu, etc. should use shadcn variants
-- **No Custom UI Elements** - Avoid custom buttons, inputs, modals, or form elements
-- **Install Missing Components** - Add new shadcn components as needed rather than building custom alternatives
+
+### Shadcn/ui Components First
+- **Default Choice** - Always use shadcn/ui components unless there is a compelling technical reason not to
+- **Avoid Custom UI Elements** - Use shadcn components instead of building custom buttons, inputs, modals, forms, dropdowns, dialogs
+- **Install Before Building** - If a shadcn component doesn't exist, check if it's available to install via `npx shadcn@latest add <component>`
+- **Extend, Don't Replace** - If customization is needed, extend shadcn components using their built-in variant system or composition patterns
+
+### Component Usage Guidelines
+- **Button** - Always use `<Button variant="..." size="...">` instead of `<button>`
+- **Input** - Always use `<Input>` instead of `<input>`
+- **Dialog/Modal** - Always use `<Dialog>`, `<DialogContent>`, `<DialogHeader>` etc.
+- **Forms** - Use `<Form>`, `<FormField>`, `<FormItem>` components for all form layouts
+- **Navigation** - Use `<DropdownMenu>` for menus, `<NavigationMenu>` for nav bars
+- **Data Display** - Use `<Card>`, `<Badge>`, `<Table>` for content presentation
+
+### When Custom Components Are Acceptable
+- **Business Logic Components** - App-specific components like `ProjectTile`, `TodoList` that compose shadcn primitives
+- **Layout Components** - Containers and layout helpers that don't replace interactive elements
+- **Integration Wrappers** - Components that wrap third-party libraries (charts, editors) with shadcn styling
 
 ## Code Architecture Principles
 - **Single Return Pattern** - Prefer single return statements with conditional rendering over multiple returns with duplicate wrapper elements
