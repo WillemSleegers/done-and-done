@@ -5,10 +5,14 @@ import { Auth } from "@supabase/auth-ui-react"
 import { ThemeSupa } from "@supabase/auth-ui-shared"
 import { supabase } from "@/lib/supabase"
 import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
+
+type AuthView = "sign_in" | "sign_up" | "magic_link"
 
 export default function AuthForm() {
   const { theme } = useTheme()
   const [origin, setOrigin] = useState("")
+  const [view, setView] = useState<AuthView>("magic_link")
 
   useEffect(() => {
     setOrigin(window.location.origin)
@@ -24,9 +28,23 @@ export default function AuthForm() {
           <p className="text-muted-foreground">My first todo app.</p>
         </div>
 
+        <div className="text-center mb-6">
+          <h2 className="text-xl font-semibold text-foreground mb-2">
+            {view === "sign_in" && "Sign In"}
+            {view === "sign_up" && "Create Account"}
+            {view === "magic_link" && "Magic Link"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {view === "sign_in" && "Welcome back! Please sign in to your account."}
+            {view === "sign_up" && "Create a new account to get started."}
+            {view === "magic_link" && "We'll send you a secure link to sign in."}
+          </p>
+        </div>
+
         <div className="bg-card rounded-lg shadow-lg border border-border p-6">
           <Auth
             supabaseClient={supabase}
+            view={view}
             appearance={{
               theme: ThemeSupa,
               variables: {
@@ -67,7 +85,7 @@ export default function AuthForm() {
             onlyThirdPartyProviders={false}
             providers={[]}
             magicLink={true}
-            showLinks={true}
+            showLinks={false}
             localization={{
               variables: {
                 sign_in: {
@@ -100,6 +118,58 @@ export default function AuthForm() {
               },
             }}
           />
+
+          <div className="mt-6 space-y-3">
+            {view === "sign_in" && (
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setView("sign_up")}
+                  className="w-full"
+                >
+                  Don't have an account? Create one
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setView("magic_link")}
+                  className="w-full text-sm"
+                >
+                  Send me a magic link instead
+                </Button>
+              </div>
+            )}
+
+            {view === "sign_up" && (
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setView("sign_in")}
+                  className="w-full"
+                >
+                  Already have an account? Sign in
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setView("magic_link")}
+                  className="w-full text-sm"
+                >
+                  Send me a magic link instead
+                </Button>
+              </div>
+            )}
+
+            {view === "magic_link" && (
+              <div className="space-y-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setView("sign_in")}
+                  className="w-full text-sm"
+                >
+                  Use password instead
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
