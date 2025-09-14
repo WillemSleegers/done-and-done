@@ -27,16 +27,11 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
     }
   }
 
-  const getPriorityBadge = () => {
-    if (project.priority === "normal") return null
-
-    const variant = project.priority === "high" ? "destructive" : "secondary"
-
-    return (
-      <Badge variant={variant} className="text-xs">
-        {project.priority} priority
-      </Badge>
-    )
+  const getPriorityDot = () => {
+    const colorClass = project.priority === 'high' ? 'bg-destructive' : 
+                      project.priority === 'normal' ? 'bg-primary' : 'bg-muted-foreground'
+    
+    return <div className={`size-3 rounded-full ${colorClass}`} />
   }
 
   return (
@@ -53,11 +48,11 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
           {project.name}
         </h3>
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {getPriorityDot()}
           <p className="text-sm whitespace-nowrap text-card-foreground/50">
             {showTodos ? text() : "\u00A0"}
           </p>
-          {getPriorityBadge()}
         </div>
       </div>
     </Link>

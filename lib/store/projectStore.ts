@@ -14,7 +14,7 @@ interface ProjectActions {
   refreshData: () => Promise<void>
   
   // Project actions
-  addProject: (data: Omit<Project, 'id' | 'created_at' | 'syncState' | 'remoteId'>) => Promise<Project>
+  addProject: (data: Omit<Project, 'created_at' | 'syncState' | 'remoteId'> & { id?: string }) => Promise<Project>
   updateProject: (projectId: string, updates: Partial<Pick<Project, 'name' | 'description' | 'status' | 'priority'>>) => Promise<void>
   deleteProject: (projectId: string) => Promise<void>
   retryFailedProject: (projectId: string) => Promise<void>
@@ -70,7 +70,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   // Project actions
   addProject: async (projectData) => {
     const newProject: Project = {
-      id: generateId(),
+      id: projectData.id || generateId(),
       created_at: new Date().toISOString(),
       syncState: 'local',
       ...projectData

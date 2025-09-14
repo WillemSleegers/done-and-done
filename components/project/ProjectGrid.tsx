@@ -24,6 +24,20 @@ const getPriorityOrder = (priority: string): number => {
   }
 }
 
+const sortProjectsByPriority = (projects: Project[]) => {
+  return [...projects].sort((a, b) => {
+    // First sort by priority
+    const priorityOrderA = getPriorityOrder(a.priority)
+    const priorityOrderB = getPriorityOrder(b.priority)
+    if (priorityOrderA !== priorityOrderB) {
+      return priorityOrderA - priorityOrderB
+    }
+
+    // Then by created date (newest first)
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
+}
+
 
 export default function ProjectGrid({ onProjectSelect }: ProjectGridProps) {
   const { projects, todoCounts, isLoading, addProject } = useProjectStore()
@@ -34,45 +48,18 @@ export default function ProjectGrid({ onProjectSelect }: ProjectGridProps) {
   const inactiveProjects = projects.filter((p) => p.status === "inactive")
   const completedProjects = projects.filter((p) => p.status === "complete")
 
-  // Sort active projects: priority first (high > normal > low), then date
-  const sortedActiveProjects = [...activeProjects].sort((a, b) => {
-    // First sort by priority
-    const priorityOrderA = getPriorityOrder(a.priority)
-    const priorityOrderB = getPriorityOrder(b.priority)
-    if (priorityOrderA !== priorityOrderB) {
-      return priorityOrderA - priorityOrderB
-    }
-
-    // Then by created date (newest first)
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  })
-
-  // Sort inactive projects: priority first (high > normal > low), then date
-  const sortedInactiveProjects = [...inactiveProjects].sort((a, b) => {
-    // First sort by priority
-    const priorityOrderA = getPriorityOrder(a.priority)
-    const priorityOrderB = getPriorityOrder(b.priority)
-    if (priorityOrderA !== priorityOrderB) {
-      return priorityOrderA - priorityOrderB
-    }
-
-    // Then by created date (newest first)
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  })
+  // Sort active and inactive projects by priority, then date
+  const sortedActiveProjects = sortProjectsByPriority(activeProjects)
+  const sortedInactiveProjects = sortProjectsByPriority(inactiveProjects)
 
   // Sort completed projects by completion date (newest first)
   const sortedCompletedProjects = [...completedProjects].sort((a, b) => {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 
-  const handleCreateProject = async () => {
-    const project = await addProject({
-      name: "Untitled Project",
-      description: null,
-      status: "active",
-      priority: "normal",
-    })
-    onProjectSelect(project, true) // Immediately navigate to the new project
+  const handleCreateProject = () => {
+    const projectId = crypto.randomUUID()
+    router.push(`/projects/${projectId}?new=true`)
   }
 
   return (
