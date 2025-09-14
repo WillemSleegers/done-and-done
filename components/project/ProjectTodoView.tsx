@@ -3,7 +3,16 @@
 import { useState, useRef, useEffect } from "react"
 import { type Project } from "@/lib/services/syncService"
 import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
-import { Plus, Check, X, ArrowLeft } from "lucide-react"
+import {
+  Plus,
+  Check,
+  X,
+  ArrowLeft,
+  MoreHorizontal,
+  Calendar as CalendarIcon,
+  Edit,
+  Trash,
+} from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import {
   RichTextEditor,
@@ -27,6 +36,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Calendar } from "@/components/ui/calendar"
+import { format } from "date-fns"
 
 interface ProjectTodoViewProps {
   project: Project
@@ -50,6 +67,10 @@ export default function ProjectTodoView({
   } = useProjectStore()
   const [newTodo, setNewTodo] = useState("")
   const [isAdding, setIsAdding] = useState(false)
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const [showDateDialog, setShowDateDialog] = useState(false)
+  const [dateDialogTodoId, setDateDialogTodoId] = useState<string | null>(null)
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [nameValue, setNameValue] = useState(project.name)
   const [notesValue, setNotesValue] = useState(project.notes || "")
   const [showDeleteAlert, setShowDeleteAlert] = useState(false)
@@ -204,6 +225,44 @@ export default function ProjectTodoView({
     } catch {
       // Delete operation failed, but sync service handles retries
       // The todo will be marked for deletion and retried automatically
+    }
+  }
+
+  const handleSetDueDate = async (todoId: string, date: Date | undefined) => {
+    try {
+      await updateTodo(todoId, {
+        due_date: date ? format(date, "yyyy-MM-dd") : null,
+      })
+      setShowDateDialog(false) // Close the dialog
+      setDateDialogTodoId(null)
+    } catch {
+      // Error updating todo - sync service will retry
+    }
+  }
+
+  const openDateDialog = (todoId: string) => {
+    setOpenDropdownId(null) // Close dropdown first
+    setDateDialogTodoId(todoId)
+    setShowDateDialog(true)
+  }
+
+  const startEditing = (todoId: string) => {
+    setEditingTodoId(todoId)
+    setOpenDropdownId(null) // Close dropdown after setting edit state
+  }
+
+  const cancelEditing = () => {
+    setEditingTodoId(null)
+  }
+
+  const saveEdit = async (text: string) => {
+    if (!editingTodoId || !text.trim()) return
+
+    try {
+      await updateTodo(editingTodoId, { text: text.trim() })
+      setEditingTodoId(null)
+    } catch {
+      // Error updating todo - sync service will retry
     }
   }
 
@@ -375,10 +434,14 @@ export default function ProjectTodoView({
           {todos.map((todo) => (
             <div
               key={todo.id}
-              className={`flex items-center gap-3 h-10 ps-3 pe-2 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
+              className={`flex items-center gap-3 h-10 ps-3 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
                 todo.completed ? "border-border" : "border-border"
               }`}
-              onClick={() => handleToggleTodo(todo.id, todo.completed)}
+              onClick={() => {
+                if (editingTodoId !== todo.id) {
+                  handleToggleTodo(todo.id, todo.completed)
+                }
+              }}
             >
               <div
                 className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
@@ -390,24 +453,107 @@ export default function ProjectTodoView({
                 {todo.completed && <Check size={14} />}
               </div>
 
-              <span
-                className={`flex-1 text-base ${
-                  todo.completed
-                    ? "line-through text-muted-foreground"
-                    : "text-foreground"
-                }`}
-              >
-                {todo.text}
-              </span>
+              <div className="flex-1 flex justify-between items-center gap-2">
+                <span
+                  className={`text-base outline-none ${
+                    todo.completed
+                      ? "line-through text-muted-foreground"
+                      : "text-foreground"
+                  }`}
+                  contentEditable={editingTodoId === todo.id}
+                  suppressContentEditableWarning={true}
+                  onKeyDown={(e) => {
+                    if (editingTodoId === todo.id) {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        saveEdit(e.currentTarget.textContent || "")
+                      } else if (e.key === "Escape") {
+                        e.preventDefault()
+                        cancelEditing()
+                        e.currentTarget.textContent = todo.text
+                      }
+                    }
+                  }}
+                  onBlur={(e) => {
+                    if (editingTodoId === todo.id) {
+                      saveEdit(e.currentTarget.textContent || "")
+                    }
+                  }}
+                  ref={(el) => {
+                    if (editingTodoId === todo.id && el) {
+                      // Use setTimeout to ensure DOM is updated
+                      setTimeout(() => {
+                        el.focus()
+                        const range = document.createRange()
+                        const selection = window.getSelection()
+                        range.selectNodeContents(el)
+                        range.collapse(false)
+                        selection?.removeAllRanges()
+                        selection?.addRange(range)
+                      }, 0)
+                    }
+                  }}
+                >
+                  {todo.text}
+                </span>
+                {todo.due_date && (
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    Due {format(new Date(todo.due_date), "MMM d, yyyy")}
+                  </span>
+                )}
+              </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleDeleteTodo(todo.id)}
-                className="flex-shrink-0 text-destructive hover:text-destructive/80 h-8 w-8"
+              <DropdownMenu
+                open={openDropdownId === todo.id && editingTodoId !== todo.id}
+                onOpenChange={(open) => {
+                  if (editingTodoId !== todo.id) {
+                    setOpenDropdownId(open ? todo.id : null)
+                  }
+                }}
               >
-                <X size={18} />
-              </Button>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="flex-shrink-0 size-8"
+                    onClick={(e) => e.stopPropagation()}
+                    disabled={editingTodoId === todo.id}
+                    tabIndex={editingTodoId === todo.id ? -1 : 0}
+                  >
+                    <MoreHorizontal size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openDateDialog(todo.id)
+                    }}
+                  >
+                    <CalendarIcon size={16} className="mr-2" />
+                    Set due date
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      startEditing(todo.id)
+                    }}
+                  >
+                    <Edit size={16} className="mr-2" />
+                    Edit todo
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteTodo(todo.id)
+                    }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash size={16} className="mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ))}
         </div>
@@ -451,6 +597,50 @@ export default function ProjectTodoView({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Date picker dialog */}
+      <Dialog open={showDateDialog} onOpenChange={setShowDateDialog}>
+        <DialogContent className="w-auto max-w-fit p-0">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle>Set due date</DialogTitle>
+          </DialogHeader>
+          <div className="px-6 pb-4">
+            <Calendar
+              mode="single"
+              selected={
+                dateDialogTodoId
+                  ? todos.find((t) => t.id === dateDialogTodoId)?.due_date
+                    ? new Date(
+                        todos.find((t) => t.id === dateDialogTodoId)!.due_date!
+                      )
+                    : undefined
+                  : undefined
+              }
+              onSelect={(date) => {
+                if (dateDialogTodoId) {
+                  handleSetDueDate(dateDialogTodoId, date)
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          {dateDialogTodoId &&
+            todos.find((t) => t.id === dateDialogTodoId)?.due_date && (
+              <div className="flex justify-center px-6 pb-6">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (dateDialogTodoId) {
+                      handleSetDueDate(dateDialogTodoId, undefined)
+                    }
+                  }}
+                >
+                  Remove due date
+                </Button>
+              </div>
+            )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

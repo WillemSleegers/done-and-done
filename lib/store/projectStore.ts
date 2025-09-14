@@ -21,7 +21,7 @@ interface ProjectActions {
   
   // Todo actions  
   addTodo: (projectId: string, text: string) => Promise<Todo>
-  updateTodo: (todoId: string, updates: Partial<Pick<Todo, 'text' | 'completed'>>) => Promise<void>
+  updateTodo: (todoId: string, updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date'>>) => Promise<void>
   deleteTodo: (todoId: string, projectId: string) => Promise<void>
   retryFailedTodo: (todoId: string, projectId: string) => Promise<void>
   
@@ -169,6 +169,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       completed: false,
       project_id: projectId,
       created_at: new Date().toISOString(),
+      due_date: null,
       syncState: 'local'
     }
 

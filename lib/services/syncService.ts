@@ -67,6 +67,7 @@ class SyncService {
             completed: remote.completed ?? false,
             project_id: localProjectId,
             created_at: remote.created_at,
+            due_date: remote.due_date,
             syncState: 'synced' as const
           }
           
@@ -145,7 +146,8 @@ class SyncService {
         .insert([{
           text: todo.text,
           completed: todo.completed,
-          project_id: projectRemoteId
+          project_id: projectRemoteId,
+          due_date: todo.due_date
         }])
         .select()
         .single()
@@ -172,7 +174,7 @@ class SyncService {
 
   async updateTodo(
     todo: Todo,
-    updates: Partial<Pick<Todo, 'text' | 'completed'>>,
+    updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date'>>,
     onUpdate: (updatedTodo: Todo) => void
   ): Promise<void> {
     if (!todo.remoteId) return

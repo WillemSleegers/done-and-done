@@ -45,6 +45,7 @@ export type Database = {
         Row: {
           completed: boolean | null
           created_at: string
+          due_date: string | null
           id: string
           project_id: string | null
           text: string
@@ -52,6 +53,7 @@ export type Database = {
         Insert: {
           completed?: boolean | null
           created_at?: string
+          due_date?: string | null
           id?: string
           project_id?: string | null
           text: string
@@ -59,6 +61,7 @@ export type Database = {
         Update: {
           completed?: boolean | null
           created_at?: string
+          due_date?: string | null
           id?: string
           project_id?: string | null
           text?: string
