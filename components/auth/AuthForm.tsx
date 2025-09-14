@@ -127,7 +127,7 @@ export default function AuthForm() {
                   onClick={() => setView("sign_up")}
                   className="w-full"
                 >
-                  Don't have an account? Create one
+                  Don&apos;t have an account? Create one
                 </Button>
                 <Button
                   variant="ghost"

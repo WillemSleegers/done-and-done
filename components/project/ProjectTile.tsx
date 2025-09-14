@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 

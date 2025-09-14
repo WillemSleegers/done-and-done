@@ -35,10 +35,14 @@ export default function ProjectPage() {
     id: projectId,
     name: '',
     description: null,
+    notes: null,
     status: 'active' as const,
     priority: 'normal' as const,
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    syncState: 'local' as const,
+    remoteId: undefined,
+    lastError: undefined
   } : null)
 
   // Don't render anything if no project and not new

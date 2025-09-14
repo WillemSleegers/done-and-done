@@ -70,10 +70,10 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   // Project actions
   addProject: async (projectData) => {
     const newProject: Project = {
+      ...projectData,
       id: projectData.id || generateId(),
       created_at: new Date().toISOString(),
-      syncState: 'local',
-      ...projectData
+      syncState: 'local'
     }
 
     // Optimistic update

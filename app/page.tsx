@@ -1,22 +1,12 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import ProjectGrid from '@/components/project/ProjectGrid'
 import SyncStatus from '@/components/system/SyncStatus'
 import { ModeToggle } from '@/components/layout/ModeToggle'
 import UserMenu from '@/components/navigation/UserMenu'
 import AuthGuard from '@/components/auth/AuthGuard'
-import { type Project } from '@/lib/services/syncService'
 
 export default function Home() {
-  const router = useRouter()
-
-  const handleProjectSelect = (project: Project, isNewProject?: boolean) => {
-    const url = isNewProject 
-      ? `/projects/${project.id}?new=true`
-      : `/projects/${project.id}`
-    router.push(url)
-  }
 
   return (
     <AuthGuard>
@@ -26,7 +16,7 @@ export default function Home() {
           <ModeToggle />
         </div>
         <SyncStatus />
-        <ProjectGrid onProjectSelect={handleProjectSelect} />
+        <ProjectGrid />
       </div>
     </AuthGuard>
   )

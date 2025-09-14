@@ -7,9 +7,6 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import ProjectTile from "./ProjectTile"
 
-interface ProjectGridProps {
-  onProjectSelect: (project: Project, isNewProject?: boolean) => void
-}
 
 const getPriorityOrder = (priority: string): number => {
   switch (priority) {
@@ -38,8 +35,8 @@ const sortProjectsByPriority = (projects: Project[]) => {
   })
 }
 
-export default function ProjectGrid({ onProjectSelect }: ProjectGridProps) {
-  const { projects, todoCounts, isLoading, addProject } = useProjectStore()
+export default function ProjectGrid() {
+  const { projects, todoCounts, isLoading } = useProjectStore()
   const router = useRouter()
 
   // Separate projects by status
