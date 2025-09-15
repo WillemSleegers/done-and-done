@@ -55,3 +55,29 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Start `npm run dev` when working on code for live preview
 - Focus on guidance before implementation
 - Implement only when explicitly requested
+
+## Productive Refactoring Sessions
+
+### Planning & Communication
+- **Use TodoWrite tool proactively** - Break complex tasks into trackable steps
+- **Examine before refactoring** - Always read and understand existing code first
+- **Discuss layout changes** - Get user feedback on UI/UX decisions before implementing
+- **Iterative refinement** - Make changes, get feedback, refine (status/priority order, button placement, etc.)
+
+### Component Architecture
+- **Component breakdown strategy** - Split large components (647→270 lines) into focused pieces
+- **Consistent height standards** - Standardize UI element heights (40px) across components
+- **Responsive design first** - Address mobile issues during refactoring, not after
+- **Actions placement** - Group related controls logically (priority/status/actions together)
+
+### Implementation Best Practices
+- **Import cleanup** - Remove unused imports to fix build warnings
+- **TypeScript prop matching** - Ensure interface props match component usage
+- **Maintain functionality** - Preserve all existing features during restructure
+- **Test as you go** - Keep dev server running, fix issues immediately
+
+### Commit Strategy
+- **Comprehensive commits** - Include all related changes in single semantic commit
+- **Descriptive messages** - Explain what was refactored and why
+- **Fix builds immediately** - Address ESLint/TypeScript issues in follow-up commit
+- **Document benefits** - Highlight improvements (60% code reduction, better mobile UX, etc.)
