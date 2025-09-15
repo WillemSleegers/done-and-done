@@ -2,30 +2,13 @@
 
 import { useState, useRef, useEffect } from "react"
 import { type Project } from "@/lib/services/syncService"
-import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
-import {
-  Plus,
-  Check,
-  X,
-  ArrowLeft,
-  MoreHorizontal,
-  Calendar as CalendarIcon,
-  Edit,
-  Trash,
-} from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import {
   RichTextEditor,
   type RichTextEditorRef,
 } from "@/components/ui/rich-text-editor"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +27,9 @@ import {
 } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
+import ProjectHeader from "./ProjectHeader"
+import TodoItem from "./TodoItem"
+import AddTodoForm from "./AddTodoForm"
 
 interface ProjectTodoViewProps {
   project: Project
@@ -58,31 +44,26 @@ export default function ProjectTodoView({
 }: ProjectTodoViewProps) {
   const {
     getProjectTodos,
-    addTodo,
     updateTodo,
-    deleteTodo,
     deleteProject,
     updateProject,
     addProject,
   } = useProjectStore()
-  const [newTodo, setNewTodo] = useState("")
-  const [isAdding, setIsAdding] = useState(false)
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const [showDateDialog, setShowDateDialog] = useState(false)
   const [dateDialogTodoId, setDateDialogTodoId] = useState<string | null>(null)
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [nameValue, setNameValue] = useState(project.name)
   const [notesValue, setNotesValue] = useState(project.notes || "")
   const [showDeleteAlert, setShowDeleteAlert] = useState(false)
+  const [isNewProjectCreated, setIsNewProjectCreated] = useState(!isNewProject)
 
-  const nameInputRef = useRef<HTMLInputElement>(null)
   const notesInputRef = useRef<RichTextEditorRef>(null)
 
-  const todos = isNewProject ? [] : getProjectTodos(project.id)
+  const todos =
+    isNewProject && !isNewProjectCreated ? [] : getProjectTodos(project.id)
 
   useEffect(() => {
-    if (isNewProject && nameInputRef.current) {
-      nameInputRef.current.focus()
+    if (isNewProject) {
       // Clear the field for new projects so user can start fresh
       setNameValue("")
     }
@@ -91,24 +72,29 @@ export default function ProjectTodoView({
   const handleNameSave = async () => {
     const trimmedName = nameValue.trim()
 
-    if (isNewProject && trimmedName) {
+    if (isNewProject && !isNewProjectCreated && trimmedName) {
       // First edit of a new project - create the real project now
       try {
         await addProject({
           id: project.id, // Use the existing ID from the URL
           name: trimmedName,
-          notes: notesValue.trim() || null,
+          notes: notesInputRef.current?.getHTML() || null,
           status: project.status,
           priority: project.priority,
         })
 
         // Remove the new flag from URL
         window.history.replaceState({}, "", `/projects/${project.id}`)
+        setIsNewProjectCreated(true)
       } catch (error) {
         console.error("Failed to create project:", error)
         return
       }
-    } else if (!isNewProject && trimmedName && trimmedName !== project.name) {
+    } else if (
+      isNewProjectCreated &&
+      trimmedName &&
+      trimmedName !== project.name
+    ) {
       // Normal edit of existing project
       updateProject(project.id, { name: trimmedName })
     } else if (!trimmedName) {
@@ -122,7 +108,7 @@ export default function ProjectTodoView({
     const textContent = notesInputRef.current?.getText() || ""
     const trimmedText = textContent.trim()
 
-    if (isNewProject && trimmedText) {
+    if (isNewProject && !isNewProjectCreated && trimmedText) {
       // First edit of a new project - create the real project now
       try {
         await addProject({
@@ -135,11 +121,12 @@ export default function ProjectTodoView({
 
         // Remove the new flag from URL
         window.history.replaceState({}, "", `/projects/${project.id}`)
+        setIsNewProjectCreated(true)
       } catch (error) {
         console.error("Failed to create project:", error)
         return
       }
-    } else if (!isNewProject && htmlContent !== (project.notes || "")) {
+    } else if (isNewProjectCreated && htmlContent !== (project.notes || "")) {
       // Normal edit of existing project
       updateProject(project.id, {
         notes: htmlContent || undefined,
@@ -171,61 +158,8 @@ export default function ProjectTodoView({
     // Regular Enter key will create a new line (default behavior)
   }
 
-  const handleStatusChange = (newStatus: ProjectStatus) => {
-    updateProject(project.id, { status: newStatus })
-  }
-
-  const handleAddTodo = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newTodo.trim() || isAdding) return
-
-    setIsAdding(true)
-
-    try {
-      let projectToUse = project
-
-      if (isNewProject) {
-        // Create the real project first before adding todo
-        await addProject({
-          id: project.id, // Use the existing ID from the URL
-          name: nameValue.trim() || "Untitled Project",
-          notes: notesInputRef.current?.getHTML() || null,
-          status: project.status,
-          priority: project.priority,
-        })
-
-        // Remove the new flag from URL
-        window.history.replaceState({}, "", `/projects/${project.id}`)
-        projectToUse = project // Use the same project object
-      }
-
-      await addTodo(projectToUse.id, newTodo.trim())
-      setNewTodo("")
-    } catch {
-      // Todo creation failed, but sync service handles retries
-      // The todo will appear with sync status indicator and retry automatically
-      // Still clear the form since the todo is now visible in the list
-      setNewTodo("")
-    } finally {
-      setIsAdding(false)
-    }
-  }
-
-  const handleToggleTodo = async (id: string, completed: boolean) => {
-    try {
-      await updateTodo(id, { completed: !completed })
-    } catch {
-      // Error updating todo - sync service will retry
-    }
-  }
-
-  const handleDeleteTodo = async (id: string) => {
-    try {
-      await deleteTodo(id, project.id)
-    } catch {
-      // Delete operation failed, but sync service handles retries
-      // The todo will be marked for deletion and retried automatically
-    }
+  const handleProjectCreated = () => {
+    setIsNewProjectCreated(true)
   }
 
   const handleSetDueDate = async (todoId: string, date: Date | undefined) => {
@@ -241,14 +175,8 @@ export default function ProjectTodoView({
   }
 
   const openDateDialog = (todoId: string) => {
-    setOpenDropdownId(null) // Close dropdown first
     setDateDialogTodoId(todoId)
     setShowDateDialog(true)
-  }
-
-  const startEditing = (todoId: string) => {
-    setEditingTodoId(todoId)
-    setOpenDropdownId(null) // Close dropdown after setting edit state
   }
 
   const cancelEditing = () => {
@@ -276,285 +204,43 @@ export default function ProjectTodoView({
     }
   }
 
-  const handlePriorityChange = async (priority: ProjectPriority) => {
-    try {
-      await updateProject(project.id, { priority })
-    } catch {
-      // Priority update will retry in background
-    }
-  }
-
   return (
-    <div className="p-6">
-      <div className="max-w-2xl mx-auto space-y-4">
-        {/* Header with back button and project info */}
-        <div>
-          <Button
-            variant="ghost"
-            onClick={onBack}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 p-2 -ml-2 rounded-lg hover:bg-muted"
-          >
-            <ArrowLeft size={20} />
-            <span>Back to Projects</span>
-          </Button>
-
-          <div className="flex items-center justify-between mb-2">
-            <input
-              ref={nameInputRef}
-              type="text"
-              value={nameValue}
-              onChange={(e) => setNameValue(e.target.value)}
-              onBlur={handleNameSave}
-              onKeyDown={handleNameKeyDown}
-              className="text-2xl font-bold text-foreground bg-transparent border-none outline-none focus:outline-none flex-1 mr-4 p-0 m-0 cursor-pointer hover:text-primary transition-colors"
-              placeholder="Project name"
-            />
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-2">
-              {/* Status dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-10 shadow-none"
-                    disabled={isNewProject}
-                  >
-                    {project.status.charAt(0).toUpperCase() +
-                      project.status.slice(1)}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handleStatusChange("active")}
-                    className={project.status === "active" ? "bg-muted" : ""}
-                  >
-                    Active
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleStatusChange("inactive")}
-                    className={project.status === "inactive" ? "bg-muted" : ""}
-                  >
-                    Inactive
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleStatusChange("complete")}
-                    className={project.status === "complete" ? "bg-muted" : ""}
-                  >
-                    Complete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Priority dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="gap-2 h-10 shadow-none"
-                    disabled={isNewProject}
-                  >
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        project.priority === "high"
-                          ? "bg-destructive"
-                          : project.priority === "normal"
-                          ? "bg-primary"
-                          : "bg-muted-foreground"
-                      }`}
-                    />
-                    {project.priority.charAt(0).toUpperCase() +
-                      project.priority.slice(1)}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handlePriorityChange("high")}
-                    className={project.priority === "high" ? "bg-muted" : ""}
-                  >
-                    <div className="w-3 h-3 bg-destructive rounded-full mr-2" />
-                    High Priority
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handlePriorityChange("normal")}
-                    className={project.priority === "normal" ? "bg-muted" : ""}
-                  >
-                    <div className="w-3 h-3 bg-primary rounded-full mr-2" />
-                    Normal Priority
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handlePriorityChange("low")}
-                    className={project.priority === "low" ? "bg-muted" : ""}
-                  >
-                    <div className="w-3 h-3 bg-muted-foreground rounded-full mr-2" />
-                    Low Priority
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Delete button */}
-              <Button
-                variant="outline"
-                className="text-destructive hover:text-destructive hover:bg-destructive/10 h-10 w-10 shadow-none"
-                onClick={() => setShowDeleteAlert(true)}
-                disabled={isNewProject}
-              >
-                <X size={14} />
-              </Button>
-            </div>
-          </div>
-        </div>
+    <div className="p-4 sm:p-6">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Project header */}
+        <ProjectHeader
+          project={project}
+          isNewProject={isNewProject && !isNewProjectCreated}
+          nameValue={nameValue}
+          notesValue={notesValue}
+          onNameChange={setNameValue}
+          onNameSave={handleNameSave}
+          onNameKeyDown={handleNameKeyDown}
+          onDeleteProject={() => setShowDeleteAlert(true)}
+        />
 
         {/* Add new todo form */}
-        <form onSubmit={handleAddTodo}>
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              placeholder="What needs to be done?"
-              className="flex-1 h-10 px-4 text-base shadow-none"
-            />
-            <Button
-              type="submit"
-              disabled={!newTodo.trim() || isAdding}
-              className="h-10 w-10"
-            >
-              {isAdding ? (
-                <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Plus size={20} />
-              )}
-            </Button>
-          </div>
-        </form>
+        <AddTodoForm
+          project={project}
+          isNewProject={isNewProject && !isNewProjectCreated}
+          nameValue={nameValue}
+          notesHtml={notesInputRef.current?.getHTML() || null}
+          onProjectCreated={handleProjectCreated}
+        />
 
         {/* Todo list */}
         <div className="space-y-3">
           {todos.map((todo) => (
-            <div
+            <TodoItem
               key={todo.id}
-              className={`flex items-center gap-3 h-10 ps-3 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
-                todo.completed ? "border-border" : "border-border"
-              }`}
-              onClick={() => {
-                if (editingTodoId !== todo.id) {
-                  handleToggleTodo(todo.id, todo.completed)
-                }
-              }}
-            >
-              <div
-                className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
-                  todo.completed
-                    ? "border-success text-success-foreground"
-                    : "border-border hover:border-success"
-                }`}
-              >
-                {todo.completed && <Check size={14} />}
-              </div>
-
-              <div className="flex-1 flex justify-between items-center gap-2">
-                <span
-                  className={`text-base outline-none ${
-                    todo.completed
-                      ? "line-through text-muted-foreground"
-                      : "text-foreground"
-                  }`}
-                  contentEditable={editingTodoId === todo.id}
-                  suppressContentEditableWarning={true}
-                  onKeyDown={(e) => {
-                    if (editingTodoId === todo.id) {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        saveEdit(e.currentTarget.textContent || "")
-                      } else if (e.key === "Escape") {
-                        e.preventDefault()
-                        cancelEditing()
-                        e.currentTarget.textContent = todo.text
-                      }
-                    }
-                  }}
-                  onBlur={(e) => {
-                    if (editingTodoId === todo.id) {
-                      saveEdit(e.currentTarget.textContent || "")
-                    }
-                  }}
-                  ref={(el) => {
-                    if (editingTodoId === todo.id && el) {
-                      // Use setTimeout to ensure DOM is updated
-                      setTimeout(() => {
-                        el.focus()
-                        const range = document.createRange()
-                        const selection = window.getSelection()
-                        range.selectNodeContents(el)
-                        range.collapse(false)
-                        selection?.removeAllRanges()
-                        selection?.addRange(range)
-                      }, 0)
-                    }
-                  }}
-                >
-                  {todo.text}
-                </span>
-                {todo.due_date && (
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    Due {format(new Date(todo.due_date), "MMM d, yyyy")}
-                  </span>
-                )}
-              </div>
-
-              <DropdownMenu
-                open={openDropdownId === todo.id && editingTodoId !== todo.id}
-                onOpenChange={(open) => {
-                  if (editingTodoId !== todo.id) {
-                    setOpenDropdownId(open ? todo.id : null)
-                  }
-                }}
-              >
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="flex-shrink-0 size-8"
-                    onClick={(e) => e.stopPropagation()}
-                    disabled={editingTodoId === todo.id}
-                    tabIndex={editingTodoId === todo.id ? -1 : 0}
-                  >
-                    <MoreHorizontal size={16} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openDateDialog(todo.id)
-                    }}
-                  >
-                    <CalendarIcon size={16} className="mr-2" />
-                    Set due date
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      startEditing(todo.id)
-                    }}
-                  >
-                    <Edit size={16} className="mr-2" />
-                    Edit todo
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteTodo(todo.id)
-                    }}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash size={16} className="mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+              todo={todo}
+              projectId={project.id}
+              isEditing={editingTodoId === todo.id}
+              onStartEditing={() => setEditingTodoId(todo.id)}
+              onCancelEditing={cancelEditing}
+              onSaveEdit={saveEdit}
+              onOpenDateDialog={() => openDateDialog(todo.id)}
+            />
           ))}
         </div>
 
@@ -571,6 +257,7 @@ export default function ProjectTodoView({
             className="text-muted-foreground text-sm leading-5 bg-transparent border-none outline-none focus:outline-none w-full cursor-pointer"
           />
         </div>
+
       </div>
 
       {/* Delete Project Alert Dialog */}
