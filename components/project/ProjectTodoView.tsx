@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react"
 import { type Project } from "@/lib/services/syncService"
-import { ArrowLeft } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import {
   RichTextEditor,
@@ -212,7 +211,6 @@ export default function ProjectTodoView({
           project={project}
           isNewProject={isNewProject && !isNewProjectCreated}
           nameValue={nameValue}
-          notesValue={notesValue}
           onNameChange={setNameValue}
           onNameSave={handleNameSave}
           onNameKeyDown={handleNameKeyDown}

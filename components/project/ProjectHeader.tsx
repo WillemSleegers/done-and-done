@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useRef } from "react"
 import { type Project } from "@/lib/services/syncService"
 import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
 import { MoreHorizontal, Trash } from "lucide-react"
@@ -17,7 +17,6 @@ interface ProjectHeaderProps {
   project: Project
   isNewProject?: boolean
   nameValue: string
-  notesValue: string
   onNameChange: (value: string) => void
   onNameSave: () => Promise<void>
   onNameKeyDown: (e: React.KeyboardEvent) => void
@@ -28,7 +27,6 @@ export default function ProjectHeader({
   project,
   isNewProject = false,
   nameValue,
-  notesValue,
   onNameChange,
   onNameSave,
   onNameKeyDown,
