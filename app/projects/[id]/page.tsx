@@ -5,8 +5,7 @@ import { useEffect } from 'react'
 import { useProjectStore } from '@/lib/store/projectStore'
 import ProjectTodoView from '@/components/project/ProjectTodoView'
 import SyncStatus from '@/components/system/SyncStatus'
-import { ModeToggle } from '@/components/layout/ModeToggle'
-import UserMenu from '@/components/navigation/UserMenu'
+import NavigationBar from '@/components/navigation/NavigationBar'
 import AuthGuard from '@/components/auth/AuthGuard'
 
 export default function ProjectPage() {
@@ -53,12 +52,9 @@ export default function ProjectPage() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        <div className="absolute top-4 right-4 z-40 flex items-center gap-2">
-          <UserMenu />
-          <ModeToggle />
-        </div>
+        <NavigationBar variant="back" />
         <SyncStatus />
-        <ProjectTodoView 
+        <ProjectTodoView
           project={displayProject}
           onBack={handleBack}
           isNewProject={isNewProject}

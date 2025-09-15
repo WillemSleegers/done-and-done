@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import ProjectTile from "./ProjectTile"
 
-
 const getPriorityOrder = (priority: string): number => {
   switch (priority) {
     case "high":
@@ -60,10 +59,6 @@ export default function ProjectGrid() {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-center mb-8 text-foreground">
-        Done and Done
-      </h1>
-
       {isLoading ? (
         <div className="flex flex-col items-center justify-center min-h-[400px]">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />

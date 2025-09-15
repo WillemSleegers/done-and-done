@@ -1,13 +1,9 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
 import { useProjectStore } from '@/lib/store/projectStore'
-import { Button } from '@/components/ui/button'
 import ProjectTile from '@/components/project/ProjectTile'
 import SyncStatus from '@/components/system/SyncStatus'
-import { ModeToggle } from '@/components/layout/ModeToggle'
-import UserMenu from '@/components/navigation/UserMenu'
+import NavigationBar from '@/components/navigation/NavigationBar'
 import AuthGuard from '@/components/auth/AuthGuard'
 
 const getPriorityOrder = (priority: string): number => {
@@ -24,9 +20,8 @@ const getPriorityOrder = (priority: string): number => {
 }
 
 export default function InactiveProjectsPage() {
-  const router = useRouter()
   const { projects, todoCounts } = useProjectStore()
-  
+
   // Filter and sort inactive projects
   const inactiveProjects = projects.filter((p) => p.status === "inactive")
   const sortedInactiveProjects = [...inactiveProjects].sort((a, b) => {
@@ -41,32 +36,15 @@ export default function InactiveProjectsPage() {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 
-  const handleBack = () => {
-    router.push('/')
-  }
-
-
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        <div className="absolute top-4 right-4 z-40 flex items-center gap-2">
-          <UserMenu />
-          <ModeToggle />
-        </div>
+        <NavigationBar variant="back" />
         <SyncStatus />
-        
+
         <div className="p-6">
           {/* Header */}
           <div className="max-w-4xl mx-auto mb-8">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="mb-4 p-2 h-auto"
-            >
-              <ArrowLeft size={20} className="mr-2" />
-              Back to Projects
-            </Button>
-            
             <h1 className="text-3xl font-bold text-center text-foreground">
               Inactive Projects
             </h1>

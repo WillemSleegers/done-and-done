@@ -1,20 +1,15 @@
-'use client'
+"use client"
 
-import ProjectGrid from '@/components/project/ProjectGrid'
-import SyncStatus from '@/components/system/SyncStatus'
-import { ModeToggle } from '@/components/layout/ModeToggle'
-import UserMenu from '@/components/navigation/UserMenu'
-import AuthGuard from '@/components/auth/AuthGuard'
+import AuthGuard from "@/components/auth/AuthGuard"
+import NavigationBar from "@/components/navigation/NavigationBar"
+import SyncStatus from "@/components/system/SyncStatus"
+import ProjectGrid from "@/components/project/ProjectGrid"
 
 export default function Home() {
-
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        <div className="absolute top-4 right-4 z-40 flex items-center gap-2">
-          <UserMenu />
-          <ModeToggle />
-        </div>
+        <NavigationBar variant="title" title="Done and Done" />
         <SyncStatus />
         <ProjectGrid />
       </div>

@@ -1,19 +1,19 @@
-'use client'
+"use client"
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { supabase } from './supabase'
+import { User } from "@supabase/supabase-js"
+import { createContext, useContext, useEffect, useState } from "react"
+
+import { supabase } from "./supabase"
+import { useProjectStore } from "./store/projectStore"
 
 type AuthContextType = {
   user: User | null
-  session: Session | null
   loading: boolean
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   loading: true,
   signOut: async () => {},
 })
@@ -21,85 +21,60 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const { fetchInitialData } = useProjectStore()
 
   useEffect(() => {
     // Check if Supabase is properly configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.warn('Supabase environment variables not configured. Authentication will not work.')
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ) {
+      console.warn(
+        "Supabase environment variables not configured. Authentication will not work."
+      )
       setLoading(false)
       return
     }
 
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Error getting session:', error)
-        } else {
-          setSession(session)
-          setUser(session?.user ?? null)
-        }
-      } catch (error) {
-        console.error('Failed to initialize auth:', error)
-      }
+    // Handle auth state changes (including initial session)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.email)
+      const newUser = session?.user ?? null
+      setUser(newUser)
       setLoading(false)
-    }
 
-    getInitialSession()
+      // Fetch data when user signs in
+      if (newUser && !user) {
+        // User just signed in
+        fetchInitialData()
+      }
+    })
 
-    // Listen for auth changes only if Supabase is configured
-    let unsubscribe: (() => void) | null = null
-    
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          console.log('Auth state changed:', event, session?.user?.email)
-          setSession(session)
-          setUser(session?.user ?? null)
-          setLoading(false)
-        }
-      )
-      unsubscribe = () => subscription.unsubscribe()
-    }
-
-    return () => unsubscribe?.()
-  }, [])
+    return () => subscription.unsubscribe()
+  }, [user, fetchInitialData])
 
   const signOut = async () => {
-    setLoading(true)
-    try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Error signing out:', error)
-      }
-    } catch (error) {
-      console.error('Unexpected error signing out:', error)
-    } finally {
-      setLoading(false)
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error("Error signing out:", error)
     }
   }
 
   const value = {
     user,
-    session,
     loading,
     signOut,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
