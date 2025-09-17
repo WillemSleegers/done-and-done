@@ -55,6 +55,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Start `npm run dev` when working on code for live preview
 - Focus on guidance before implementation
 - Implement only when explicitly requested
+- **Ask clarifying questions first** - When requirements are ambiguous (e.g., "40px height" - total height or content height?), ask for clarification before implementing to avoid back-and-forth iterations
 
 ## Productive Refactoring Sessions
 

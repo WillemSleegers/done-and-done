@@ -71,7 +71,7 @@ export default function TodoItem({
 
   return (
     <div
-      className={`flex items-center gap-3 h-10 ps-3 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
+      className={`flex items-center gap-3 min-h-10 ps-3 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
         todo.completed ? "border-border" : "border-border"
       }`}
       onClick={handleToggleTodo}
@@ -87,8 +87,8 @@ export default function TodoItem({
         {todo.completed && <Check size={14} />}
       </div>
 
-      {/* Todo content */}
-      <div className="flex-1 flex justify-between items-center gap-2 min-w-0">
+      {/* Todo text content */}
+      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
         <span
           className={`text-base outline-none break-words ${
             todo.completed
