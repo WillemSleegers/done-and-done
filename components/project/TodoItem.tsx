@@ -71,9 +71,7 @@ export default function TodoItem({
 
   return (
     <div
-      className={`flex items-center gap-3 min-h-10 ps-3 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card ${
-        todo.completed ? "border-border" : "border-border"
-      }`}
+      className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card`}
       onClick={handleToggleTodo}
     >
       {/* Checkbox */}
@@ -88,9 +86,9 @@ export default function TodoItem({
       </div>
 
       {/* Todo text content */}
-      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+      <div className="flex-1 min-w-0 flex flex-wrap justify-between items-baseline gap-1">
         <span
-          className={`text-base outline-none break-words ${
+          className={`text-sm outline-none break-words ${
             todo.completed
               ? "line-through text-muted-foreground"
               : "text-foreground"
@@ -134,7 +132,7 @@ export default function TodoItem({
 
         {/* Due date */}
         {todo.due_date && (
-          <span className="text-xs text-muted-foreground shrink-0">
+          <span className="text-sm text-muted-foreground shrink-0">
             Due {format(new Date(todo.due_date), "MMM d, yyyy")}
           </span>
         )}
@@ -152,13 +150,12 @@ export default function TodoItem({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            size="icon"
-            className="flex-shrink-0 size-8"
+            className="flex-shrink-0 size-[26px]"
             onClick={(e) => e.stopPropagation()}
             disabled={isEditing}
             tabIndex={isEditing ? -1 : 0}
           >
-            <MoreHorizontal size={16} />
+            <MoreHorizontal size={14} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

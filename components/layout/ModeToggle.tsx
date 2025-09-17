@@ -16,7 +16,7 @@ export function ModeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="outline" size="icon">
+      <Button variant="outline" className="size-9">
         <Monitor className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -71,7 +71,7 @@ export function ModeToggle() {
   return (
     <Button
       variant="outline"
-      size="icon"
+      className="size-9"
       onClick={toggleTheme}
       title={getLabel()}
     >

@@ -71,12 +71,12 @@ export default function AddTodoForm({
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           placeholder="What needs to be done?"
-          className="flex-1 h-10 px-4 text-base shadow-none"
+          className="flex-1 px-4 shadow-none"
         />
         <Button
           type="submit"
           disabled={!newTodo.trim() || isAdding}
-          className="h-10 w-10"
+          className="size-9"
         >
           {isAdding ? (
             <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />

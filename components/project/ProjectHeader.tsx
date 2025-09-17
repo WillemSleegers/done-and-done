@@ -56,7 +56,7 @@ export default function ProjectHeader({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="gap-2 h-10 shadow-none"
+              className="gap-2 h-9 shadow-none"
               disabled={isNewProject}
             >
               <div
@@ -101,7 +101,7 @@ export default function ProjectHeader({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="h-10 shadow-none"
+              className="h-9 shadow-none"
               disabled={isNewProject}
             >
               {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
@@ -135,7 +135,7 @@ export default function ProjectHeader({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="h-10 w-10 shadow-none"
+                className="size-9 shadow-none"
               >
                 <MoreHorizontal size={16} />
               </Button>

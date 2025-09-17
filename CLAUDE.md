@@ -56,6 +56,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Focus on guidance before implementation
 - Implement only when explicitly requested
 - **Ask clarifying questions first** - When requirements are ambiguous (e.g., "40px height" - total height or content height?), ask for clarification before implementing to avoid back-and-forth iterations
+- **Don't estimate human time constraints** - Avoid mentioning how long tasks "typically take humans" (days/weeks) when analyzing implementation complexity
 
 ## Productive Refactoring Sessions
 
@@ -76,6 +77,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **TypeScript prop matching** - Ensure interface props match component usage
 - **Maintain functionality** - Preserve all existing features during restructure
 - **Test as you go** - Keep dev server running, fix issues immediately
+
+### React Best Practices
+- **Avoid useEffect dependency loops** - Never include state variables in useEffect dependencies when the effect modifies that same state (causes infinite loops)
+- **Check dependency arrays carefully** - Ensure useEffect dependencies are minimal and correct
+- **State management patterns** - Follow established patterns for state updates and side effects
+
+### Continuous Improvement
+- **Proactively suggest CLAUDE.md updates** - When encountering mistakes, identifying better approaches, or learning new patterns, suggest adding them to CLAUDE.md to prevent future issues
+- **Document lessons learned** - Turn mistakes and discoveries into permanent guidance
 
 ### Commit Strategy
 - **Comprehensive commits** - Include all related changes in single semantic commit
