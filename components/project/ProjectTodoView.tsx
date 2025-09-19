@@ -63,7 +63,6 @@ export default function ProjectTodoView({
 
   useEffect(() => {
     if (isNewProject) {
-      // Clear the field for new projects so user can start fresh
       setNameValue("")
     }
   }, [isNewProject])
@@ -72,7 +71,6 @@ export default function ProjectTodoView({
     const trimmedName = nameValue.trim()
 
     if (isNewProject && !isNewProjectCreated && trimmedName) {
-      // First edit of a new project - create the real project now
       try {
         await addProject({
           id: project.id, // Use the existing ID from the URL
@@ -82,7 +80,6 @@ export default function ProjectTodoView({
           priority: project.priority,
         })
 
-        // Remove the new flag from URL
         window.history.replaceState({}, "", `/projects/${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
@@ -94,7 +91,6 @@ export default function ProjectTodoView({
       trimmedName &&
       trimmedName !== project.name
     ) {
-      // Normal edit of existing project
       updateProject(project.id, { name: trimmedName })
     } else if (!trimmedName) {
       setNameValue(project.name) // Reset to original
@@ -108,7 +104,6 @@ export default function ProjectTodoView({
     const trimmedText = textContent.trim()
 
     if (isNewProject && !isNewProjectCreated && trimmedText) {
-      // First edit of a new project - create the real project now
       try {
         await addProject({
           id: project.id, // Use the existing ID from the URL
@@ -118,7 +113,6 @@ export default function ProjectTodoView({
           priority: project.priority,
         })
 
-        // Remove the new flag from URL
         window.history.replaceState({}, "", `/projects/${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
@@ -126,7 +120,6 @@ export default function ProjectTodoView({
         return
       }
     } else if (isNewProjectCreated && htmlContent !== (project.notes || "")) {
-      // Normal edit of existing project
       updateProject(project.id, {
         notes: htmlContent || undefined,
       })
@@ -146,15 +139,14 @@ export default function ProjectTodoView({
       // Cmd/Ctrl + Enter saves and exits
       e.preventDefault()
       handleNotesSave()
-      notesInputRef.current?.blur() // Remove focus to "finish" editing
+      notesInputRef.current?.blur()
     } else if (e.key === "Escape") {
       e.preventDefault()
       const originalContent = project.notes || ""
       setNotesValue(originalContent)
       notesInputRef.current?.setContent(originalContent)
-      notesInputRef.current?.blur() // Remove focus to cancel editing
+      notesInputRef.current?.blur()
     }
-    // Regular Enter key will create a new line (default behavior)
   }
 
   const handleProjectCreated = () => {
@@ -166,10 +158,9 @@ export default function ProjectTodoView({
       await updateTodo(todoId, {
         due_date: date ? format(date, "yyyy-MM-dd") : null,
       })
-      setShowDateDialog(false) // Close the dialog
+      setShowDateDialog(false)
       setDateDialogTodoId(null)
     } catch {
-      // Error updating todo - sync service will retry
     }
   }
 
@@ -189,7 +180,6 @@ export default function ProjectTodoView({
       await updateTodo(editingTodoId, { text: text.trim() })
       setEditingTodoId(null)
     } catch {
-      // Error updating todo - sync service will retry
     }
   }
 
@@ -198,8 +188,7 @@ export default function ProjectTodoView({
       await deleteProject(project.id)
       onBack() // Navigate back to project grid after deletion
     } catch {
-      // Project deletion will retry in background
-      onBack() // Still navigate back since it was optimistically removed
+      onBack()
     }
   }
 

@@ -36,7 +36,6 @@ export default function AddTodoForm({
       let projectToUse = project
 
       if (isNewProject) {
-        // Create the real project first before adding todo
         await addProject({
           id: project.id, // Use the existing ID from the URL
           name: nameValue.trim() || "Untitled Project",
@@ -45,7 +44,6 @@ export default function AddTodoForm({
           priority: project.priority,
         })
 
-        // Remove the new flag from URL
         window.history.replaceState({}, "", `/projects/${project.id}`)
         onProjectCreated()
         projectToUse = project // Use the same project object
@@ -54,9 +52,6 @@ export default function AddTodoForm({
       await addTodo(projectToUse.id, newTodo.trim())
       setNewTodo("")
     } catch {
-      // Todo creation failed, but sync service handles retries
-      // The todo will appear with sync status indicator and retry automatically
-      // Still clear the form since the todo is now visible in the list
       setNewTodo("")
     } finally {
       setIsAdding(false)

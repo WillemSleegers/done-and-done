@@ -47,7 +47,6 @@ export default function TodoItem({
     try {
       await updateTodo(todo.id, { completed: !todo.completed })
     } catch {
-      // Error updating todo - sync service will retry
     }
   }
 
@@ -55,7 +54,6 @@ export default function TodoItem({
     try {
       await deleteTodo(todo.id, projectId)
     } catch {
-      // Delete operation failed, but sync service handles retries
     }
   }
 

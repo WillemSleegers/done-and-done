@@ -22,17 +22,14 @@ const getPriorityOrder = (priority: string): number => {
 export default function CompletedProjectsPage() {
   const { projects, todoCounts } = useProjectStore()
   
-  // Filter and sort completed projects
   const completedProjects = projects.filter((p) => p.status === "complete")
   const sortedCompletedProjects = [...completedProjects].sort((a, b) => {
-    // First sort by priority
     const priorityOrderA = getPriorityOrder(a.priority)
     const priorityOrderB = getPriorityOrder(b.priority)
     if (priorityOrderA !== priorityOrderB) {
       return priorityOrderA - priorityOrderB
     }
 
-    // Then by created date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 

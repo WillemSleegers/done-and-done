@@ -43,7 +43,6 @@ export default function ProjectHeader({
     try {
       await updateProject(project.id, { priority })
     } catch {
-      // Priority update will retry in background
     }
   }
 

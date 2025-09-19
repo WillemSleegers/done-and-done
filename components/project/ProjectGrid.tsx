@@ -22,14 +22,12 @@ const getPriorityOrder = (priority: string): number => {
 
 const sortProjectsByPriority = (projects: Project[]) => {
   return [...projects].sort((a, b) => {
-    // First sort by priority
     const priorityOrderA = getPriorityOrder(a.priority)
     const priorityOrderB = getPriorityOrder(b.priority)
     if (priorityOrderA !== priorityOrderB) {
       return priorityOrderA - priorityOrderB
     }
 
-    // Then by created date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 }
@@ -38,16 +36,13 @@ export default function ProjectGrid() {
   const { projects, todoCounts, isLoading } = useProjectStore()
   const router = useRouter()
 
-  // Separate projects by status
   const activeProjects = projects.filter((p) => p.status === "active")
   const inactiveProjects = projects.filter((p) => p.status === "inactive")
   const completedProjects = projects.filter((p) => p.status === "complete")
 
-  // Sort active and inactive projects by priority, then date
   const sortedActiveProjects = sortProjectsByPriority(activeProjects)
   const sortedInactiveProjects = sortProjectsByPriority(inactiveProjects)
 
-  // Sort completed projects by completion date (newest first)
   const sortedCompletedProjects = [...completedProjects].sort((a, b) => {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })

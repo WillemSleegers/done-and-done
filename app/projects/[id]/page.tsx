@@ -22,14 +22,12 @@ export default function ProjectPage() {
     router.push('/')
   }
 
-  // If project not found and it's not a new project, redirect back to home
   useEffect(() => {
     if (!project && !isNewProject && projects.length > 0) {
       router.push('/')
     }
   }, [project, isNewProject, projects.length, router])
 
-  // For new projects, create a temporary project object
   const displayProject = project || (isNewProject ? {
     id: projectId,
     name: '',
@@ -44,7 +42,6 @@ export default function ProjectPage() {
     lastError: undefined
   } : null)
 
-  // Don't render anything if no project and not new
   if (!displayProject) {
     return null
   }

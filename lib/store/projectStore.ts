@@ -9,23 +9,19 @@ interface ProjectState {
 }
 
 interface ProjectActions {
-  // Data fetching
   fetchInitialData: () => Promise<void>
   refreshData: () => Promise<void>
-  
-  // Project actions
+
   addProject: (data: Omit<Project, 'created_at' | 'syncState' | 'remoteId'> & { id?: string }) => Promise<Project>
   updateProject: (projectId: string, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority'>>) => Promise<void>
   deleteProject: (projectId: string) => Promise<void>
   retryFailedProject: (projectId: string) => Promise<void>
-  
-  // Todo actions  
+
   addTodo: (projectId: string, text: string) => Promise<Todo>
   updateTodo: (todoId: string, updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date'>>) => Promise<void>
   deleteTodo: (todoId: string, projectId: string) => Promise<void>
   retryFailedTodo: (todoId: string, projectId: string) => Promise<void>
-  
-  // Utilities
+
   getProjectTodos: (projectId: string) => Todo[]
 }
 
@@ -44,16 +40,13 @@ const updateTodoCounts = (todos: Record<string, Todo[]>) => {
 }
 
 export const useProjectStore = create<ProjectStore>((set, get) => ({
-  // Initial state
   projects: [],
   todos: {},
   todoCounts: {},
   isLoading: true,
 
-  // Data fetching
   fetchInitialData: async () => {
     const currentState = get()
-    // Only show loading if we don't have data yet
     if (currentState.projects.length === 0) {
       set({ isLoading: true })
     }
@@ -71,7 +64,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     await get().fetchInitialData()
   },
 
-  // Project actions
   addProject: async (projectData) => {
     const newProject: Project = {
       ...projectData,
@@ -80,13 +72,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       syncState: 'local'
     }
 
-    // Optimistic update
     set(state => ({
       projects: [...state.projects, newProject],
       todos: { ...state.todos, [newProject.id]: [] }
     }))
 
-    // Background sync
     syncService.syncProject(newProject, (updatedProject) => {
       set(state => ({
         projects: state.projects.map(p => 
@@ -102,14 +92,12 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const project = get().projects.find(p => p.id === projectId)
     if (!project) return
 
-    // Optimistic update
     set(state => ({
       projects: state.projects.map(p => 
         p.id === projectId ? { ...p, ...updates } : p
       )
     }))
 
-    // Background sync if synced
     if (project.remoteId) {
       syncService.updateProject(project, updates, (syncedProject) => {
         set(state => ({
@@ -126,7 +114,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const project = projects.find(p => p.id === projectId)
     if (!project) return
 
-    // Optimistic update
     set(state => {
       const newTodos = { ...state.todos }
       delete newTodos[projectId]
@@ -139,11 +126,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       }
     })
 
-    // Sync to database
     try {
       await syncService.deleteProject(project)
     } catch (error) {
-      // Revert on failure
       set(state => ({
         projects: [...state.projects, project],
         todos: { ...state.todos, [projectId]: todos[projectId] || [] }
@@ -165,7 +150,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     })
   },
 
-  // Todo actions
   addTodo: async (projectId, text) => {
     const newTodo: Todo = {
       id: generateId(),
@@ -177,7 +161,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       syncState: 'local'
     }
 
-    // Optimistic update
     set(state => {
       const newTodos = {
         ...state.todos,
@@ -187,7 +170,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       return { todos: newTodos, todoCounts }
     })
 
-    // Background sync
     const project = get().projects.find(p => p.id === projectId)
     syncService.syncTodo(newTodo, project?.remoteId, (updatedTodo) => {
       set(state => {
@@ -215,7 +197,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const todo = todos[projectId]?.find(t => t.id === todoId)
     if (!todo) return
 
-    // Optimistic update
     set(state => {
       const newTodos = {
         ...state.todos,
@@ -227,7 +208,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       return { todos: newTodos, todoCounts }
     })
 
-    // Background sync if synced
     if (todo.remoteId) {
       syncService.updateTodo({ ...todo, ...updates }, updates, (updatedTodo) => {
         set(state => {
@@ -247,7 +227,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const todo = get().todos[projectId]?.find(t => t.id === todoId)
     if (!todo) return
 
-    // Optimistic update
     set(state => {
       const newTodos = {
         ...state.todos,
@@ -257,11 +236,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       return { todos: newTodos, todoCounts }
     })
 
-    // Sync to database
     try {
       await syncService.deleteTodo(todo)
     } catch (error) {
-      // Revert on failure
       set(state => {
         const newTodos = {
           ...state.todos,
@@ -284,7 +261,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const project = projects.find(p => p.id === projectId)
     
     if (todo.remoteId) {
-      // Retry update
       syncService.updateTodo(todo, { text: todo.text, completed: todo.completed }, (updatedTodo) => {
         set(state => {
           const newTodos = {
@@ -297,7 +273,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         })
       })
     } else {
-      // Retry creation
       syncService.syncTodo(todo, project?.remoteId, (updatedTodo) => {
         set(state => {
           const newTodos = {
@@ -313,7 +288,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
   },
 
-  // Utilities
   getProjectTodos: (projectId) => {
     return get().todos[projectId] || []
   }

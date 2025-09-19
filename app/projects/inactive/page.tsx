@@ -22,17 +22,14 @@ const getPriorityOrder = (priority: string): number => {
 export default function InactiveProjectsPage() {
   const { projects, todoCounts } = useProjectStore()
 
-  // Filter and sort inactive projects
   const inactiveProjects = projects.filter((p) => p.status === "inactive")
   const sortedInactiveProjects = [...inactiveProjects].sort((a, b) => {
-    // First sort by priority
     const priorityOrderA = getPriorityOrder(a.priority)
     const priorityOrderB = getPriorityOrder(b.priority)
     if (priorityOrderA !== priorityOrderB) {
       return priorityOrderA - priorityOrderB
     }
 
-    // Then by created date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 

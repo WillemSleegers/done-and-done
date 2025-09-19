@@ -55,14 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Don't show loading for token refresh events
       if (event === 'TOKEN_REFRESHED') {
-        return // Keep current loading state
+        return
       }
 
       setLoading(false)
 
-      // Fetch data when user signs in
       if (newUser && !user) {
-        // User just signed in
         fetchInitialData()
       }
     })
