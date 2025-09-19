@@ -3,32 +3,13 @@
 import { useState, useRef, useEffect } from "react"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
-import {
-  RichTextEditor,
-  type RichTextEditorRef,
-} from "@/components/ui/rich-text-editor"
-import { Button } from "@/components/ui/button"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import ProjectHeader from "./ProjectHeader"
-import TodoItem from "./TodoItem"
 import AddTodoForm from "./AddTodoForm"
+import TodoList from "./todo-view/TodoList"
+import { ProjectNotesEditor, type ProjectNotesEditorRef } from "./todo-view/ProjectNotesEditor"
+import DatePickerDialog from "./dialogs/DatePickerDialog"
+import DeleteProjectDialog from "./dialogs/DeleteProjectDialog"
 
 interface ProjectTodoViewProps {
   project: Project
@@ -56,7 +37,7 @@ export default function ProjectTodoView({
   const [showDeleteAlert, setShowDeleteAlert] = useState(false)
   const [isNewProjectCreated, setIsNewProjectCreated] = useState(!isNewProject)
 
-  const notesInputRef = useRef<RichTextEditorRef>(null)
+  const notesInputRef = useRef<ProjectNotesEditorRef>(null)
 
   const todos =
     isNewProject && !isNewProjectCreated ? [] : getProjectTodos(project.id)
@@ -216,105 +197,42 @@ export default function ProjectTodoView({
         />
 
         {/* Todo list */}
-        <div className="space-y-3">
-          {todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              projectId={project.id}
-              isEditing={editingTodoId === todo.id}
-              onStartEditing={() => setEditingTodoId(todo.id)}
-              onCancelEditing={cancelEditing}
-              onSaveEdit={saveEdit}
-              onOpenDateDialog={() => openDateDialog(todo.id)}
-            />
-          ))}
-        </div>
+        <TodoList
+          todos={todos}
+          projectId={project.id}
+          editingTodoId={editingTodoId}
+          onStartEditing={setEditingTodoId}
+          onCancelEditing={cancelEditing}
+          onSaveEdit={saveEdit}
+          onOpenDateDialog={openDateDialog}
+        />
 
         {/* Notes section */}
-        <div>
-          <h3 className="text-sm font-medium text-foreground mb-3">Notes</h3>
-          <RichTextEditor
-            ref={notesInputRef}
-            content={notesValue}
-            onUpdate={setNotesValue}
-            onBlur={handleNotesSave}
-            onKeyDown={handleNotesKeyDown}
-            placeholder="Add notes..."
-            className="text-muted-foreground text-sm leading-5 bg-transparent border-none outline-none focus:outline-none w-full cursor-pointer"
-          />
-        </div>
+        <ProjectNotesEditor
+          ref={notesInputRef}
+          value={notesValue}
+          onChange={setNotesValue}
+          onSave={handleNotesSave}
+          onKeyDown={handleNotesKeyDown}
+        />
 
       </div>
 
-      {/* Delete Project Alert Dialog */}
-      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{project.name}&rdquo;? This
-              will also delete all its todos. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowDeleteAlert(false)
-                handleDeleteProject()
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete Project
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Dialogs */}
+      <DeleteProjectDialog
+        open={showDeleteAlert}
+        onOpenChange={setShowDeleteAlert}
+        project={project}
+        onConfirmDelete={handleDeleteProject}
+      />
 
-      {/* Date picker dialog */}
-      <Dialog open={showDateDialog} onOpenChange={setShowDateDialog}>
-        <DialogContent className="w-auto max-w-fit p-0">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Set due date</DialogTitle>
-          </DialogHeader>
-          <div className="px-6 pb-4">
-            <Calendar
-              mode="single"
-              selected={
-                dateDialogTodoId
-                  ? todos.find((t) => t.id === dateDialogTodoId)?.due_date
-                    ? new Date(
-                        todos.find((t) => t.id === dateDialogTodoId)!.due_date!
-                      )
-                    : undefined
-                  : undefined
-              }
-              onSelect={(date) => {
-                if (dateDialogTodoId) {
-                  handleSetDueDate(dateDialogTodoId, date)
-                }
-              }}
-              autoFocus
-            />
-          </div>
-          {dateDialogTodoId &&
-            todos.find((t) => t.id === dateDialogTodoId)?.due_date && (
-              <div className="flex justify-center px-6 pb-6">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    if (dateDialogTodoId) {
-                      handleSetDueDate(dateDialogTodoId, undefined)
-                    }
-                  }}
-                >
-                  Remove due date
-                </Button>
-              </div>
-            )}
-        </DialogContent>
-      </Dialog>
+      <DatePickerDialog
+        open={showDateDialog}
+        onOpenChange={setShowDateDialog}
+        todos={todos}
+        todoId={dateDialogTodoId}
+        onSetDueDate={handleSetDueDate}
+      />
     </div>
   )
 }
