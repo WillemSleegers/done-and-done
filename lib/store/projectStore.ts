@@ -52,7 +52,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   // Data fetching
   fetchInitialData: async () => {
-    set({ isLoading: true })
+    const currentState = get()
+    // Only show loading if we don't have data yet
+    if (currentState.projects.length === 0) {
+      set({ isLoading: true })
+    }
     try {
       const { projects, todos } = await syncService.fetchInitialData()
       const todoCounts = updateTodoCounts(todos)

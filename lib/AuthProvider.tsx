@@ -29,7 +29,8 @@ export const useAuth = () => {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const { fetchInitialData } = useProjectStore()
+  const fetchInitialData = useProjectStore(state => state.fetchInitialData)
+
 
   useEffect(() => {
     // Check if Supabase is properly configured
@@ -51,6 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Auth state changed:", event, session?.user?.email)
       const newUser = session?.user ?? null
       setUser(newUser)
+
+      // Don't show loading for token refresh events
+      if (event === 'TOKEN_REFRESHED') {
+        return // Keep current loading state
+      }
+
       setLoading(false)
 
       // Fetch data when user signs in
@@ -61,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     return () => subscription.unsubscribe()
-  }, [fetchInitialData])
+  }, []) // Remove fetchInitialData from dependencies
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
