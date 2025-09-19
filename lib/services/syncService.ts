@@ -27,7 +27,7 @@ class SyncService {
     this.retryTimeouts.set(id, timeout)
   }
 
-  async fetchInitialData(): Promise<{ projects: Project[]; todos: Record<string, Todo[]> }> {
+  async fetchInitialData(existingProjects: Project[] = [], existingTodos: Record<string, Todo[]> = {}): Promise<{ projects: Project[]; todos: Record<string, Todo[]> }> {
     try {
       const [projectsResult, todosResult] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: true }),
@@ -37,16 +37,43 @@ class SyncService {
       if (projectsResult.error) throw projectsResult.error
       if (todosResult.error) throw todosResult.error
 
-      const projects: Project[] = (projectsResult.data || []).map(remote => ({
-        id: this.generateId(),
-        remoteId: remote.id,
-        name: remote.name,
-        notes: remote.notes,
-        status: remote.status || 'active',
-        priority: remote.priority || 'normal',
-        created_at: remote.created_at,
-        syncState: 'synced' as const
-      }))
+      // Create a map of existing projects by remoteId for quick lookup
+      const existingByRemoteId = new Map<string, Project>()
+      existingProjects.forEach(project => {
+        if (project.remoteId) {
+          existingByRemoteId.set(project.remoteId, project)
+        }
+      })
+
+      const projects: Project[] = (projectsResult.data || []).map(remote => {
+        // Check if we already have this project locally
+        const existing = existingByRemoteId.get(remote.id)
+        if (existing) {
+          // Preserve existing local ID and update data
+          return {
+            ...existing,
+            name: remote.name,
+            notes: remote.notes,
+            status: remote.status || 'active',
+            priority: remote.priority || 'normal',
+            created_at: remote.created_at,
+            syncState: 'synced' as const,
+            lastError: undefined
+          }
+        } else {
+          // New remote project - generate new local ID
+          return {
+            id: this.generateId(),
+            remoteId: remote.id,
+            name: remote.name,
+            notes: remote.notes,
+            status: remote.status || 'active',
+            priority: remote.priority || 'normal',
+            created_at: remote.created_at,
+            syncState: 'synced' as const
+          }
+        }
+      })
 
       const remoteToLocalId = new Map<string, string>()
       projects.forEach(project => {
@@ -55,12 +82,31 @@ class SyncService {
         }
       })
 
+      // Create a map of existing todos by remoteId for quick lookup
+      const existingTodosByRemoteId = new Map<string, Todo>()
+      Object.values(existingTodos).flat().forEach(todo => {
+        if (todo.remoteId) {
+          existingTodosByRemoteId.set(todo.remoteId, todo)
+        }
+      })
+
       const todosByProject: Record<string, Todo[]> = {}
       todosResult.data?.forEach(remote => {
         if (!remote.project_id) return
         const localProjectId = remoteToLocalId.get(remote.project_id)
         if (localProjectId) {
-          const todo: Todo = {
+          // Check if we already have this todo locally
+          const existing = existingTodosByRemoteId.get(remote.id)
+          const todo: Todo = existing ? {
+            ...existing,
+            text: remote.text,
+            completed: remote.completed ?? false,
+            project_id: localProjectId, // Update project_id in case project mapping changed
+            created_at: remote.created_at,
+            due_date: remote.due_date,
+            syncState: 'synced' as const,
+            lastError: undefined
+          } : {
             id: this.generateId(),
             remoteId: remote.id,
             text: remote.text,
@@ -70,7 +116,7 @@ class SyncService {
             due_date: remote.due_date,
             syncState: 'synced' as const
           }
-          
+
           if (!todosByProject[localProjectId]) {
             todosByProject[localProjectId] = []
           }

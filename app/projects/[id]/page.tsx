@@ -26,7 +26,7 @@ export default function ProjectPage() {
     if (!project && !isNewProject && projects.length > 0) {
       router.push('/')
     }
-  }, [project, isNewProject, projects.length, router])
+  }, [project, isNewProject, router])
 
   const displayProject = project || (isNewProject ? {
     id: projectId,

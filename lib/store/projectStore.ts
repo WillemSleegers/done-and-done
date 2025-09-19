@@ -51,7 +51,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       set({ isLoading: true })
     }
     try {
-      const { projects, todos } = await syncService.fetchInitialData()
+      const { projects, todos } = await syncService.fetchInitialData(currentState.projects, currentState.todos)
       const todoCounts = updateTodoCounts(todos)
       set({ projects, todos, todoCounts, isLoading: false })
     } catch (error) {
