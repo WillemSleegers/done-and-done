@@ -31,7 +31,7 @@ class SyncService {
     try {
       const [projectsResult, todosResult] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: true }),
-        supabase.from('todos').select('*').order('created_at', { ascending: false })
+        supabase.from('todos').select('*').order('order', { ascending: true })
       ])
 
       if (projectsResult.error) throw projectsResult.error
@@ -104,6 +104,7 @@ class SyncService {
             project_id: localProjectId, // Update project_id in case project mapping changed
             created_at: remote.created_at,
             due_date: remote.due_date,
+            order: remote.order,
             syncState: 'synced' as const,
             lastError: undefined
           } : {
@@ -114,6 +115,7 @@ class SyncService {
             project_id: localProjectId,
             created_at: remote.created_at,
             due_date: remote.due_date,
+            order: remote.order,
             syncState: 'synced' as const
           }
 
@@ -193,7 +195,8 @@ class SyncService {
           text: todo.text,
           completed: todo.completed,
           project_id: projectRemoteId,
-          due_date: todo.due_date
+          due_date: todo.due_date,
+          order: todo.order
         }])
         .select()
         .single()
@@ -220,7 +223,7 @@ class SyncService {
 
   async updateTodo(
     todo: Todo,
-    updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date'>>,
+    updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date' | 'order'>>,
     onUpdate: (updatedTodo: Todo) => void
   ): Promise<void> {
     if (!todo.remoteId) return
@@ -258,6 +261,29 @@ class SyncService {
 
     if (error) {
       throw new Error(error.message)
+    }
+  }
+
+  async updateTodosOrder(todos: Pick<Todo, 'remoteId' | 'order'>[]): Promise<void> {
+    // Update order for multiple todos efficiently
+    const updates = todos
+      .filter(todo => todo.remoteId)
+      .map(todo => ({ id: todo.remoteId!, order: todo.order }))
+
+    if (updates.length === 0) return
+
+    try {
+      // Use Promise.all for parallel updates for better performance
+      await Promise.all(
+        updates.map(update =>
+          supabase
+            .from('todos')
+            .update({ order: update.order })
+            .eq('id', update.id)
+        )
+      )
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to update todo order')
     }
   }
 

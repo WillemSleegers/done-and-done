@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { type Todo } from "@/lib/services/syncService"
+import { type DraggableAttributes } from "@dnd-kit/core"
+import { type SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
 import {
   Check,
   MoreHorizontal,
@@ -27,6 +29,9 @@ interface TodoItemProps {
   onCancelEditing: () => void
   onSaveEdit: (text: string) => Promise<void>
   onOpenDateDialog: () => void
+  dragAttributes?: DraggableAttributes
+  dragListeners?: SyntheticListenerMap | undefined
+  isDraggable?: boolean
 }
 
 export default function TodoItem({
@@ -37,6 +42,9 @@ export default function TodoItem({
   onCancelEditing,
   onSaveEdit,
   onOpenDateDialog,
+  dragAttributes,
+  dragListeners,
+  isDraggable = false,
 }: TodoItemProps) {
   const { updateTodo, deleteTodo } = useProjectStore()
   const [openDropdown, setOpenDropdown] = useState(false)
@@ -69,8 +77,10 @@ export default function TodoItem({
 
   return (
     <div
-      className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all cursor-pointer hover:bg-accent/50 bg-card`}
+      className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50`}
       onClick={handleToggleTodo}
+      {...(isDraggable && dragAttributes ? dragAttributes : {})}
+      {...(isDraggable && dragListeners ? dragListeners : {})}
     >
       {/* Checkbox */}
       <div

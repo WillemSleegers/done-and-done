@@ -44,6 +44,7 @@ export type Todo = DatabaseTodo & {
   remoteId?: string       // Server ID once synced to database
   completed: boolean      // Override to make non-nullable
   project_id: string      // Override to make non-nullable (References local Project.id)
+  order: number           // Override to make non-nullable
   syncState: SyncState
   lastError?: string
 }

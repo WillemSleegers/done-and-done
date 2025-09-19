@@ -47,6 +47,7 @@ export type Database = {
           created_at: string
           due_date: string | null
           id: string
+          order: number
           project_id: string | null
           text: string
         }
@@ -55,6 +56,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           id?: string
+          order?: number
           project_id?: string | null
           text: string
         }
@@ -63,6 +65,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           id?: string
+          order?: number
           project_id?: string | null
           text?: string
         }

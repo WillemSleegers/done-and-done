@@ -21,6 +21,7 @@ interface ProjectActions {
   updateTodo: (todoId: string, updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date'>>) => Promise<void>
   deleteTodo: (todoId: string, projectId: string) => Promise<void>
   retryFailedTodo: (todoId: string, projectId: string) => Promise<void>
+  reorderTodos: (projectId: string, newOrder: Todo[]) => Promise<void>
 
   getProjectTodos: (projectId: string) => Todo[]
 }
@@ -151,6 +152,10 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   addTodo: async (projectId, text) => {
+    const { todos } = get()
+    const existingTodos = todos[projectId] || []
+    const maxOrder = existingTodos.length > 0 ? Math.max(...existingTodos.map(t => t.order)) : 0
+
     const newTodo: Todo = {
       id: generateId(),
       text,
@@ -158,6 +163,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       project_id: projectId,
       created_at: new Date().toISOString(),
       due_date: null,
+      order: maxOrder + 1,
       syncState: 'local'
     }
 
@@ -288,7 +294,41 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
   },
 
+  reorderTodos: async (projectId, newOrder) => {
+    // Update local state immediately for optimistic UI
+    set(state => ({
+      todos: {
+        ...state.todos,
+        [projectId]: newOrder
+      }
+    }))
+
+    // Update order values based on new position
+    const reorderedTodos = newOrder.map((todo, index) => ({
+      ...todo,
+      order: index + 1
+    }))
+
+    // Update local state with new order values
+    set(state => ({
+      todos: {
+        ...state.todos,
+        [projectId]: reorderedTodos
+      }
+    }))
+
+    // Sync to server
+    try {
+      await syncService.updateTodosOrder(reorderedTodos)
+    } catch (error) {
+      console.error('Failed to sync todo order:', error)
+      // Could add retry logic here if needed
+    }
+  },
+
   getProjectTodos: (projectId) => {
-    return get().todos[projectId] || []
+    const todos = get().todos[projectId] || []
+    // Sort by order field for consistent display
+    return [...todos].sort((a, b) => a.order - b.order)
   }
 }))
