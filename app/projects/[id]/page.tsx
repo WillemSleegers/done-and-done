@@ -26,6 +26,8 @@ export default function ProjectPage() {
     if (!project && !isNewProject && projects.length > 0) {
       router.push('/')
     }
+    // projects.length intentionally excluded to prevent navigation bug
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project, isNewProject, router])
 
   const displayProject = project || (isNewProject ? {

@@ -66,7 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     return () => subscription.unsubscribe()
-  }, []) // Remove fetchInitialData from dependencies
+    // fetchInitialData and user intentionally excluded to prevent infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
