@@ -42,6 +42,7 @@ export default function TodoItem({
 }: TodoItemProps) {
   const { updateTodo, deleteTodo } = useProjectStore()
   const [openDropdown, setOpenDropdown] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
 
   const {
     attributes,
@@ -87,13 +88,20 @@ export default function TodoItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative transition-transform ${isDragging ? "z-50 scale-105" : ""}`}
+      className={`relative ${isDragging || isPressed ? "z-50 scale-[1.01]" : ""}`}
     >
       <div
         className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
-          isDragging ? "shadow-lg bg-accent/20 border-accent" : ""
+          isDragging || isPressed ? "shadow-lg bg-accent/20 border-accent" : ""
         }`}
         onClick={handleToggleTodo}
+        onPointerDown={() => !isEditing && setIsPressed(true)}
+        onPointerUp={() => setIsPressed(false)}
+        onPointerLeave={() => setIsPressed(false)}
+        onPointerCancel={() => setIsPressed(false)}
+        onMouseDown={() => !isEditing && setIsPressed(true)}
+        onMouseUp={() => setIsPressed(false)}
+        onMouseLeave={() => setIsPressed(false)}
         {...(!isEditing ? attributes : {})}
         {...(!isEditing ? listeners : {})}
       >
