@@ -87,10 +87,12 @@ export default function TodoItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative ${isDragging ? "z-50" : ""}`}
+      className={`relative transition-transform ${isDragging ? "z-50 scale-105" : ""}`}
     >
       <div
-        className="flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50"
+        className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
+          isDragging ? "shadow-lg bg-accent/20 border-accent" : ""
+        }`}
         onClick={handleToggleTodo}
         {...(!isEditing ? attributes : {})}
         {...(!isEditing ? listeners : {})}
@@ -113,7 +115,7 @@ export default function TodoItem({
             todo.completed
               ? "line-through text-muted-foreground"
               : "text-foreground"
-          }`}
+          } ${!isEditing ? 'select-none' : ''}`}
           contentEditable={isEditing}
           suppressContentEditableWarning={true}
           onKeyDown={(e) => {
