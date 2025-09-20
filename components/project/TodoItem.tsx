@@ -104,6 +104,13 @@ export default function TodoItem({
         onMouseLeave={() => setIsPressed(false)}
         {...(!isEditing ? attributes : {})}
         {...(!isEditing ? listeners : {})}
+        style={{
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+          WebkitTapHighlightColor: 'transparent',
+          WebkitTextSizeAdjust: 'none',
+          touchAction: 'manipulation',
+        }}
       >
       {/* Checkbox */}
       <div
