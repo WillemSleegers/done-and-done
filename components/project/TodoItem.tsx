@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { type Todo } from "@/lib/services/syncService"
-import { type DraggableAttributes } from "@dnd-kit/core"
-import { type SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import {
   Check,
   MoreHorizontal,
@@ -29,9 +29,6 @@ interface TodoItemProps {
   onCancelEditing: () => void
   onSaveEdit: (text: string) => Promise<void>
   onOpenDateDialog: () => void
-  dragAttributes?: DraggableAttributes
-  dragListeners?: SyntheticListenerMap | undefined
-  isDraggable?: boolean
 }
 
 export default function TodoItem({
@@ -42,12 +39,23 @@ export default function TodoItem({
   onCancelEditing,
   onSaveEdit,
   onOpenDateDialog,
-  dragAttributes,
-  dragListeners,
-  isDraggable = false,
 }: TodoItemProps) {
   const { updateTodo, deleteTodo } = useProjectStore()
   const [openDropdown, setOpenDropdown] = useState(false)
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: todo.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
 
   const handleToggleTodo = async () => {
     if (isEditing) return
@@ -77,11 +85,16 @@ export default function TodoItem({
 
   return (
     <div
-      className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50`}
-      onClick={handleToggleTodo}
-      {...(isDraggable && dragAttributes ? dragAttributes : {})}
-      {...(isDraggable && dragListeners ? dragListeners : {})}
+      ref={setNodeRef}
+      style={style}
+      className={`relative ${isDragging ? "z-50" : ""}`}
     >
+      <div
+        className="flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50"
+        onClick={handleToggleTodo}
+        {...(!isEditing ? attributes : {})}
+        {...(!isEditing ? listeners : {})}
+      >
       {/* Checkbox */}
       <div
         className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
@@ -197,6 +210,7 @@ export default function TodoItem({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     </div>
   )
 }

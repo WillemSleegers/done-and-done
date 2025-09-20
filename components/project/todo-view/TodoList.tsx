@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
-import SortableTodoItem from "../SortableTodoItem"
+import TodoItem from "../TodoItem"
 
 interface TodoListProps {
   todos: Todo[]
@@ -81,7 +81,7 @@ export default function TodoList({
       >
         <div className="space-y-3">
           {todos.map((todo) => (
-            <SortableTodoItem
+            <TodoItem
               key={todo.id}
               todo={todo}
               projectId={projectId}
