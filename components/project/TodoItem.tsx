@@ -51,10 +51,16 @@ export default function TodoItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: todo.id })
+  } = useSortable({
+    id: todo.id,
+    data: {
+      type: 'todo',
+      todo,
+    },
+  })
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
   }
 
@@ -91,7 +97,7 @@ export default function TodoItem({
       className={`relative ${isDragging || isPressed ? "z-50" : ""}`}
     >
       <div
-        className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
+        className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
           isDragging || isPressed ? "shadow-lg bg-accent/20 border-accent" : ""
         }`}
         onClick={handleToggleTodo}

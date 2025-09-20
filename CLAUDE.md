@@ -83,6 +83,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **Check dependency arrays carefully** - Ensure useEffect dependencies are minimal and correct
 - **State management patterns** - Follow established patterns for state updates and side effects
 
+### Communication Best Practices
+- **Be honest about knowledge limits** - Never claim to have read documentation or sources you don't have access to
+- **Don't fabricate documentation references** - If suggesting approaches, be clear they're general practices, not specific recommendations from docs
+- **Admit uncertainty** - Say "I'm not sure" rather than making confident claims without evidence
+- **Distinguish between facts and assumptions** - Be explicit when making educated guesses vs stating known facts
+
 ### Continuous Improvement
 - **Proactively suggest CLAUDE.md updates** - When encountering mistakes, identifying better approaches, or learning new patterns, suggest adding them to CLAUDE.md to prevent future issues
 - **Document lessons learned** - Turn mistakes and discoveries into permanent guidance
