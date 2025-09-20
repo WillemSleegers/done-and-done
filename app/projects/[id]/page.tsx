@@ -12,7 +12,7 @@ export default function ProjectPage() {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
-  const { projects } = useProjectStore()
+  const { projects, isLoading } = useProjectStore()
   
   const projectId = params.id as string
   const project = projects.find(p => p.id === projectId)
@@ -22,13 +22,7 @@ export default function ProjectPage() {
     router.push('/')
   }
 
-  useEffect(() => {
-    if (!project && !isNewProject && projects.length > 0) {
-      router.push('/')
-    }
-    // projects.length intentionally excluded to prevent navigation bug
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project, isNewProject, router])
+  // Project lookup is working correctly - if not found, show error message
 
   const displayProject = project || (isNewProject ? {
     id: projectId,
@@ -44,8 +38,39 @@ export default function ProjectPage() {
     lastError: undefined
   } : null)
 
+  if (isLoading) {
+    return (
+      <AuthGuard>
+        <div className="min-h-screen bg-background">
+          <NavigationBar variant="back" />
+          <SyncStatus />
+          <div className="flex items-center justify-center pt-20">
+            <div className="text-muted-foreground">Loading...</div>
+          </div>
+        </div>
+      </AuthGuard>
+    )
+  }
+
   if (!displayProject) {
-    return null
+    return (
+      <AuthGuard>
+        <div className="min-h-screen bg-background">
+          <NavigationBar variant="back" />
+          <SyncStatus />
+          <div className="flex flex-col items-center justify-center pt-20 gap-4">
+            <div className="text-foreground text-lg">Project not found</div>
+            <div className="text-muted-foreground text-sm">This project may have been deleted or moved.</div>
+            <button
+              onClick={() => router.push('/')}
+              className="text-primary hover:underline"
+            >
+              Go back to projects
+            </button>
+          </div>
+        </div>
+      </AuthGuard>
+    )
   }
 
   return (

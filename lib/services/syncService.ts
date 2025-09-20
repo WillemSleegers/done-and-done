@@ -61,9 +61,9 @@ class SyncService {
             lastError: undefined
           }
         } else {
-          // New remote project - generate new local ID
+          // New remote project - use database ID directly
           return {
-            id: this.generateId(),
+            id: remote.id,
             remoteId: remote.id,
             name: remote.name,
             notes: remote.notes,
@@ -108,7 +108,7 @@ class SyncService {
             syncState: 'synced' as const,
             lastError: undefined
           } : {
-            id: this.generateId(),
+            id: remote.id,
             remoteId: remote.id,
             text: remote.text,
             completed: remote.completed ?? false,
