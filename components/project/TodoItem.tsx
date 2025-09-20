@@ -88,7 +88,7 @@ export default function TodoItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative ${isDragging || isPressed ? "z-50 scale-[1.01]" : ""}`}
+      className={`relative ${isDragging || isPressed ? "z-50" : ""}`}
     >
       <div
         className={`flex items-center gap-3 ps-3 py-1 pe-1 rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
@@ -106,11 +106,10 @@ export default function TodoItem({
         {...(!isEditing ? listeners : {})}
         style={{
           WebkitTapHighlightColor: 'transparent',
-          ...(isDragging && {
-            WebkitUserSelect: 'none',
-            WebkitTouchCallout: 'none',
-            userSelect: 'none',
-          }),
+          touchAction: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+          userSelect: 'none',
         }}
       >
       {/* Checkbox */}
