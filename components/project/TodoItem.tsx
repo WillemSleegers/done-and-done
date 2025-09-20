@@ -105,11 +105,7 @@ export default function TodoItem({
         {...(!isEditing ? attributes : {})}
         {...(!isEditing ? listeners : {})}
         style={{
-          WebkitUserSelect: 'none',
-          WebkitTouchCallout: 'none',
           WebkitTapHighlightColor: 'transparent',
-          WebkitTextSizeAdjust: 'none',
-          touchAction: 'manipulation',
         }}
       >
       {/* Checkbox */}
@@ -130,7 +126,7 @@ export default function TodoItem({
             todo.completed
               ? "line-through text-muted-foreground"
               : "text-foreground"
-          } ${!isEditing ? 'select-none' : ''}`}
+          }`}
           contentEditable={isEditing}
           suppressContentEditableWarning={true}
           onKeyDown={(e) => {
