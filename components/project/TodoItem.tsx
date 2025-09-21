@@ -113,7 +113,7 @@ export default function TodoItem({
         {...(!isEditing ? listeners : {})}
         style={{
           WebkitTapHighlightColor: "transparent",
-          touchAction: "pan-y",
+          touchAction: "auto",
           WebkitUserSelect: "none",
           WebkitTouchCallout: "none",
           userSelect: "none",
