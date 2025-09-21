@@ -101,10 +101,6 @@ export default function TodoItem({
           isDragging || isPressed ? "shadow-lg bg-accent/20 border-accent" : ""
         }`}
         onClick={handleToggleTodo}
-        onPointerDown={() => !isEditing && setIsPressed(true)}
-        onPointerUp={() => setIsPressed(false)}
-        onPointerLeave={() => setIsPressed(false)}
-        onPointerCancel={() => setIsPressed(false)}
         onMouseDown={() => !isEditing && setIsPressed(true)}
         onMouseUp={() => setIsPressed(false)}
         onMouseLeave={() => setIsPressed(false)}
@@ -112,7 +108,7 @@ export default function TodoItem({
         {...(!isEditing ? listeners : {})}
         style={{
           WebkitTapHighlightColor: "transparent",
-          touchAction: "none",
+          touchAction: "manipulation",
           WebkitUserSelect: "none",
           WebkitTouchCallout: "none",
           userSelect: "none",
