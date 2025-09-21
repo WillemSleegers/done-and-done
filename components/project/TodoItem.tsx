@@ -137,7 +137,7 @@ export default function TodoItem({
               todo.completed
                 ? "line-through text-muted-foreground"
                 : "text-foreground"
-            } ${isDragging ? "select-none" : ""}`}
+            } ${isDragging ? "select-none" : ""} ${!isEditing ? "pointer-events-none" : ""}`}
             contentEditable={isEditing}
             suppressContentEditableWarning={true}
             onKeyDown={(e) => {
@@ -177,7 +177,7 @@ export default function TodoItem({
 
           {/* Due date */}
           {todo.due_date && (
-            <span className="text-sm text-muted-foreground shrink-0">
+            <span className="text-sm text-muted-foreground shrink-0 pointer-events-none">
               Due {format(new Date(todo.due_date), "MMM d, yyyy")}
             </span>
           )}
@@ -197,6 +197,8 @@ export default function TodoItem({
               variant="ghost"
               className="flex-shrink-0 size-[26px]"
               onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               disabled={isEditing}
               tabIndex={isEditing ? -1 : 0}
             >
