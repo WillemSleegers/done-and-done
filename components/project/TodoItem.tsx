@@ -102,15 +102,6 @@ export default function TodoItem({
         className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
           isDragging || isPressed ? "shadow-lg bg-accent/20 border-accent" : ""
         }`}
-        onClick={handleToggleTodo}
-        onPointerDown={(e) => {
-          if (!isEditing && e.pointerType === "mouse") {
-            setIsPressed(true)
-          }
-        }}
-        onPointerUp={() => setIsPressed(false)}
-        onPointerLeave={() => setIsPressed(false)}
-        onPointerCancel={() => setIsPressed(false)}
         style={{
           WebkitTapHighlightColor: "transparent",
           WebkitUserSelect: "none",
@@ -120,11 +111,15 @@ export default function TodoItem({
       >
         {/* Checkbox */}
         <div
-          className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
+          className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center cursor-pointer ${
             todo.completed
               ? "border-success text-success-foreground"
               : "border-border hover:border-success"
           }`}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleToggleTodo()
+          }}
         >
           {todo.completed && <Check size={14} />}
         </div>
