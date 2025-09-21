@@ -95,6 +95,8 @@ export default function TodoItem({
       ref={setNodeRef}
       style={style}
       className={`relative ${isDragging || isPressed ? "z-50" : ""}`}
+      {...(!isEditing ? attributes : {})}
+      {...(!isEditing ? listeners : {})}
     >
       <div
         className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
@@ -109,11 +111,8 @@ export default function TodoItem({
         onPointerUp={() => setIsPressed(false)}
         onPointerLeave={() => setIsPressed(false)}
         onPointerCancel={() => setIsPressed(false)}
-        {...(!isEditing ? attributes : {})}
-        {...(!isEditing ? listeners : {})}
         style={{
           WebkitTapHighlightColor: "transparent",
-          touchAction: "auto",
           WebkitUserSelect: "none",
           WebkitTouchCallout: "none",
           userSelect: "none",
