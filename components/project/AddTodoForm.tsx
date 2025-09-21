@@ -66,12 +66,7 @@ export default function AddTodoForm({
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           placeholder="What needs to be done?"
-          className="flex-1 px-4 shadow-none"
-          style={{
-            fontSize: '16px',
-            transform: 'scale(0.875)',
-            transformOrigin: 'left center',
-          }}
+          className="flex-1 px-4 shadow-none text-base"
         />
         <Button
           type="submit"

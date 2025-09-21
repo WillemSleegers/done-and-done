@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
 import { useProjectStore } from '@/lib/store/projectStore'
 import ProjectTodoView from '@/components/project/ProjectTodoView'
 import SyncStatus from '@/components/system/SyncStatus'

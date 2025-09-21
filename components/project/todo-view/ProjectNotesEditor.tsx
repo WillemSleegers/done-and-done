@@ -33,24 +33,16 @@ export const ProjectNotesEditor = forwardRef<ProjectNotesEditorRef, ProjectNotes
 
     return (
       <div>
-        <h3 className="text-sm font-medium text-foreground mb-3">Notes</h3>
-        <div
-          style={{
-            fontSize: '16px',
-            transform: 'scale(0.875)',
-            transformOrigin: 'left top',
-          }}
-        >
-          <RichTextEditor
-            ref={notesInputRef}
-            content={value}
-            onUpdate={onChange}
-            onBlur={onSave}
-            onKeyDown={onKeyDown}
-            placeholder="Add notes..."
-            className="text-muted-foreground text-sm leading-5 bg-transparent border-none outline-none focus:outline-none w-full cursor-pointer"
-          />
-        </div>
+        <h3 className="text-base font-medium text-foreground mb-3">Notes</h3>
+        <RichTextEditor
+          ref={notesInputRef}
+          content={value}
+          onUpdate={onChange}
+          onBlur={onSave}
+          onKeyDown={onKeyDown}
+          placeholder="Add notes..."
+          className="text-muted-foreground text-base leading-5 bg-transparent border-none outline-none focus:outline-none w-full cursor-pointer"
+        />
       </div>
     )
   }

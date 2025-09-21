@@ -115,12 +115,12 @@ export default function TodoItem({
 
     touchTimeoutRef.current = setTimeout(() => {
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as any)
+        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
       }
     }, 150) // Slightly shorter delay for todos
   }
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = (_e: React.TouchEvent) => {
     if (isEditing) return
 
     if (touchTimeoutRef.current) {
@@ -137,12 +137,12 @@ export default function TodoItem({
     }, 100)
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (_e: React.TouchEvent) => {
     if (touchTimeoutRef.current) {
       clearTimeout(touchTimeoutRef.current)
       touchTimeoutRef.current = null
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as any)
+        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
       }
     }
   }
@@ -155,12 +155,12 @@ export default function TodoItem({
     } else if (e.pointerType === "mouse") {
       setIsPressed(true)
       if (listeners?.onPointerDown) {
-        listeners.onPointerDown(e as any)
+        listeners.onPointerDown(e as React.PointerEvent<Element>)
       }
     }
   }
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (_e: React.MouseEvent) => {
     if (isEditing || wasTouchInteractionRef.current) return
     handleToggleTodo()
   }
@@ -173,8 +173,8 @@ export default function TodoItem({
       {...(!isEditing ? attributes : {})}
     >
       <div
-        className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 select-none ${
-          isDragging || isPressed ? "shadow-lg bg-accent/20 border-accent" : ""
+        className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg transition-all bg-card cursor-pointer hover:bg-accent/50 select-none ${
+          isDragging || isPressed ? "shadow-lg bg-accent/20" : ""
         }`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -184,7 +184,7 @@ export default function TodoItem({
         onPointerLeave={() => setIsPressed(false)}
         onPointerCancel={() => setIsPressed(false)}
         onClick={handleClick}
-        onKeyDown={listeners?.onKeyDown as any}
+        onKeyDown={listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>}
         style={{
           WebkitTapHighlightColor: "transparent",
           WebkitUserSelect: "none",
@@ -206,7 +206,7 @@ export default function TodoItem({
         {/* Todo text content */}
         <div className="flex-1 min-w-0 flex flex-wrap justify-between items-baseline gap-1">
           <span
-            className={`text-sm outline-none break-words ${
+            className={`text-base outline-none break-words ${
               todo.completed
                 ? "line-through text-muted-foreground"
                 : "text-foreground"
@@ -250,7 +250,7 @@ export default function TodoItem({
 
           {/* Due date */}
           {todo.due_date && (
-            <span className="text-sm text-muted-foreground shrink-0 pointer-events-none">
+            <span className="text-base text-muted-foreground shrink-0 pointer-events-none">
               Due {format(new Date(todo.due_date), "MMM d, yyyy")}
             </span>
           )}
