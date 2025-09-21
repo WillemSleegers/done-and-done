@@ -50,8 +50,7 @@ export default function TodoList({
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 300,
-        tolerance: 8,
+        distance: 10,
       },
     }),
     useSensor(KeyboardSensor, {
