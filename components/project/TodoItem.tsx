@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { type Todo } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
 
@@ -44,6 +44,11 @@ export default function TodoItem({
   const [openDropdown, setOpenDropdown] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
 
+  // Touch handling refs
+  const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const touchStartEventRef = useRef<React.TouchEvent | null>(null)
+  const wasTouchInteractionRef = useRef(false)
+
   const {
     attributes,
     listeners,
@@ -65,6 +70,15 @@ export default function TodoItem({
       : undefined,
     transition,
   }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (touchTimeoutRef.current) {
+        clearTimeout(touchTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleToggleTodo = async () => {
     if (isEditing) return
@@ -90,36 +104,101 @@ export default function TodoItem({
     setOpenDropdown(false)
   }
 
+  // Touch handling with delay for drag
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (isEditing) return
+
+    wasTouchInteractionRef.current = true
+    e.preventDefault()
+
+    touchStartEventRef.current = e
+
+    touchTimeoutRef.current = setTimeout(() => {
+      if (listeners?.onTouchStart && touchStartEventRef.current) {
+        listeners.onTouchStart(touchStartEventRef.current as any)
+      }
+    }, 150) // Slightly shorter delay for todos
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isEditing) return
+
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+      touchTimeoutRef.current = null
+      if (!isDragging) {
+        handleToggleTodo()
+      }
+    }
+    touchStartEventRef.current = null
+
+    setTimeout(() => {
+      wasTouchInteractionRef.current = false
+    }, 100)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+      touchTimeoutRef.current = null
+      if (listeners?.onTouchStart && touchStartEventRef.current) {
+        listeners.onTouchStart(touchStartEventRef.current as any)
+      }
+    }
+  }
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (isEditing) return
+
+    if (e.pointerType === "touch") {
+      e.preventDefault()
+    } else if (e.pointerType === "mouse") {
+      setIsPressed(true)
+      if (listeners?.onPointerDown) {
+        listeners.onPointerDown(e as any)
+      }
+    }
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isEditing || wasTouchInteractionRef.current) return
+    handleToggleTodo()
+  }
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={`relative ${isDragging || isPressed ? "z-50" : ""}`}
       {...(!isEditing ? attributes : {})}
-      {...(!isEditing ? listeners : {})}
     >
       <div
-        className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 ${
+        className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg border transition-all bg-card cursor-pointer hover:bg-accent/50 select-none ${
           isDragging || isPressed ? "shadow-lg bg-accent/20 border-accent" : ""
         }`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
+        onPointerDown={handlePointerDown}
+        onPointerUp={() => setIsPressed(false)}
+        onPointerLeave={() => setIsPressed(false)}
+        onPointerCancel={() => setIsPressed(false)}
+        onClick={handleClick}
+        onKeyDown={listeners?.onKeyDown as any}
         style={{
           WebkitTapHighlightColor: "transparent",
           WebkitUserSelect: "none",
-          WebkitTouchCallout: "none",
+          WebkitTouchCallout: "none" as const,
           userSelect: "none",
         }}
       >
         {/* Checkbox */}
         <div
-          className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center cursor-pointer ${
+          className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
             todo.completed
               ? "border-success text-success-foreground"
               : "border-border hover:border-success"
           }`}
-          onClick={(e) => {
-            e.stopPropagation()
-            handleToggleTodo()
-          }}
         >
           {todo.completed && <Check size={14} />}
         </div>
