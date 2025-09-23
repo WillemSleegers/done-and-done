@@ -278,7 +278,7 @@ export default function TodoItem({
               <MoreHorizontal size={14} />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation()

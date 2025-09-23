@@ -52,6 +52,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **Type safety** - Use generated Supabase types throughout
 
 ## Development Approach
+- **ALWAYS start dev server first** - Run `npm run dev` at the beginning of ANY coding session, even for simple fixes
 - Start `npm run dev` when working on code for live preview
 - Focus on guidance before implementation
 - Implement only when explicitly requested
