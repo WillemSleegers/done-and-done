@@ -83,12 +83,28 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **Avoid useEffect dependency loops** - Never include state variables in useEffect dependencies when the effect modifies that same state (causes infinite loops)
 - **Check dependency arrays carefully** - Ensure useEffect dependencies are minimal and correct
 - **State management patterns** - Follow established patterns for state updates and side effects
+- **Use refs for non-reactive values** - When storing values that don't need to trigger re-renders (like "original value" for Escape key behavior), use useRef instead of useState
+- **Coordinate loading states** - Prevent duplicate loading screens by coordinating auth/data loading states rather than showing multiple sequential loaders
+
+### UI/UX Patterns
+- **Shared loading components** - Create consistent LoadingScreen components to prevent UI jumps between different loading states
+- **Stable URLs** - Use UUIDs for URLs rather than slugs to prevent navigation issues when names change (URLs like `/?project=uuid` vs `/?project=name-slug`)
+- **Consistent Escape key behavior** - Always revert to original value when editing began, not current database value. Store original in ref on focus/edit start
+- **Disable spellcheck appropriately** - Add `spellCheck={false}` to project names, technical terms, and other inputs where spellcheck creates noise
+- **Keyboard navigation** - Ensure Enter saves and blurs input, Escape reverts and blurs input for consistent editing UX
+- **Shadcn component styling** - Override default backgrounds with `dark:bg-transparent`, remove focus rings with `focus-visible:ring-0`, and maintain visual consistency while using components
 
 ### Communication Best Practices
 - **Be honest about knowledge limits** - Never claim to have read documentation or sources you don't have access to
 - **Don't fabricate documentation references** - If suggesting approaches, be clear they're general practices, not specific recommendations from docs
 - **Admit uncertainty** - Say "I'm not sure" rather than making confident claims without evidence
 - **Distinguish between facts and assumptions** - Be explicit when making educated guesses vs stating known facts
+
+### Problem-Solving Approach
+- **Avoid timing-based solutions** - Never use setTimeout/delays to fix race conditions. Find the root cause and fix coordination instead
+- **Examine component dependencies** - When replacing HTML elements with shadcn components, check the component source to understand default classes that need overriding
+- **Simplify complex state** - When managing "original values" or backup data, prefer refs over state to avoid unnecessary complexity and re-renders
+- **Question the approach** - If a solution feels like "overkill", step back and consider simpler alternatives (useEffect vs refs, multiple states vs single ref)
 
 ### Continuous Improvement
 - **Proactively suggest CLAUDE.md updates** - When encountering mistakes, identifying better approaches, or learning new patterns, suggest adding them to CLAUDE.md to prevent future issues
