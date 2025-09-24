@@ -64,7 +64,6 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
     }
   }, [isDragging])
 
-
   const remainingTodos = todoCounts.total - todoCounts.completed
 
   const showTodos = project.status !== "complete"
@@ -82,8 +81,12 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
   }
 
   const getPriorityDot = () => {
-    const colorClass = project.priority === 'high' ? 'bg-destructive' :
-                      project.priority === 'normal' ? 'bg-primary' : 'bg-muted-foreground'
+    const colorClass =
+      project.priority === "high"
+        ? "bg-destructive"
+        : project.priority === "normal"
+        ? "bg-primary"
+        : "bg-muted-foreground"
 
     return <div className={`size-3 rounded-full ${colorClass}`} />
   }
@@ -97,7 +100,9 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
 
     touchTimeoutRef.current = setTimeout(() => {
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
+        listeners.onTouchStart(
+          touchStartEventRef.current as React.TouchEvent<Element>
+        )
       }
     }, 200) // Slightly longer delay for projects
   }
@@ -141,7 +146,9 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
       clearTimeout(touchTimeoutRef.current)
       touchTimeoutRef.current = null
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
+        listeners.onTouchStart(
+          touchStartEventRef.current as React.TouchEvent<Element>
+        )
       }
     }
   }
@@ -165,7 +172,7 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
       {...attributes}
     >
       <div
-        className={`block w-full h-20 p-4 rounded-md border transition-all duration-200 transform hover:scale-105 bg-card select-none cursor-pointer ${
+        className={`w-full h-22 p-4 rounded-md border transition-all duration-200 transform hover:scale-105 bg-card select-none cursor-pointer ${
           isDragging || isPressed ? "shadow-lg bg-accent/20" : ""
         }`}
         onTouchStart={handleTouchStart}
@@ -176,7 +183,9 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
         onPointerLeave={() => setIsPressed(false)}
         onPointerCancel={() => setIsPressed(false)}
         onClick={handleClick}
-        onKeyDown={listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>}
+        onKeyDown={
+          listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>
+        }
         style={{
           WebkitTapHighlightColor: "transparent",
           WebkitUserSelect: "none",

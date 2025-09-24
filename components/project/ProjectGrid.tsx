@@ -121,7 +121,7 @@ export default function ProjectGrid() {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <SortableContext
               items={activeProjects.map((project) => project.id)}
               strategy={rectSortingStrategy}
