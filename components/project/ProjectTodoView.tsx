@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { format } from "date-fns"
+import { createSlug } from "@/lib/utils"
 import ProjectHeader from "./ProjectHeader"
 import AddTodoForm from "./AddTodoForm"
 import TodoList from "./todo-view/TodoList"
@@ -61,7 +62,7 @@ export default function ProjectTodoView({
           order: project.order,
         })
 
-        window.history.replaceState({}, "", `/projects/${project.id}`)
+        window.history.replaceState({}, "", `/?project=${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
         console.error("Failed to create project:", error)
@@ -72,7 +73,8 @@ export default function ProjectTodoView({
       trimmedName &&
       trimmedName !== project.name
     ) {
-      updateProject(project.id, { name: trimmedName })
+      // Update the project in the store
+      await updateProject(project.id, { name: trimmedName })
     } else if (!trimmedName) {
       setNameValue(project.name) // Reset to original
     }
@@ -95,7 +97,7 @@ export default function ProjectTodoView({
           order: project.order,
         })
 
-        window.history.replaceState({}, "", `/projects/${project.id}`)
+        window.history.replaceState({}, "", `/?project=${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
         console.error("Failed to create project:", error)

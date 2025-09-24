@@ -1,7 +1,7 @@
 "use client"
 
 import { type Project } from "@/lib/services/syncService"
-import { Plus, FolderOpen, Loader2, Archive, CheckCircle } from "lucide-react"
+import { Plus, FolderOpen, Archive, CheckCircle } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -49,15 +49,19 @@ const sortProjectsByPriority = (projects: Project[]) => {
 }
 
 export default function ProjectGrid() {
-  const { projects, todoCounts, isLoading, reorderProjects, getProjectsSortedByOrder } = useProjectStore()
+  const { projects, todoCounts, reorderProjects, getProjectsSortedByOrder } =
+    useProjectStore()
   const router = useRouter()
 
   const allProjectsSorted = getProjectsSortedByOrder()
 
   const activeProjects = allProjectsSorted.filter((p) => p.status === "active")
-  const inactiveProjects = allProjectsSorted.filter((p) => p.status === "inactive")
-  const completedProjects = allProjectsSorted.filter((p) => p.status === "complete")
-
+  const inactiveProjects = allProjectsSorted.filter(
+    (p) => p.status === "inactive"
+  )
+  const completedProjects = allProjectsSorted.filter(
+    (p) => p.status === "complete"
+  )
 
   const sortedInactiveProjects = sortProjectsByPriority(inactiveProjects)
 
@@ -86,11 +90,19 @@ export default function ProjectGrid() {
     const { active, over } = event
 
     if (active.id !== over?.id) {
-      const oldIndex = activeProjects.findIndex((project) => project.id === active.id)
-      const newIndex = activeProjects.findIndex((project) => project.id === over?.id)
+      const oldIndex = activeProjects.findIndex(
+        (project) => project.id === active.id
+      )
+      const newIndex = activeProjects.findIndex(
+        (project) => project.id === over?.id
+      )
 
       const newOrder = arrayMove(activeProjects, oldIndex, newIndex)
-      await reorderProjects([...newOrder, ...inactiveProjects, ...completedProjects])
+      await reorderProjects([
+        ...newOrder,
+        ...inactiveProjects,
+        ...completedProjects,
+      ])
     }
   }
 
@@ -102,102 +114,94 @@ export default function ProjectGrid() {
 
   return (
     <div className="p-6">
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Loading your projects...</p>
-        </div>
-      ) : (
-        <>
-          <div className="max-w-6xl mx-auto space-y-6">
-            {/* Main Projects Grid */}
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Main Projects Grid */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <SortableContext
+              items={activeProjects.map((project) => project.id)}
+              strategy={rectSortingStrategy}
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <SortableContext
-                  items={activeProjects.map((project) => project.id)}
-                  strategy={rectSortingStrategy}
-                >
-                  {/* Draggable Project Tiles */}
-                  {activeProjects.map((project) => {
-                    const counts = todoCounts[project.id] || {
-                      total: 0,
-                      completed: 0,
-                    }
-                    return (
-                      <ProjectTile
-                        key={project.id}
-                        project={project}
-                        todoCounts={counts}
-                      />
-                    )
-                  })}
-                </SortableContext>
+              {/* Draggable Project Tiles */}
+              {activeProjects.map((project) => {
+                const counts = todoCounts[project.id] || {
+                  total: 0,
+                  completed: 0,
+                }
+                return (
+                  <ProjectTile
+                    key={project.id}
+                    project={project}
+                    todoCounts={counts}
+                  />
+                )
+              })}
+            </SortableContext>
 
-                {/* Add New Project Tile - Not draggable */}
-                <Button
-                  variant="ghost"
-                  onClick={handleCreateProject}
-                  className="h-20 p-4 border-2 border-border border-dashed rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
-                >
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
-                    <Plus size={24} className="mb-2" />
-                    <span className="text-sm font-medium">New Project</span>
-                  </div>
-                </Button>
+            {/* Add New Project Tile - Not draggable */}
+            <Button
+              variant="ghost"
+              onClick={handleCreateProject}
+              className="h-20 p-4 border-2 border-border border-dashed rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
+            >
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
+                <Plus size={24} className="mb-2" />
+                <span className="text-sm font-medium">New Project</span>
               </div>
-            </DndContext>
+            </Button>
+          </div>
+        </DndContext>
 
-            {/* Summary tiles section */}
-            {(sortedInactiveProjects.length > 0 || sortedCompletedProjects.length > 0) && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {/* Inactive Projects Summary Tile */}
-                {sortedInactiveProjects.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => router.push('/?view=inactive')}
-                    className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
-                  >
-                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
-                      <Archive size={24} className="mb-2" />
-                      <span className="text-sm font-medium">
-                        {sortedInactiveProjects.length} Inactive Project
-                        {sortedInactiveProjects.length === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                  </Button>
-                )}
+        {/* Summary tiles section */}
+        {(sortedInactiveProjects.length > 0 ||
+          sortedCompletedProjects.length > 0) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* Inactive Projects Summary Tile */}
+            {sortedInactiveProjects.length > 0 && (
+              <Button
+                variant="ghost"
+                onClick={() => router.push("/?view=inactive")}
+                className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
+              >
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
+                  <Archive size={24} className="mb-2" />
+                  <span className="text-sm font-medium">
+                    {sortedInactiveProjects.length} Inactive Project
+                    {sortedInactiveProjects.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+              </Button>
+            )}
 
-                {/* Completed Projects Summary Tile */}
-                {sortedCompletedProjects.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => router.push('/?view=completed')}
-                    className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
-                  >
-                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
-                      <CheckCircle size={24} className="mb-2" />
-                      <span className="text-sm font-medium">
-                        {sortedCompletedProjects.length} Completed Project
-                        {sortedCompletedProjects.length === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                  </Button>
-                )}
-              </div>
+            {/* Completed Projects Summary Tile */}
+            {sortedCompletedProjects.length > 0 && (
+              <Button
+                variant="ghost"
+                onClick={() => router.push("/?view=completed")}
+                className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
+              >
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
+                  <CheckCircle size={24} className="mb-2" />
+                  <span className="text-sm font-medium">
+                    {sortedCompletedProjects.length} Completed Project
+                    {sortedCompletedProjects.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+              </Button>
             )}
           </div>
+        )}
+      </div>
 
-          {projects.length === 0 && (
-            <div className="text-center text-muted-foreground mt-8">
-              <FolderOpen size={48} className="mx-auto mb-4 text-muted" />
-              <p>No projects yet. Create your first project to get started!</p>
-            </div>
-          )}
-        </>
+      {projects.length === 0 && (
+        <div className="text-center text-muted-foreground mt-8">
+          <FolderOpen size={48} className="mx-auto mb-4 text-muted" />
+          <p>No projects yet. Create your first project to get started!</p>
+        </div>
       )}
     </div>
   )

@@ -3,23 +3,24 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useProjectStore } from "@/lib/store/projectStore"
-import { createSlug } from "@/lib/utils"
+import type { Project } from "@/lib/services/syncService"
 import AuthGuard from "@/components/auth/AuthGuard"
 import NavigationBar from "@/components/navigation/NavigationBar"
 import SyncStatus from "@/components/system/SyncStatus"
 import ProjectGrid from "@/components/project/ProjectGrid"
 import ProjectTodoView from "@/components/project/ProjectTodoView"
+import LoadingScreen from "@/components/ui/LoadingScreen"
 
 export default function Home() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { getProject, getProjectBySlug, projects, isLoading } = useProjectStore()
+  const { getProject, projects, isLoading } = useProjectStore()
 
   const projectParam = searchParams.get('project')
   const isNewProject = searchParams.get('new') === 'true'
 
   // Use state to store the selected project and track if we've processed the lookup
-  const [selectedProject, setSelectedProject] = useState(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [hasProcessedLookup, setHasProcessedLookup] = useState(false)
 
   // Update selected project whenever projectParam or projects change
@@ -32,31 +33,32 @@ export default function Home() {
 
     // Only process lookup if we have data loaded or aren't loading
     if (projects.length > 0 || !isLoading) {
-      const found = getProjectBySlug(projectParam) || getProject(projectParam)
-      setSelectedProject(found)
+      const found = getProject(projectParam)
+      setSelectedProject(found || null)
       setHasProcessedLookup(true)
     } else {
       setHasProcessedLookup(false)
     }
-  }, [projectParam, projects, isLoading, getProjectBySlug, getProject])
+  }, [projectParam, projects, isLoading, getProject])
 
   // Show loading if we haven't finished processing the project lookup yet
-  const isLoadingProject = projectParam && !hasProcessedLookup
+  // But don't show a separate loading state if the store is still loading
+  const isLoadingProject = projectParam && !hasProcessedLookup && !isLoading
 
   const handleBackToGrid = () => {
     // Use Next.js router to properly update URL
     router.push('/')
   }
 
-  // Show loading if we're waiting for project data
+  // Only show project loading if we're not already showing store loading
   if (isLoadingProject) {
     return (
       <AuthGuard>
         <div className="min-h-screen bg-background">
           <NavigationBar variant="back" />
           <SyncStatus />
-          <div className="flex items-center justify-center pt-20">
-            <div className="text-muted-foreground">Loading project...</div>
+          <div className="pt-6">
+            <LoadingScreen message="Loading project..." />
           </div>
         </div>
       </AuthGuard>
@@ -100,6 +102,7 @@ export default function Home() {
       </AuthGuard>
     )
   }
+
 
   // Show project grid by default
   return (

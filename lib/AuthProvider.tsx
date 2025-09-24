@@ -58,11 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      setLoading(false)
-
       if (newUser) {
-        fetchInitialData()
+        // Keep auth loading true until project data is fetched
+        await fetchInitialData()
       }
+
+      setLoading(false)
     })
 
     return () => subscription.unsubscribe()

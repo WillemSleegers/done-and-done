@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthProvider'
+import LoadingScreen from '@/components/ui/LoadingScreen'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -22,10 +23,9 @@ export default function AuthGuard({ children, fallback }: AuthGuardProps) {
   if (loading) {
     return (
       fallback || (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading...</p>
+        <div className="min-h-screen bg-background">
+          <div className="pt-6">
+            <LoadingScreen />
           </div>
         </div>
       )

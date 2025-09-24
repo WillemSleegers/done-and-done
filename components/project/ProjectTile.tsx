@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { cn, createSlug } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
 
@@ -119,9 +119,8 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
   }
 
   const handleNavigation = () => {
-    // Navigate to project using slug for clean URLs
-    const slug = createSlug(project.name)
-    router.push(`/?project=${slug}`)
+    // Navigate to project using UUID for stable URLs
+    router.push(`/?project=${project.id}`)
   }
 
   const handleClick = (e: React.MouseEvent) => {
