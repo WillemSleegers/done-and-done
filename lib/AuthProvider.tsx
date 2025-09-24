@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setLoading(false)
 
-      if (newUser && !user) {
+      if (newUser) {
         fetchInitialData()
       }
     })

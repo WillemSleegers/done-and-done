@@ -95,8 +95,9 @@ export default function ProjectGrid() {
   }
 
   const handleCreateProject = () => {
-    const projectId = crypto.randomUUID()
-    router.push(`/projects/${projectId}?new=true`)
+    // Generate a temporary ID for new project
+    const tempId = crypto.randomUUID()
+    router.push(`/?project=${tempId}&new=true`)
   }
 
   return (
@@ -157,7 +158,7 @@ export default function ProjectGrid() {
                 {sortedInactiveProjects.length > 0 && (
                   <Button
                     variant="ghost"
-                    onClick={() => router.push("/projects/inactive")}
+                    onClick={() => router.push('/?view=inactive')}
                     className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
                   >
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
@@ -174,7 +175,7 @@ export default function ProjectGrid() {
                 {sortedCompletedProjects.length > 0 && (
                   <Button
                     variant="ghost"
-                    onClick={() => router.push("/projects/completed")}
+                    onClick={() => router.push('/?view=completed')}
                     className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
                   >
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">

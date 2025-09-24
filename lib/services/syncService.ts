@@ -46,35 +46,21 @@ class SyncService {
       })
 
       const projects: Project[] = (projectsResult.data || []).map(remote => {
-        // Check if we already have this project locally
-        const existing = existingByRemoteId.get(remote.id)
-        if (existing) {
-          // Preserve existing local ID and update data
-          return {
-            ...existing,
-            name: remote.name,
-            notes: remote.notes,
-            status: remote.status || 'active',
-            priority: remote.priority || 'normal',
-            created_at: remote.created_at,
-            order: remote.order,
-            syncState: 'synced' as const,
-            lastError: undefined
-          }
-        } else {
-          // New remote project - use database ID directly
-          return {
-            id: remote.id,
-            remoteId: remote.id,
-            name: remote.name,
-            notes: remote.notes,
-            status: remote.status || 'active',
-            priority: remote.priority || 'normal',
-            created_at: remote.created_at,
-            order: remote.order,
-            syncState: 'synced' as const
-          }
+        // Always use the database ID as the stable identifier
+        // This ensures URLs remain consistent across sessions
+        const project = {
+          id: remote.id,
+          remoteId: remote.id,
+          name: remote.name,
+          notes: remote.notes,
+          status: remote.status || 'active',
+          priority: remote.priority || 'normal',
+          created_at: remote.created_at,
+          order: remote.order,
+          syncState: 'synced' as const,
+          lastError: undefined
         }
+        return project
       })
 
       const remoteToLocalId = new Map<string, string>()
