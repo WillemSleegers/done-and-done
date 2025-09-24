@@ -31,7 +31,6 @@ export default function ProjectTodoView({
   } = useProjectStore()
   const [showDateDialog, setShowDateDialog] = useState(false)
   const [dateDialogTodoId, setDateDialogTodoId] = useState<string | null>(null)
-  const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [nameValue, setNameValue] = useState(project.name)
   const [notesValue, setNotesValue] = useState(project.notes || "")
   const [showDeleteAlert, setShowDeleteAlert] = useState(false)
@@ -152,19 +151,6 @@ export default function ProjectTodoView({
     setShowDateDialog(true)
   }
 
-  const cancelEditing = () => {
-    setEditingTodoId(null)
-  }
-
-  const saveEdit = async (text: string) => {
-    if (!editingTodoId || !text.trim()) return
-
-    try {
-      await updateTodo(editingTodoId, { text: text.trim() })
-      setEditingTodoId(null)
-    } catch {
-    }
-  }
 
   const handleDeleteProject = async () => {
     try {
@@ -202,10 +188,6 @@ export default function ProjectTodoView({
         <TodoList
           todos={todos}
           projectId={project.id}
-          editingTodoId={editingTodoId}
-          onStartEditing={setEditingTodoId}
-          onCancelEditing={cancelEditing}
-          onSaveEdit={saveEdit}
           onOpenDateDialog={openDateDialog}
         />
 

@@ -26,6 +26,7 @@ interface ProjectActions {
 
   getProjectTodos: (projectId: string) => Todo[]
   getProjectsSortedByOrder: () => Project[]
+  getProject: (projectId: string) => Project | undefined
 }
 
 type ProjectStore = ProjectState & ProjectActions
@@ -368,5 +369,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const projects = get().projects
     // Sort by order field for consistent display
     return [...projects].sort((a, b) => a.order - b.order)
+  },
+
+  getProject: (projectId) => {
+    return get().projects.find(p => p.id === projectId)
   }
 }))

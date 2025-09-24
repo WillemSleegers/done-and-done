@@ -11,10 +11,10 @@ export default function ProjectPage() {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
-  const { projects, isLoading } = useProjectStore()
-  
+  const { isLoading, getProject } = useProjectStore()
+
   const projectId = params.id as string
-  const project = projects.find(p => p.id === projectId)
+  const project = getProject(projectId)
   const isNewProject = searchParams.get('new') === 'true'
 
   const handleBack = () => {

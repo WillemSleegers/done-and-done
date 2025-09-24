@@ -24,20 +24,12 @@ import TodoItem from "../TodoItem"
 interface TodoListProps {
   todos: Todo[]
   projectId: string
-  editingTodoId: string | null
-  onStartEditing: (todoId: string) => void
-  onCancelEditing: () => void
-  onSaveEdit: (text: string) => Promise<void>
   onOpenDateDialog: (todoId: string) => void
 }
 
 export default function TodoList({
   todos,
   projectId,
-  editingTodoId,
-  onStartEditing,
-  onCancelEditing,
-  onSaveEdit,
   onOpenDateDialog,
 }: TodoListProps) {
   const { reorderTodos } = useProjectStore()
@@ -92,10 +84,6 @@ export default function TodoList({
               key={todo.id}
               todo={todo}
               projectId={projectId}
-              isEditing={editingTodoId === todo.id}
-              onStartEditing={() => onStartEditing(todo.id)}
-              onCancelEditing={onCancelEditing}
-              onSaveEdit={onSaveEdit}
               onOpenDateDialog={() => onOpenDateDialog(todo.id)}
             />
           ))}

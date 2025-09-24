@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,25 +25,20 @@ import { format } from "date-fns"
 interface TodoItemProps {
   todo: Todo
   projectId: string
-  isEditing: boolean
-  onStartEditing: () => void
-  onCancelEditing: () => void
-  onSaveEdit: (text: string) => Promise<void>
   onOpenDateDialog: () => void
 }
 
 export default function TodoItem({
   todo,
   projectId,
-  isEditing,
-  onStartEditing,
-  onCancelEditing,
-  onSaveEdit,
   onOpenDateDialog,
 }: TodoItemProps) {
   const { updateTodo, deleteTodo } = useProjectStore()
   const [openDropdown, setOpenDropdown] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState(todo.text)
+  const editInputRef = useRef<HTMLInputElement>(null)
 
   // Touch handling refs
   const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -88,20 +84,37 @@ export default function TodoItem({
     } catch {}
   }
 
+  const startEditing = () => {
+    setIsEditing(true)
+    setEditText(todo.text)
+    setOpenDropdown(false)
+    // Focus the input after state update
+    setTimeout(() => editInputRef.current?.focus(), 0)
+  }
+
+  const cancelEditing = () => {
+    setIsEditing(false)
+    setEditText(todo.text)
+  }
+
+  const saveEditing = async () => {
+    if (!editText.trim()) {
+      cancelEditing()
+      return
+    }
+
+    try {
+      await updateTodo(todo.id, { text: editText.trim() })
+      setIsEditing(false)
+    } catch {
+      // Keep editing state on error
+    }
+  }
+
   const handleDeleteTodo = async () => {
     try {
       await deleteTodo(todo.id, projectId)
     } catch {}
-  }
-
-  const startEditing = () => {
-    onStartEditing()
-    setOpenDropdown(false)
-  }
-
-  const openDateDialog = () => {
-    onOpenDateDialog()
-    setOpenDropdown(false)
   }
 
   // Touch handling with delay for drag
@@ -115,7 +128,9 @@ export default function TodoItem({
 
     touchTimeoutRef.current = setTimeout(() => {
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
+        listeners.onTouchStart(
+          touchStartEventRef.current as React.TouchEvent<Element>
+        )
       }
     }, 150) // Slightly shorter delay for todos
   }
@@ -142,7 +157,9 @@ export default function TodoItem({
       clearTimeout(touchTimeoutRef.current)
       touchTimeoutRef.current = null
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
+        listeners.onTouchStart(
+          touchStartEventRef.current as React.TouchEvent<Element>
+        )
       }
     }
   }
@@ -184,7 +201,11 @@ export default function TodoItem({
         onPointerLeave={() => setIsPressed(false)}
         onPointerCancel={() => setIsPressed(false)}
         onClick={handleClick}
-        onKeyDown={listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>}
+        onKeyDown={
+          isEditing
+            ? undefined
+            : (listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>)
+        }
         style={{
           WebkitTapHighlightColor: "transparent",
           WebkitUserSelect: "none",
@@ -205,54 +226,67 @@ export default function TodoItem({
 
         {/* Todo text content */}
         <div className="flex-1 min-w-0 flex flex-wrap justify-between items-baseline gap-1">
-          <span
-            className={`text-base outline-none break-words ${
-              todo.completed
-                ? "line-through text-muted-foreground"
-                : "text-foreground"
-            } ${isDragging ? "select-none" : ""} ${!isEditing ? "pointer-events-none" : ""}`}
-            contentEditable={isEditing}
-            suppressContentEditableWarning={true}
-            onKeyDown={(e) => {
-              if (isEditing) {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  onSaveEdit(e.currentTarget.textContent || "")
-                } else if (e.key === "Escape") {
-                  e.preventDefault()
-                  onCancelEditing()
-                  e.currentTarget.textContent = todo.text
-                }
-              }
-            }}
-            onBlur={(e) => {
-              if (isEditing) {
-                onSaveEdit(e.currentTarget.textContent || "")
-              }
-            }}
-            ref={(el) => {
-              if (isEditing && el) {
-                // Use setTimeout to ensure DOM is updated
-                setTimeout(() => {
-                  el.focus()
-                  const range = document.createRange()
-                  const selection = window.getSelection()
-                  range.selectNodeContents(el)
-                  range.collapse(false)
-                  selection?.removeAllRanges()
-                  selection?.addRange(range)
-                }, 0)
-              }
-            }}
-          >
-            {todo.text}
-          </span>
-
-          {/* Due date */}
-          {todo.due_date && (
-            <span className="text-base text-muted-foreground shrink-0 pointer-events-none">
-              Due {format(new Date(todo.due_date), "MMM d, yyyy")}
-            </span>
+          {isEditing ? (
+            <>
+              {/* Invisible Input that looks identical to the span */}
+              <Input
+                ref={editInputRef}
+                type="text"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    saveEditing()
+                  } else if (e.key === "Escape") {
+                    e.preventDefault()
+                    cancelEditing()
+                  }
+                }}
+                onBlur={saveEditing}
+                className={`
+                  flex-1 text-base
+                  border-0 shadow-none rounded-none
+                  focus-visible:border-transparent focus-visible:ring-0
+                  px-0 py-0 h-auto min-h-0 w-auto
+                  dark:bg-transparent
+                  ${
+                    todo.completed
+                      ? "line-through text-muted-foreground"
+                      : "text-foreground"
+                  }`}
+                // Layout: flex-1 text-base - Match span layout and font size
+                // Override dark mode bg: dark:bg-transparent - Override shadcn's dark:bg-input/30
+                // Remove borders/shadows: border-0 shadow-none rounded-none - Override shadcn's border/rounded-md/shadow-xs
+                // Remove focus styles: focus-visible:border-transparent focus-visible:ring-0 - Override shadcn's focus-visible classes
+                // Reset spacing: px-0 py-0 h-auto min-h-0 w-auto - Override shadcn's px-3 py-1 h-9 w-full
+                autoFocus
+              />
+              {/* Due date - keep in same position during edit */}
+              {todo.due_date && (
+                <span className="text-base text-muted-foreground shrink-0">
+                  Due {format(new Date(todo.due_date), "MMM d, yyyy")}
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span
+                className={`text-base break-words ${
+                  todo.completed
+                    ? "line-through text-muted-foreground"
+                    : "text-foreground"
+                } ${isDragging ? "select-none" : ""}`}
+              >
+                {todo.text}
+              </span>
+              {/* Due date */}
+              {todo.due_date && (
+                <span className="text-base text-muted-foreground shrink-0">
+                  Due {format(new Date(todo.due_date), "MMM d, yyyy")}
+                </span>
+              )}
+            </>
           )}
         </div>
 
@@ -282,7 +316,7 @@ export default function TodoItem({
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation()
-                openDateDialog()
+                onOpenDateDialog()
               }}
             >
               <CalendarIcon size={16} className="mr-2" />
