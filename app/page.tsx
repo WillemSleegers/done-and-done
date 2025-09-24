@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import type { Project } from "@/lib/services/syncService"
 import AuthGuard from "@/components/auth/AuthGuard"
@@ -11,7 +11,7 @@ import ProjectGrid from "@/components/project/ProjectGrid"
 import ProjectTodoView from "@/components/project/ProjectTodoView"
 import LoadingScreen from "@/components/ui/LoadingScreen"
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { getProject, projects, isLoading } = useProjectStore()
@@ -113,5 +113,23 @@ export default function Home() {
         <ProjectGrid />
       </div>
     </AuthGuard>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <AuthGuard>
+        <div className="min-h-screen bg-background">
+          <NavigationBar variant="title" title="Done and Done" />
+          <SyncStatus />
+          <div className="pt-6">
+            <LoadingScreen />
+          </div>
+        </div>
+      </AuthGuard>
+    }>
+      <HomeContent />
+    </Suspense>
   )
 }
