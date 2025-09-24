@@ -6,6 +6,7 @@ import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
 import { MoreHorizontal, Trash } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ interface ProjectHeaderProps {
   onNameChange: (value: string) => void
   onNameSave: () => Promise<void>
   onNameKeyDown: (e: React.KeyboardEvent) => void
+  onNameFocus: () => void
   onDeleteProject: () => void
 }
 
@@ -30,6 +32,7 @@ export default function ProjectHeader({
   onNameChange,
   onNameSave,
   onNameKeyDown,
+  onNameFocus,
   onDeleteProject,
 }: ProjectHeaderProps) {
   const { updateProject } = useProjectStore()
@@ -154,15 +157,16 @@ export default function ProjectHeader({
 
       {/* Project title */}
       <div>
-        <input
+        <Input
           ref={nameInputRef}
           type="text"
           value={nameValue}
           onChange={(e) => onNameChange(e.target.value)}
           onBlur={onNameSave}
           onKeyDown={onNameKeyDown}
+          onFocus={onNameFocus}
           spellCheck={false}
-          className="text-2xl sm:text-3xl font-bold text-foreground bg-transparent border-none outline-none focus:outline-none w-full p-0 m-0 cursor-pointer hover:text-primary transition-colors break-words"
+          className="text-2xl sm:text-3xl font-bold text-foreground bg-transparent dark:bg-transparent border-none outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 w-full p-0 m-0 h-auto cursor-pointer hover:text-primary transition-colors break-words shadow-none"
           placeholder="Project name"
         />
       </div>

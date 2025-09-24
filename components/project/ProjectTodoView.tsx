@@ -38,6 +38,7 @@ export default function ProjectTodoView({
   const [isNewProjectCreated, setIsNewProjectCreated] = useState(!isNewProject)
 
   const notesInputRef = useRef<ProjectNotesEditorRef>(null)
+  const originalNameValueRef = useRef(project.name)
 
   const todos =
     isNewProject && !isNewProjectCreated ? [] : getProjectTodos(project.id)
@@ -45,8 +46,13 @@ export default function ProjectTodoView({
   useEffect(() => {
     if (isNewProject) {
       setNameValue("")
+      originalNameValueRef.current = ""
     }
   }, [isNewProject])
+
+  const handleNameFocus = () => {
+    originalNameValueRef.current = nameValue
+  }
 
   const handleNameSave = async () => {
     const trimmedName = nameValue.trim()
@@ -115,7 +121,7 @@ export default function ProjectTodoView({
       handleNameSave()
       ;(e.target as HTMLInputElement).blur()
     } else if (e.key === "Escape") {
-      setNameValue(project.name)
+      setNameValue(originalNameValueRef.current)
       ;(e.target as HTMLInputElement).blur()
     }
   }
@@ -176,6 +182,7 @@ export default function ProjectTodoView({
           onNameChange={setNameValue}
           onNameSave={handleNameSave}
           onNameKeyDown={handleNameKeyDown}
+          onNameFocus={handleNameFocus}
           onDeleteProject={() => setShowDeleteAlert(true)}
         />
 
