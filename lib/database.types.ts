@@ -20,6 +20,7 @@ export type Database = {
           notes: string | null
           id: string
           name: string
+          order: number
           priority: Database["public"]["Enums"]["priority"]
           status: Database["public"]["Enums"]["status"]
         }
@@ -28,6 +29,7 @@ export type Database = {
           notes?: string | null
           id?: string
           name: string
+          order?: number
           priority?: Database["public"]["Enums"]["priority"]
           status?: Database["public"]["Enums"]["status"]
         }
@@ -36,6 +38,7 @@ export type Database = {
           notes?: string | null
           id?: string
           name?: string
+          order?: number
           priority?: Database["public"]["Enums"]["priority"]
           status?: Database["public"]["Enums"]["status"]
         }

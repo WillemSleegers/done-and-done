@@ -22,8 +22,10 @@ interface ProjectActions {
   deleteTodo: (todoId: string, projectId: string) => Promise<void>
   retryFailedTodo: (todoId: string, projectId: string) => Promise<void>
   reorderTodos: (projectId: string, newOrder: Todo[]) => Promise<void>
+  reorderProjects: (newOrder: Project[]) => Promise<void>
 
   getProjectTodos: (projectId: string) => Todo[]
+  getProjectsSortedByOrder: () => Project[]
 }
 
 type ProjectStore = ProjectState & ProjectActions
@@ -66,10 +68,14 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   addProject: async (projectData) => {
+    const { projects } = get()
+    const maxOrder = projects.length > 0 ? Math.max(...projects.map(p => p.order)) : 0
+
     const newProject: Project = {
       ...projectData,
       id: projectData.id || generateId(),
       created_at: new Date().toISOString(),
+      order: maxOrder + 1,
       syncState: 'local'
     }
 
@@ -326,9 +332,41 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
   },
 
+  reorderProjects: async (newOrder) => {
+    // Update local state immediately for optimistic UI
+    set(() => ({
+      projects: newOrder
+    }))
+
+    // Update order values based on new position
+    const reorderedProjects = newOrder.map((project, index) => ({
+      ...project,
+      order: index + 1
+    }))
+
+    // Update local state with new order values
+    set(() => ({
+      projects: reorderedProjects
+    }))
+
+    // Sync to server
+    try {
+      await syncService.updateProjectsOrder(reorderedProjects)
+    } catch (error) {
+      console.error('Failed to sync project order:', error)
+      // Could add retry logic here if needed
+    }
+  },
+
   getProjectTodos: (projectId) => {
     const todos = get().todos[projectId] || []
     // Sort by order field for consistent display
     return [...todos].sort((a, b) => a.order - b.order)
+  },
+
+  getProjectsSortedByOrder: () => {
+    const projects = get().projects
+    // Sort by order field for consistent display
+    return [...projects].sort((a, b) => a.order - b.order)
   }
 }))

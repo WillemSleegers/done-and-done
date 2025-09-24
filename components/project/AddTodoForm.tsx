@@ -42,6 +42,7 @@ export default function AddTodoForm({
           notes: notesHtml || null,
           status: project.status,
           priority: project.priority,
+          order: project.order,
         })
 
         window.history.replaceState({}, "", `/projects/${project.id}`)

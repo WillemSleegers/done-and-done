@@ -30,7 +30,7 @@ class SyncService {
   async fetchInitialData(existingProjects: Project[] = [], existingTodos: Record<string, Todo[]> = {}): Promise<{ projects: Project[]; todos: Record<string, Todo[]> }> {
     try {
       const [projectsResult, todosResult] = await Promise.all([
-        supabase.from('projects').select('*').order('created_at', { ascending: true }),
+        supabase.from('projects').select('*').order('order', { ascending: true }),
         supabase.from('todos').select('*').order('order', { ascending: true })
       ])
 
@@ -57,6 +57,7 @@ class SyncService {
             status: remote.status || 'active',
             priority: remote.priority || 'normal',
             created_at: remote.created_at,
+            order: remote.order,
             syncState: 'synced' as const,
             lastError: undefined
           }
@@ -70,6 +71,7 @@ class SyncService {
             status: remote.status || 'active',
             priority: remote.priority || 'normal',
             created_at: remote.created_at,
+            order: remote.order,
             syncState: 'synced' as const
           }
         }
@@ -150,7 +152,9 @@ class SyncService {
         .insert([{
           name: project.name,
           notes: project.notes,
-          status: project.status
+          status: project.status,
+          priority: project.priority,
+          order: project.order
         }])
         .select()
         .single()
@@ -287,7 +291,30 @@ class SyncService {
     }
   }
 
-  async updateProject(project: Project, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority'>>, onUpdate: (updatedProject: Project) => void): Promise<void> {
+  async updateProjectsOrder(projects: Pick<Project, 'remoteId' | 'order'>[]): Promise<void> {
+    // Update order for multiple projects efficiently
+    const updates = projects
+      .filter(project => project.remoteId)
+      .map(project => ({ id: project.remoteId!, order: project.order }))
+
+    if (updates.length === 0) return
+
+    try {
+      // Use Promise.all for parallel updates for better performance
+      await Promise.all(
+        updates.map(update =>
+          supabase
+            .from('projects')
+            .update({ order: update.order })
+            .eq('id', update.id)
+        )
+      )
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to update project order')
+    }
+  }
+
+  async updateProject(project: Project, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority' | 'order'>>, onUpdate: (updatedProject: Project) => void): Promise<void> {
     if (!project.remoteId) return
 
     onUpdate({ ...project, ...updates, syncState: 'syncing' })

@@ -120,7 +120,7 @@ export default function TodoItem({
     }, 150) // Slightly shorter delay for todos
   }
 
-  const handleTouchEnd = (_e: React.TouchEvent) => {
+  const handleTouchEnd = () => {
     if (isEditing) return
 
     if (touchTimeoutRef.current) {
@@ -137,7 +137,7 @@ export default function TodoItem({
     }, 100)
   }
 
-  const handleTouchMove = (_e: React.TouchEvent) => {
+  const handleTouchMove = () => {
     if (touchTimeoutRef.current) {
       clearTimeout(touchTimeoutRef.current)
       touchTimeoutRef.current = null
@@ -160,7 +160,7 @@ export default function TodoItem({
     }
   }
 
-  const handleClick = (_e: React.MouseEvent) => {
+  const handleClick = () => {
     if (isEditing || wasTouchInteractionRef.current) return
     handleToggleTodo()
   }

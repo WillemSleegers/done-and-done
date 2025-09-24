@@ -59,6 +59,7 @@ export default function ProjectTodoView({
           notes: notesInputRef.current?.getHTML() || null,
           status: project.status,
           priority: project.priority,
+          order: project.order,
         })
 
         window.history.replaceState({}, "", `/projects/${project.id}`)
@@ -92,6 +93,7 @@ export default function ProjectTodoView({
           notes: htmlContent || null,
           status: project.status,
           priority: project.priority,
+          order: project.order,
         })
 
         window.history.replaceState({}, "", `/projects/${project.id}`)

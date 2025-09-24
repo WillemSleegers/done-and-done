@@ -32,6 +32,7 @@ export default function ProjectPage() {
     priority: 'normal' as const,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    order: 1,
     syncState: 'local' as const,
     remoteId: undefined,
     lastError: undefined
