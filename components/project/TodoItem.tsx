@@ -39,6 +39,7 @@ export default function TodoItem({
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(todo.text)
   const editInputRef = useRef<HTMLInputElement>(null)
+  const originalEditTextRef = useRef(todo.text)
 
   // Touch handling refs
   const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -87,6 +88,7 @@ export default function TodoItem({
   const startEditing = () => {
     setIsEditing(true)
     setEditText(todo.text)
+    originalEditTextRef.current = todo.text // Store original value when editing starts
     setOpenDropdown(false)
     // Focus the input after state update
     setTimeout(() => editInputRef.current?.focus(), 0)
@@ -94,7 +96,7 @@ export default function TodoItem({
 
   const cancelEditing = () => {
     setIsEditing(false)
-    setEditText(todo.text)
+    setEditText(originalEditTextRef.current) // Reset to original value when editing started
   }
 
   const saveEditing = async () => {
