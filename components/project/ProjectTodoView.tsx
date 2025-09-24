@@ -113,8 +113,10 @@ export default function ProjectTodoView({
   const handleNameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleNameSave()
+      ;(e.target as HTMLInputElement).blur()
     } else if (e.key === "Escape") {
       setNameValue(project.name)
+      ;(e.target as HTMLInputElement).blur()
     }
   }
 

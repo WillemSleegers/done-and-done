@@ -161,6 +161,7 @@ export default function ProjectHeader({
           onChange={(e) => onNameChange(e.target.value)}
           onBlur={onNameSave}
           onKeyDown={onNameKeyDown}
+          spellCheck={false}
           className="text-2xl sm:text-3xl font-bold text-foreground bg-transparent border-none outline-none focus:outline-none w-full p-0 m-0 cursor-pointer hover:text-primary transition-colors break-words"
           placeholder="Project name"
         />
