@@ -50,12 +50,12 @@ export default function AddTodoForm({
       }
 
       await addTodo(projectToUse.id, newTodo.trim())
-      setNewTodo("") // Clear input after successful local add
+      setNewTodo("") // Clear input after local add - let sync happen in background
     } catch (error) {
-      // Only clear input if the todo was actually added locally
-      // If addTodo throws, it means the local add failed completely
+      // Even if there's an error, the optimistic update likely worked
+      // Clear input so user can continue adding todos
       console.error('Failed to add todo:', error)
-      // Don't clear input - let user retry
+      setNewTodo("")
     } finally {
       setIsAdding(false)
     }

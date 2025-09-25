@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 export default function SyncStatus() {
   const { projects, todos, retryFailedProject, retryFailedTodo } = useProjectStore()
   const [isExpanded, setIsExpanded] = useState(false)
-  const [isRetryingAll, setIsRetryingAll] = useState(false)
 
   // Calculate sync status
   const getAllItems = () => {
@@ -34,31 +33,9 @@ export default function SyncStatus() {
   const allItems = getAllItems()
   const pendingItems = allItems.filter(item => item.status === 'syncing' || item.status === 'local')
   const failedItems = allItems.filter(item => item.status === 'failed')
-  
+
   // Only show popup for actual problems (failed items), not normal syncing
   const totalUnsynced = failedItems.length
-
-  // Retry all failed items
-  const handleRetryAll = async () => {
-    if (failedItems.length === 0 || isRetryingAll) return
-    
-    setIsRetryingAll(true)
-    
-    try {
-      // Retry all failed items in parallel
-      const retryPromises = failedItems.map(item => {
-        if (item.type === 'project') {
-          return retryFailedProject(item.id)
-        } else {
-          return retryFailedTodo(item.id, item.projectId!)
-        }
-      })
-      
-      await Promise.allSettled(retryPromises)
-    } finally {
-      setIsRetryingAll(false)
-    }
-  }
 
   if (totalUnsynced === 0) {
     return null // Clean UI when everything is synced
@@ -105,20 +82,7 @@ export default function SyncStatus() {
           <div className="border-t border-border max-h-60 overflow-y-auto">
             <div className="p-3 space-y-2">
               {failedItems.length > 0 && (
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-semibold text-destructive uppercase tracking-wide">
-                      Failed to Sync
-                    </h4>
-                    <Button
-                      onClick={handleRetryAll}
-                      disabled={isRetryingAll}
-                      size="sm"
-                      className="text-xs"
-                    >
-                      {isRetryingAll ? 'Retrying...' : 'Retry All'}
-                    </Button>
-                  </div>
+                <div className="space-y-2">
                   {failedItems.map(item => (
                     <div key={item.id} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 flex-1 min-w-0">

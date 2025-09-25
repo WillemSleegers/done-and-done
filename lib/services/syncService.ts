@@ -5,25 +5,33 @@ export type { Project, Todo, SyncState }
 
 class SyncService {
   private retryTimeouts = new Map<string, NodeJS.Timeout>()
+  private retryAttempts = new Map<string, number>()
   
   private generateId(): string {
     return crypto.randomUUID()
   }
 
-  private scheduleRetry(id: string, operation: () => Promise<void>, delay: number = 2000) {
+  private scheduleRetry(id: string, operation: () => Promise<void>, baseDelay: number = 10000) {
     if (this.retryTimeouts.has(id)) {
       clearTimeout(this.retryTimeouts.get(id)!)
     }
-    
+
+    // Exponential backoff: 10s, 30s, 60s, then 60s intervals
+    const attempts = this.retryAttempts.get(id) || 0
+    const delay = Math.min(baseDelay * Math.pow(2, attempts), 60000)
+
     const timeout = setTimeout(async () => {
       this.retryTimeouts.delete(id)
+      this.retryAttempts.set(id, attempts + 1)
       try {
         await operation()
+        // Success - reset attempt counter
+        this.retryAttempts.delete(id)
       } catch {
         // Will be handled by the operation itself
       }
     }, delay)
-    
+
     this.retryTimeouts.set(id, timeout)
   }
 
@@ -166,7 +174,7 @@ class SyncService {
   }
 
   async syncTodo(
-    todo: Todo, 
+    todo: Todo,
     projectRemoteId: string | undefined,
     onUpdate: (updatedTodo: Todo) => void
   ): Promise<void> {

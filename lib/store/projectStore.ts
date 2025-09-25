@@ -190,12 +190,19 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       set(state => {
         const newTodos = {
           ...state.todos,
-          [projectId]: state.todos[projectId]?.map(t => 
+          [projectId]: state.todos[projectId]?.map(t =>
             t.id === updatedTodo.id ? updatedTodo : t
           ) || []
         }
-        const todoCounts = updateTodoCounts(newTodos)
-        return { todos: newTodos, todoCounts }
+        // Only update counts for the affected project
+        const projectTodos = newTodos[projectId] || []
+        const total = projectTodos.length
+        const completed = projectTodos.filter(todo => todo.completed).length
+        const newTodoCounts = {
+          ...state.todoCounts,
+          [projectId]: { total, completed }
+        }
+        return { todos: newTodos, todoCounts: newTodoCounts }
       })
     })
 
@@ -228,11 +235,19 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         set(state => {
           const newTodos = {
             ...state.todos,
-            [projectId]: state.todos[projectId]?.map(t => 
+            [projectId]: state.todos[projectId]?.map(t =>
               t.id === updatedTodo.id ? updatedTodo : t
             ) || []
           }
-          return { todos: newTodos }
+          // Only update counts for the affected project
+          const projectTodos = newTodos[projectId] || []
+          const total = projectTodos.length
+          const completed = projectTodos.filter(todo => todo.completed).length
+          const newTodoCounts = {
+            ...state.todoCounts,
+            [projectId]: { total, completed }
+          }
+          return { todos: newTodos, todoCounts: newTodoCounts }
         })
       })
     }
