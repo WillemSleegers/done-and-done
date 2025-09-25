@@ -378,8 +378,24 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   getProjectTodos: (projectId) => {
     const todos = get().todos[projectId] || []
-    // Sort by order field for consistent display
-    return [...todos].sort((a, b) => a.order - b.order)
+
+    // Smart sorting: open todos first (by order), then completed todos (by completion date, newest first)
+    return [...todos].sort((a, b) => {
+      // If completion status is different, sort by completion (incomplete first)
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1
+      }
+
+      // If both are completed, sort by completion date (newest first)
+      if (a.completed && b.completed) {
+        const aCompletedAt = a.completed_at || a.created_at
+        const bCompletedAt = b.completed_at || b.created_at
+        return new Date(bCompletedAt).getTime() - new Date(aCompletedAt).getTime()
+      }
+
+      // If both are incomplete, sort by order
+      return a.order - b.order
+    })
   },
 
   getProjectsSortedByOrder: () => {

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { type Todo } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 import {
@@ -19,6 +20,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+import { ChevronDown, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import TodoItem from "../TodoItem"
 
 interface TodoListProps {
@@ -33,6 +36,17 @@ export default function TodoList({
   onOpenDateDialog,
 }: TodoListProps) {
   const { reorderTodos } = useProjectStore()
+  const [showAllCompleted, setShowAllCompleted] = useState(false)
+
+  // Split todos into open and completed
+  const openTodos = todos.filter((todo) => !todo.completed)
+  const completedTodos = todos.filter((todo) => todo.completed)
+
+  // Show only first 3 completed todos unless expanded
+  const visibleCompletedTodos = showAllCompleted
+    ? completedTodos
+    : completedTodos.slice(0, 3)
+  const hiddenCompletedCount = completedTodos.length - visibleCompletedTodos.length
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -55,11 +69,19 @@ export default function TodoList({
     const { active, over } = event
 
     if (active.id !== over?.id) {
-      const oldIndex = todos.findIndex((todo) => todo.id === active.id)
-      const newIndex = todos.findIndex((todo) => todo.id === over?.id)
+      // Only allow reordering within the open todos section
+      const activeTodo = openTodos.find((todo) => todo.id === active.id)
+      const overTodo = openTodos.find((todo) => todo.id === over?.id)
 
-      const newOrder = arrayMove(todos, oldIndex, newIndex)
-      await reorderTodos(projectId, newOrder)
+      if (activeTodo && overTodo) {
+        const oldIndex = openTodos.findIndex((todo) => todo.id === active.id)
+        const newIndex = openTodos.findIndex((todo) => todo.id === over?.id)
+
+        const reorderedOpenTodos = arrayMove(openTodos, oldIndex, newIndex)
+        // Combine with completed todos to maintain full list
+        const newOrder = [...reorderedOpenTodos, ...completedTodos]
+        await reorderTodos(projectId, newOrder)
+      }
     }
   }
 
@@ -68,27 +90,82 @@ export default function TodoList({
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis]}
-    >
-      <SortableContext
-        items={todos.map((todo) => todo.id)}
-        strategy={verticalListSortingStrategy}
-      >
+    <div className="space-y-4">
+      {/* Open todos section with drag and drop */}
+      {openTodos.length > 0 && (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext
+            items={openTodos.map((todo) => todo.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {openTodos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  projectId={projectId}
+                  onOpenDateDialog={() => onOpenDateDialog(todo.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
+      {/* Completed todos section */}
+      {completedTodos.length > 0 && (
         <div className="space-y-3">
-          {todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              projectId={projectId}
-              onOpenDateDialog={() => onOpenDateDialog(todo.id)}
-            />
-          ))}
+          {/* Visual separator */}
+          {openTodos.length > 0 && (
+            <div className="flex items-center gap-3 py-2">
+              <div className="flex-1 h-px bg-border"></div>
+              <span className="text-sm text-muted-foreground font-medium">
+                Completed ({completedTodos.length})
+              </span>
+              <div className="flex-1 h-px bg-border"></div>
+            </div>
+          )}
+
+          {/* Completed todos list */}
+          <div className="space-y-3">
+            {visibleCompletedTodos.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                projectId={projectId}
+                onOpenDateDialog={() => onOpenDateDialog(todo.id)}
+              />
+            ))}
+          </div>
+
+          {/* Show more/less toggle */}
+          {completedTodos.length > 3 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAllCompleted(!showAllCompleted)}
+              className="w-full text-muted-foreground hover:text-foreground"
+            >
+              {showAllCompleted ? (
+                <>
+                  <ChevronDown size={16} className="mr-2" />
+                  Show less completed
+                </>
+              ) : (
+                <>
+                  <ChevronRight size={16} className="mr-2" />
+                  Show {hiddenCompletedCount} more completed
+                </>
+              )}
+            </Button>
+          )}
         </div>
-      </SortableContext>
-    </DndContext>
+      )}
+    </div>
   )
 }
