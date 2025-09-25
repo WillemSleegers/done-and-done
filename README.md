@@ -1,38 +1,21 @@
 # Done and Done
 
-A simple project and todo management app built with Next.js and Supabase.
+A todo management app with smart organization and background synchronization.
 
-## Getting Started
+## Features
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Set up environment variables**
-   
-   Create a `.env.local` file:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-3. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-## Deployment on Vercel
-
-1. Connect your repository to Vercel
-2. Add environment variables in Vercel dashboard:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-3. Deploy!
+- **Project organization**: Group todos by projects with priorities and status
+- **Project notes**: Add notes with rich text formatting
+- **Drag-and-drop reordering**: Organize projects and active todos using drag-and-drop
+- **Due dates**: Set due dates with a calendar picker
+- **Smart todo sorting**: Open todos first, completed last (sorted by completion date)
+- **Collapsible completed todos**: Show recent completions with expand/collapse
+- **Real-time sync**: Background sync with Supabase
 
 ## Tech Stack
 
-- Next.js 15 with TypeScript
-- Supabase (database + auth)
-- Tailwind CSS v4
-- Shadcn/ui components
+- Next.js 15 with App Router and TypeScript
+- Supabase (database, auth, real-time sync)
+- Tailwind CSS v4 and Shadcn/ui components
+- Zustand for state management
+- @dnd-kit for drag-and-drop
