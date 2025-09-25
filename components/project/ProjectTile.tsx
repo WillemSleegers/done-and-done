@@ -123,6 +123,12 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
   }
 
   const handleNavigation = () => {
+    console.log('[USER ACTION] Selecting project:', {
+      projectId: project.id,
+      projectName: project.name,
+      todoCounts
+    })
+
     // Navigate to project using callback
     onSelect(project)
   }

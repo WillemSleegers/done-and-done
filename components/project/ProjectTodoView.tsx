@@ -57,6 +57,13 @@ export default function ProjectTodoView({
     const trimmedName = nameValue.trim()
 
     if (isNewProject && !isNewProjectCreated && trimmedName) {
+      console.log('[USER ACTION] Creating new project via name save:', {
+        projectId: project.id,
+        name: trimmedName,
+        status: project.status,
+        priority: project.priority
+      })
+
       try {
         await addProject({
           id: project.id, // Use the existing ID from the URL
@@ -67,10 +74,11 @@ export default function ProjectTodoView({
           order: project.order,
         })
 
+        console.log('[USER ACTION] Project created successfully via name save')
         window.history.replaceState({}, "", `/?project=${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
-        console.error("Failed to create project:", error)
+        console.error("[ERROR] Failed to create project:", error)
         return
       }
     } else if (
@@ -78,9 +86,17 @@ export default function ProjectTodoView({
       trimmedName &&
       trimmedName !== project.name
     ) {
+      console.log('[USER ACTION] Updating project name:', {
+        projectId: project.id,
+        oldName: project.name,
+        newName: trimmedName
+      })
+
       // Update the project in the store
       await updateProject(project.id, { name: trimmedName })
+      console.log('[USER ACTION] Project name updated successfully')
     } else if (!trimmedName) {
+      console.log('[USER ACTION] Resetting empty project name to original')
       setNameValue(project.name) // Reset to original
     }
   }
@@ -92,6 +108,12 @@ export default function ProjectTodoView({
     const trimmedText = textContent.trim()
 
     if (isNewProject && !isNewProjectCreated && trimmedText) {
+      console.log('[USER ACTION] Creating new project via notes save:', {
+        projectId: project.id,
+        name: nameValue.trim() || "Untitled Project",
+        hasNotes: trimmedText.length > 0
+      })
+
       try {
         await addProject({
           id: project.id, // Use the existing ID from the URL
@@ -102,16 +124,25 @@ export default function ProjectTodoView({
           order: project.order,
         })
 
+        console.log('[USER ACTION] Project created successfully via notes save')
         window.history.replaceState({}, "", `/?project=${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
-        console.error("Failed to create project:", error)
+        console.error("[ERROR] Failed to create project:", error)
         return
       }
     } else if (isNewProjectCreated && htmlContent !== (project.notes || "")) {
+      console.log('[USER ACTION] Updating project notes:', {
+        projectId: project.id,
+        projectName: project.name,
+        hasNotes: trimmedText.length > 0,
+        notesLength: trimmedText.length
+      })
+
       updateProject(project.id, {
         notes: htmlContent || undefined,
       })
+      console.log('[USER ACTION] Project notes updated successfully')
     }
   }
 
@@ -162,10 +193,18 @@ export default function ProjectTodoView({
 
 
   const handleDeleteProject = async () => {
+    console.log('[USER ACTION] Deleting project:', {
+      projectId: project.id,
+      projectName: project.name,
+      todoCount: todos.length
+    })
+
     try {
       await deleteProject(project.id)
+      console.log('[USER ACTION] Project deleted successfully')
       onBack() // Navigate back to project grid after deletion
     } catch {
+      console.error('[ERROR] Failed to delete project')
       onBack()
     }
   }

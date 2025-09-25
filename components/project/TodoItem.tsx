@@ -80,16 +80,33 @@ export default function TodoItem({
   const handleToggleTodo = async () => {
     if (isEditing) return
 
+    const isCompletingTodo = !todo.completed
+    console.log('[USER ACTION] Toggling todo completion:', {
+      todoId: todo.id,
+      todoText: todo.text,
+      projectId,
+      wasCompleted: todo.completed,
+      nowCompleted: isCompletingTodo
+    })
+
     try {
-      const isCompletingTodo = !todo.completed
       await updateTodo(todo.id, {
         completed: isCompletingTodo,
         completed_at: isCompletingTodo ? new Date().toISOString() : undefined,
       })
-    } catch {}
+      console.log('[USER ACTION] Todo completion toggled successfully')
+    } catch {
+      console.error('[ERROR] Failed to toggle todo completion')
+    }
   }
 
   const startEditing = () => {
+    console.log('[USER ACTION] Starting todo edit:', {
+      todoId: todo.id,
+      todoText: todo.text,
+      projectId
+    })
+
     setIsEditing(true)
     setEditText(todo.text)
     originalEditTextRef.current = todo.text // Store original value when editing starts
@@ -99,6 +116,12 @@ export default function TodoItem({
   }
 
   const cancelEditing = () => {
+    console.log('[USER ACTION] Canceling todo edit:', {
+      todoId: todo.id,
+      originalText: originalEditTextRef.current,
+      editedText: editText
+    })
+
     setIsEditing(false)
     setEditText(originalEditTextRef.current) // Reset to original value when editing started
   }
@@ -109,18 +132,36 @@ export default function TodoItem({
       return
     }
 
+    console.log('[USER ACTION] Saving todo edit:', {
+      todoId: todo.id,
+      originalText: originalEditTextRef.current,
+      newText: editText.trim(),
+      projectId
+    })
+
     try {
       await updateTodo(todo.id, { text: editText.trim() })
+      console.log('[USER ACTION] Todo edit saved successfully')
       setIsEditing(false)
     } catch {
+      console.error('[ERROR] Failed to save todo edit')
       // Keep editing state on error
     }
   }
 
   const handleDeleteTodo = async () => {
+    console.log('[USER ACTION] Deleting todo:', {
+      todoId: todo.id,
+      todoText: todo.text,
+      projectId
+    })
+
     try {
       await deleteTodo(todo.id, projectId)
-    } catch {}
+      console.log('[USER ACTION] Todo deleted successfully')
+    } catch {
+      console.error('[ERROR] Failed to delete todo')
+    }
   }
 
   // Touch handling with delay for drag

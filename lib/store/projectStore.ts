@@ -57,11 +57,13 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       set({ isLoading: true })
     }
     try {
+      console.log('[STORE] Fetching initial data via sync service')
       const { projects, todos } = await syncService.fetchInitialData(currentState.projects, currentState.todos)
       const todoCounts = updateTodoCounts(todos)
+      console.log('[STORE] Initial data loaded successfully')
       set({ projects, todos, todoCounts, isLoading: false })
     } catch (error) {
-      console.error('Failed to fetch initial data:', error)
+      console.error('[STORE ERROR] Failed to fetch initial data:', error)
       set({ isLoading: false })
     }
   },

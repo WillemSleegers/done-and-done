@@ -30,12 +30,25 @@ export default function AddTodoForm({
     e.preventDefault()
     if (!newTodo.trim() || isAdding) return
 
+    console.log('[USER ACTION] Adding todo:', {
+      text: newTodo.trim(),
+      projectId: project.id,
+      projectName: nameValue || project.name,
+      isNewProject
+    })
+
     setIsAdding(true)
 
     try {
       let projectToUse = project
 
       if (isNewProject) {
+        console.log('[USER ACTION] Creating new project with first todo:', {
+          projectId: project.id,
+          projectName: nameValue.trim() || "Untitled Project",
+          firstTodo: newTodo.trim()
+        })
+
         await addProject({
           id: project.id,
           name: nameValue.trim() || "Untitled Project",
@@ -50,11 +63,12 @@ export default function AddTodoForm({
       }
 
       await addTodo(projectToUse.id, newTodo.trim())
+      console.log('[USER ACTION] Todo added successfully')
       setNewTodo("") // Clear input after local add - let sync happen in background
     } catch (error) {
       // Even if there's an error, the optimistic update likely worked
       // Clear input so user can continue adding todos
-      console.error('Failed to add todo:', error)
+      console.error('[ERROR] Failed to add todo:', error)
       setNewTodo("")
     } finally {
       setIsAdding(false)

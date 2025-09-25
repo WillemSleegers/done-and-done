@@ -36,6 +36,8 @@ class SyncService {
   }
 
   async fetchInitialData(existingProjects: Project[] = [], existingTodos: Record<string, Todo[]> = {}): Promise<{ projects: Project[]; todos: Record<string, Todo[]> }> {
+    console.log('[SYNC] Fetching initial data from database')
+
     try {
       const [projectsResult, todosResult] = await Promise.all([
         supabase.from('projects').select('*').order('order', { ascending: true }),
@@ -130,15 +132,25 @@ class SyncService {
         }
       })
 
+      console.log('[SYNC] Initial data fetched successfully:', {
+        projectCount: projects.length,
+        todoCount: Object.values(todosByProject).flat().length
+      })
+
       return { projects, todos: todosByProject }
     } catch (error) {
-      console.error('Failed to fetch initial data:', error)
+      console.error('[SYNC ERROR] Failed to fetch initial data:', error)
       return { projects: [], todos: {} }
     }
   }
 
   async syncProject(project: Project, onUpdate: (updatedProject: Project) => void): Promise<void> {
     if (project.syncState === 'synced' || project.remoteId) return
+
+    console.log('[SYNC] Syncing project to database:', {
+      projectId: project.id,
+      projectName: project.name
+    })
 
     onUpdate({ ...project, syncState: 'syncing' })
 
@@ -157,20 +169,30 @@ class SyncService {
 
       if (error) throw error
 
-      onUpdate({ 
-        ...project, 
-        syncState: 'synced', 
+      console.log('[SYNC] Project synced successfully:', {
+        projectId: project.id,
+        remoteId: data.id
+      })
+
+      onUpdate({
+        ...project,
+        syncState: 'synced',
         remoteId: data.id,
-        lastError: undefined 
+        lastError: undefined
       })
     } catch (error) {
-      const updatedProject = { 
-        ...project, 
+      console.error('[SYNC ERROR] Failed to sync project:', {
+        projectId: project.id,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+
+      const updatedProject = {
+        ...project,
         syncState: 'failed' as const,
         lastError: error instanceof Error ? error.message : 'Sync failed'
       }
       onUpdate(updatedProject)
-      
+
       this.scheduleRetry(project.id, () => this.syncProject(updatedProject, onUpdate))
     }
   }
@@ -182,9 +204,19 @@ class SyncService {
   ): Promise<void> {
     if (todo.syncState === 'synced' || todo.remoteId) return
     if (!projectRemoteId) {
+      console.log('[SYNC] Retrying todo sync - waiting for project remote ID:', {
+        todoId: todo.id,
+        todoText: todo.text
+      })
       this.scheduleRetry(todo.id, () => this.syncTodo(todo, projectRemoteId, onUpdate), 1000)
       return
     }
+
+    console.log('[SYNC] Syncing todo to database:', {
+      todoId: todo.id,
+      todoText: todo.text,
+      projectRemoteId
+    })
 
     onUpdate({ ...todo, syncState: 'syncing' })
 
@@ -203,20 +235,30 @@ class SyncService {
 
       if (error) throw error
 
-      onUpdate({ 
-        ...todo, 
-        syncState: 'synced', 
+      console.log('[SYNC] Todo synced successfully:', {
+        todoId: todo.id,
+        remoteId: data.id
+      })
+
+      onUpdate({
+        ...todo,
+        syncState: 'synced',
         remoteId: data.id,
-        lastError: undefined 
+        lastError: undefined
       })
     } catch (error) {
-      const updatedTodo = { 
-        ...todo, 
+      console.error('[SYNC ERROR] Failed to sync todo:', {
+        todoId: todo.id,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+
+      const updatedTodo = {
+        ...todo,
         syncState: 'failed' as const,
         lastError: error instanceof Error ? error.message : 'Sync failed'
       }
       onUpdate(updatedTodo)
-      
+
       this.scheduleRetry(todo.id, () => this.syncTodo(updatedTodo, projectRemoteId, onUpdate))
     }
   }
@@ -228,6 +270,12 @@ class SyncService {
   ): Promise<void> {
     if (!todo.remoteId) return
 
+    console.log('[SYNC] Updating todo in database:', {
+      todoId: todo.id,
+      remoteId: todo.remoteId,
+      updates
+    })
+
     onUpdate({ ...todo, syncState: 'syncing' })
 
     try {
@@ -238,15 +286,25 @@ class SyncService {
 
       if (error) throw error
 
+      console.log('[SYNC] Todo updated successfully:', {
+        todoId: todo.id,
+        remoteId: todo.remoteId
+      })
+
       onUpdate({ ...todo, syncState: 'synced', lastError: undefined })
     } catch (error) {
-      const updatedTodo = { 
-        ...todo, 
+      console.error('[SYNC ERROR] Failed to update todo:', {
+        todoId: todo.id,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+
+      const updatedTodo = {
+        ...todo,
         syncState: 'failed' as const,
         lastError: error instanceof Error ? error.message : 'Update failed'
       }
       onUpdate(updatedTodo)
-      
+
       this.scheduleRetry(todo.id, () => this.updateTodo(updatedTodo, updates, onUpdate))
     }
   }
@@ -254,14 +312,29 @@ class SyncService {
   async deleteTodo(todo: Todo): Promise<void> {
     if (!todo.remoteId) return
 
+    console.log('[SYNC] Deleting todo from database:', {
+      todoId: todo.id,
+      remoteId: todo.remoteId,
+      todoText: todo.text
+    })
+
     const { error } = await supabase
       .from('todos')
       .delete()
       .eq('id', todo.remoteId)
 
     if (error) {
+      console.error('[SYNC ERROR] Failed to delete todo:', {
+        todoId: todo.id,
+        error: error.message
+      })
       throw new Error(error.message)
     }
+
+    console.log('[SYNC] Todo deleted successfully:', {
+      todoId: todo.id,
+      remoteId: todo.remoteId
+    })
   }
 
   async updateTodosOrder(todos: Pick<Todo, 'remoteId' | 'order'>[]): Promise<void> {
@@ -313,6 +386,12 @@ class SyncService {
   async updateProject(project: Project, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority' | 'order'>>, onUpdate: (updatedProject: Project) => void): Promise<void> {
     if (!project.remoteId) return
 
+    console.log('[SYNC] Updating project in database:', {
+      projectId: project.id,
+      remoteId: project.remoteId,
+      updates
+    })
+
     onUpdate({ ...project, ...updates, syncState: 'syncing' })
 
     try {
@@ -323,15 +402,25 @@ class SyncService {
 
       if (error) throw error
 
+      console.log('[SYNC] Project updated successfully:', {
+        projectId: project.id,
+        remoteId: project.remoteId
+      })
+
       onUpdate({ ...project, ...updates, syncState: 'synced', lastError: undefined })
     } catch (error) {
-      const updatedProject = { 
-        ...project, 
+      console.error('[SYNC ERROR] Failed to update project:', {
+        projectId: project.id,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+
+      const updatedProject = {
+        ...project,
         syncState: 'failed' as const,
         lastError: error instanceof Error ? error.message : 'Update failed'
       }
       onUpdate(updatedProject)
-      
+
       this.scheduleRetry(project.id, () => this.updateProject(updatedProject, updates, onUpdate))
     }
   }
@@ -339,14 +428,29 @@ class SyncService {
   async deleteProject(project: Project): Promise<void> {
     if (!project.remoteId) return
 
+    console.log('[SYNC] Deleting project from database:', {
+      projectId: project.id,
+      remoteId: project.remoteId,
+      projectName: project.name
+    })
+
     const { error } = await supabase
       .from('projects')
       .delete()
       .eq('id', project.remoteId)
 
     if (error) {
+      console.error('[SYNC ERROR] Failed to delete project:', {
+        projectId: project.id,
+        error: error.message
+      })
       throw new Error(error.message)
     }
+
+    console.log('[SYNC] Project deleted successfully:', {
+      projectId: project.id,
+      remoteId: project.remoteId
+    })
   }
 
   cleanup() {

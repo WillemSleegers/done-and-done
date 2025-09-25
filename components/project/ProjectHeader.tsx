@@ -39,13 +39,29 @@ export default function ProjectHeader({
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   const handleStatusChange = (newStatus: ProjectStatus) => {
+    console.log('[USER ACTION] Changing project status:', {
+      projectId: project.id,
+      projectName: project.name,
+      oldStatus: project.status,
+      newStatus
+    })
+
     updateProject(project.id, { status: newStatus })
   }
 
   const handlePriorityChange = async (priority: ProjectPriority) => {
+    console.log('[USER ACTION] Changing project priority:', {
+      projectId: project.id,
+      projectName: project.name,
+      oldPriority: project.priority,
+      newPriority: priority
+    })
+
     try {
       await updateProject(project.id, { priority })
+      console.log('[USER ACTION] Project priority changed successfully')
     } catch {
+      console.error('[ERROR] Failed to change project priority')
     }
   }
 
