@@ -19,7 +19,7 @@ interface ProjectActions {
   retryFailedProject: (projectId: string) => Promise<void>
 
   addTodo: (projectId: string, text: string) => Promise<Todo>
-  updateTodo: (todoId: string, updates: Partial<Pick<Todo, 'text' | 'completed' | 'due_date'>>) => Promise<void>
+  updateTodo: (todoId: string, updates: Partial<Pick<Todo, 'text' | 'completed' | 'completed_at' | 'due_date'>>) => Promise<void>
   deleteTodo: (todoId: string, projectId: string) => Promise<void>
   retryFailedTodo: (todoId: string, projectId: string) => Promise<void>
   reorderTodos: (projectId: string, newOrder: Todo[]) => Promise<void>

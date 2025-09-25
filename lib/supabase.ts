@@ -33,19 +33,20 @@ export type DatabaseTodo = Database['public']['Tables']['todos']['Row']
 
 // Extended types for local app state (includes sync state)
 export type Project = DatabaseProject & {
-  id: string              // Override to use local UUID
+  id: string              // Local UUID
   remoteId?: string       // Server ID once synced to database
-  order: number           // Override to make non-nullable
+  order: number     
   syncState: SyncState
   lastError?: string
 }
 
 export type Todo = DatabaseTodo & {
-  id: string              // Override to use local UUID
+  id: string              // Local UUID
   remoteId?: string       // Server ID once synced to database
-  completed: boolean      // Override to make non-nullable
-  project_id: string      // Override to make non-nullable (References local Project.id)
-  order: number           // Override to make non-nullable
+  completed: boolean    
+  completed_at?: string   
+  project_id: string      
+  order: number           
   syncState: SyncState
   lastError?: string
 }

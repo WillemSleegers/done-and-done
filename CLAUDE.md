@@ -46,6 +46,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **Maximum smoothness** - Eliminate loading states, delays, UI flashes
 - **Invisible sync** - Background synchronization, only show errors when failed
 
+## Code Style
+- **Minimal comments** - Avoid verbose or redundant comments on legacy code
+- **Self-documenting code** - Prefer clear naming and structure over explanatory comments
+- **Only comment when useful** - Add comments only when requested or for complex business logic
+
 ## Data Architecture
 - **Database schema first** - Always update Supabase before adding fields to types
 - **Full-stack consistency** - Changes must flow: Database → Sync Service → Store → UI

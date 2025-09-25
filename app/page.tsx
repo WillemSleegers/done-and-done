@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useProjectStore } from "@/lib/store/projectStore"
 import type { Project } from "@/lib/services/syncService"
 import AuthGuard from "@/components/auth/AuthGuard"
 import NavigationBar from "@/components/navigation/NavigationBar"
@@ -22,12 +21,10 @@ export default function Home() {
     const newProject: Project = {
       id: crypto.randomUUID(),
       name: '',
-      description: null,
       notes: null,
       status: 'active',
       priority: 'normal',
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
       order: 1,
       syncState: 'local',
       remoteId: undefined,

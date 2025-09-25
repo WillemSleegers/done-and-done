@@ -1,7 +1,7 @@
 "use client"
 
 import { type Project } from "@/lib/services/syncService"
-import { Plus, FolderOpen, Archive, CheckCircle } from "lucide-react"
+import { Plus, FolderOpen } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { Button } from "@/components/ui/button"
 import ProjectTile from "./ProjectTile"

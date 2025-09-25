@@ -97,6 +97,7 @@ class SyncService {
             ...existing,
             text: remote.text,
             completed: remote.completed ?? false,
+            completed_at: remote.completed_at,
             project_id: localProjectId, // Update project_id in case project mapping changed
             created_at: remote.created_at,
             due_date: remote.due_date,
@@ -108,6 +109,7 @@ class SyncService {
             remoteId: remote.id,
             text: remote.text,
             completed: remote.completed ?? false,
+            completed_at: remote.completed_at,
             project_id: localProjectId,
             created_at: remote.created_at,
             due_date: remote.due_date,

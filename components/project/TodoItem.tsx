@@ -84,7 +84,7 @@ export default function TodoItem({
       const isCompletingTodo = !todo.completed
       await updateTodo(todo.id, {
         completed: isCompletingTodo,
-        completed_at: isCompletingTodo ? new Date().toISOString() : null,
+        completed_at: isCompletingTodo ? new Date().toISOString() : undefined,
       })
     } catch {}
   }
