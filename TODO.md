@@ -14,10 +14,7 @@
 ## Developer Experience
 
 - **Accessibility**
-  - Add proper ARIA labels
   - Improve keyboard navigation
-  - Test with screen readers
-  - Ensure proper color contrast
 
 ## Misc.
 
