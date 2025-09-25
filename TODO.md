@@ -4,7 +4,6 @@
 
 - Improve colors
   - Add nice vibrant colors for tiles (project tiles, todo items)
-- Create better more readable URLs for each project
 
 ## Code Quality
 
@@ -22,5 +21,4 @@
 
 ## Misc.
 
-- Update README
 - Explain to me the differences between a single-page app approach and one using a separate pages architecture
