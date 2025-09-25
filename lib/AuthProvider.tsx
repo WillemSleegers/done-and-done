@@ -59,8 +59,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (newUser) {
-        // Keep auth loading true until project data is fetched
-        await fetchInitialData()
+        // Skip data fetching for new project creation to allow offline usage
+        const isNewProject = typeof window !== 'undefined' && window.location.search.includes('new=true')
+        if (!isNewProject) {
+          // Keep auth loading true until project data is fetched
+          await fetchInitialData()
+        } else {
+          // For new projects, just ensure store isn't in loading state
+          useProjectStore.setState({ isLoading: false })
+        }
       }
 
       setLoading(false)

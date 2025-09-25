@@ -37,7 +37,7 @@ export default function AddTodoForm({
 
       if (isNewProject) {
         await addProject({
-          id: project.id, // Use the existing ID from the URL
+          id: project.id,
           name: nameValue.trim() || "Untitled Project",
           notes: notesHtml || null,
           status: project.status,
@@ -45,15 +45,17 @@ export default function AddTodoForm({
           order: project.order,
         })
 
-        window.history.replaceState({}, "", `/projects/${project.id}`)
         onProjectCreated()
         projectToUse = project // Use the same project object
       }
 
       await addTodo(projectToUse.id, newTodo.trim())
-      setNewTodo("")
-    } catch {
-      setNewTodo("")
+      setNewTodo("") // Clear input after successful local add
+    } catch (error) {
+      // Only clear input if the todo was actually added locally
+      // If addTodo throws, it means the local add failed completely
+      console.error('Failed to add todo:', error)
+      // Don't clear input - let user retry
     } finally {
       setIsAdding(false)
     }

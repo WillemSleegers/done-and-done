@@ -3,7 +3,6 @@
 import { type Project } from "@/lib/services/syncService"
 import { Plus, FolderOpen, Archive, CheckCircle } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import ProjectTile from "./ProjectTile"
 import {
@@ -48,10 +47,14 @@ const sortProjectsByPriority = (projects: Project[]) => {
   })
 }
 
-export default function ProjectGrid() {
+interface ProjectGridProps {
+  onSelectProject: (project: Project) => void
+  onCreateProject: () => void
+}
+
+export default function ProjectGrid({ onSelectProject, onCreateProject }: ProjectGridProps) {
   const { projects, todoCounts, reorderProjects, getProjectsSortedByOrder } =
     useProjectStore()
-  const router = useRouter()
 
   const allProjectsSorted = getProjectsSortedByOrder()
 
@@ -107,9 +110,7 @@ export default function ProjectGrid() {
   }
 
   const handleCreateProject = () => {
-    // Generate a temporary ID for new project
-    const tempId = crypto.randomUUID()
-    router.push(`/?project=${tempId}&new=true`)
+    onCreateProject()
   }
 
   return (
@@ -137,6 +138,7 @@ export default function ProjectGrid() {
                     key={project.id}
                     project={project}
                     todoCounts={counts}
+                    onSelect={onSelectProject}
                   />
                 )
               })}
@@ -156,43 +158,42 @@ export default function ProjectGrid() {
           </div>
         </DndContext>
 
-        {/* Summary tiles section */}
-        {(sortedInactiveProjects.length > 0 ||
-          sortedCompletedProjects.length > 0) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {/* Inactive Projects Summary Tile */}
-            {sortedInactiveProjects.length > 0 && (
-              <Button
-                variant="ghost"
-                onClick={() => router.push("/?view=inactive")}
-                className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
-              >
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
-                  <Archive size={24} className="mb-2" />
-                  <span className="text-sm font-medium">
-                    {sortedInactiveProjects.length} Inactive Project
-                    {sortedInactiveProjects.length === 1 ? "" : "s"}
-                  </span>
-                </div>
-              </Button>
-            )}
+        {/* Show inactive and completed projects in the main grid */}
+        {sortedInactiveProjects.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">Inactive Projects</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortedInactiveProjects.map((project) => {
+                const counts = todoCounts[project.id] || { total: 0, completed: 0 }
+                return (
+                  <ProjectTile
+                    key={project.id}
+                    project={project}
+                    todoCounts={counts}
+                    onSelect={onSelectProject}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        )}
 
-            {/* Completed Projects Summary Tile */}
-            {sortedCompletedProjects.length > 0 && (
-              <Button
-                variant="ghost"
-                onClick={() => router.push("/?view=completed")}
-                className="h-28 p-4 border rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
-              >
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
-                  <CheckCircle size={24} className="mb-2" />
-                  <span className="text-sm font-medium">
-                    {sortedCompletedProjects.length} Completed Project
-                    {sortedCompletedProjects.length === 1 ? "" : "s"}
-                  </span>
-                </div>
-              </Button>
-            )}
+        {sortedCompletedProjects.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">Completed Projects</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortedCompletedProjects.map((project) => {
+                const counts = todoCounts[project.id] || { total: 0, completed: 0 }
+                return (
+                  <ProjectTile
+                    key={project.id}
+                    project={project}
+                    todoCounts={counts}
+                    onSelect={onSelectProject}
+                  />
+                )
+              })}
+            </div>
           </div>
         )}
       </div>

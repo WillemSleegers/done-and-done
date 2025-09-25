@@ -1,7 +1,6 @@
 "use client"
 
 import { ArrowLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/layout/ModeToggle"
 import UserMenu from "@/components/navigation/UserMenu"
@@ -9,18 +8,16 @@ import UserMenu from "@/components/navigation/UserMenu"
 interface NavigationBarProps {
   variant: "title" | "back"
   title?: string
-  backPath?: string
+  onBack?: () => void
 }
 
 export default function NavigationBar({
   variant,
   title,
-  backPath = "/",
+  onBack,
 }: NavigationBarProps) {
-  const router = useRouter()
-
   const handleBack = () => {
-    router.push(backPath)
+    onBack?.()
   }
 
   return (

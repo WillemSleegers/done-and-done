@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
@@ -9,10 +8,10 @@ import { useSortable } from "@dnd-kit/sortable"
 interface ProjectTileProps {
   project: Project
   todoCounts: { total: number; completed: number }
+  onSelect: (project: Project) => void
 }
 
-export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
-  const router = useRouter()
+export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTileProps) {
   const [isPressed, setIsPressed] = useState(false)
 
   // Touch handling refs
@@ -124,8 +123,8 @@ export default function ProjectTile({ project, todoCounts }: ProjectTileProps) {
   }
 
   const handleNavigation = () => {
-    // Navigate to project using UUID for stable URLs
-    router.push(`/?project=${project.id}`)
+    // Navigate to project using callback
+    onSelect(project)
   }
 
   const handleClick = (e: React.MouseEvent) => {

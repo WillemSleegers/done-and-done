@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { forwardRef, useImperativeHandle, useEffect } from 'react'
 
@@ -28,11 +27,12 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     const editor = useEditor({
       immediatelyRender: false,
       extensions: [
-        StarterKit,
-        Link.configure({
-          openOnClick: false,
-          HTMLAttributes: {
-            class: 'text-primary underline hover:text-primary/80 cursor-pointer',
+        StarterKit.configure({
+          link: {
+            openOnClick: false,
+            HTMLAttributes: {
+              class: 'text-primary underline hover:text-primary/80 cursor-pointer',
+            },
           },
         }),
         Placeholder.configure({
