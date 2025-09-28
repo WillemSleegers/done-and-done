@@ -45,11 +45,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
+    // Add timeout fallback for auth state detection
+    const authTimeout = setTimeout(async () => {
+      console.warn('[AUTH] Auth state detection timeout - clearing session and forcing fresh login')
+      // Clear any stuck session data
+      await supabase.auth.signOut({ scope: 'local' })
+      setUser(null)
+      setLoading(false)
+    }, 15000) // 15 second timeout for auth
+
     // Handle auth state changes (including initial session)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.email)
+      clearTimeout(authTimeout) // Clear timeout since auth state resolved
+
       const newUser = session?.user ?? null
       setUser(newUser)
 
@@ -73,7 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(authTimeout)
+    }
     // fetchInitialData and user intentionally excluded to prevent infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

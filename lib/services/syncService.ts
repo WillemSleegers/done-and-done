@@ -39,9 +39,17 @@ class SyncService {
     console.log('[SYNC] Fetching initial data from database')
 
     try {
-      const [projectsResult, todosResult] = await Promise.all([
-        supabase.from('projects').select('*').order('order', { ascending: true }),
-        supabase.from('todos').select('*').order('order', { ascending: true })
+      // Add 10 second timeout to prevent infinite hangs
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Database connection timeout after 10 seconds')), 10000)
+      })
+
+      const [projectsResult, todosResult] = await Promise.race([
+        Promise.all([
+          supabase.from('projects').select('*').order('order', { ascending: true }),
+          supabase.from('todos').select('*').order('order', { ascending: true })
+        ]),
+        timeoutPromise
       ])
 
       if (projectsResult.error) throw projectsResult.error
@@ -140,6 +148,18 @@ class SyncService {
       return { projects, todos: todosByProject }
     } catch (error) {
       console.error('[SYNC ERROR] Failed to fetch initial data:', error)
+
+      // If it's a timeout or auth error, it might be a stale session
+      if (error instanceof Error &&
+          (error.message.includes('timeout') ||
+           error.message.includes('JWT') ||
+           error.message.includes('authentication'))) {
+        console.warn('[SYNC] Auth-related error detected, clearing session')
+        // Import supabase locally to avoid circular deps
+        const { supabase } = await import('@/lib/supabase')
+        await supabase.auth.signOut({ scope: 'local' })
+      }
+
       return { projects: [], todos: {} }
     }
   }
