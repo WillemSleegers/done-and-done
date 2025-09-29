@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthProvider'
+import { useProjectStore } from '@/lib/store/projectStore'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 
 interface AuthGuardProps {
@@ -13,23 +14,26 @@ interface AuthGuardProps {
 export default function AuthGuard({ children, fallback }: AuthGuardProps) {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const { fetchInitialData, isLoading } = useProjectStore()
 
+  // Redirect to auth if not authenticated
   useEffect(() => {
     if (!loading && !user) {
       router.push('/auth')
     }
   }, [user, loading, router])
 
-  if (loading) {
-    return (
-      fallback || (
-        <div className="min-h-screen bg-background">
-          <div className="pt-6">
-            <LoadingScreen />
-          </div>
-        </div>
-      )
-    )
+  // Fetch initial data when user is authenticated
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('[AUTH GUARD] User authenticated, fetching initial data')
+      fetchInitialData()
+    }
+  }, [user, loading, fetchInitialData])
+
+  // Show loading for auth OR data loading
+  if (loading || (user && isLoading)) {
+    return fallback || <LoadingScreen />
   }
 
   if (!user) {

@@ -4,8 +4,8 @@ import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ModeToggle } from "@/components/layout/ModeToggle"
-import { Github } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { siGithub } from "simple-icons"
 
 export default function AuthForm() {
   const [email, setEmail] = useState("")
@@ -45,7 +45,7 @@ export default function AuthForm() {
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
+        provider: "github",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
@@ -59,10 +59,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="absolute top-4 right-4">
-        <ModeToggle />
-      </div>
+    <div className="h-full bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -84,11 +81,18 @@ export default function AuthForm() {
           <div className="space-y-4">
             <Button
               onClick={handleGithubSignIn}
-              variant="outline"
               className="w-full"
               disabled={githubLoading || loading}
+              tabIndex={1}
             >
-              <Github className="mr-2 h-4 w-4" />
+              <svg
+                className="mr-2 h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                role="img"
+              >
+                <path d={siGithub.path} />
+              </svg>
               {githubLoading ? "Signing in..." : "Continue with GitHub"}
             </Button>
 
@@ -97,15 +101,15 @@ export default function AuthForm() {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with email
+                </span>
               </div>
             </div>
 
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email address
-                </label>
+                <Label htmlFor="email">Email address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -114,6 +118,8 @@ export default function AuthForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading || githubLoading}
+                  className="bg-background"
+                  tabIndex={2}
                 />
               </div>
 
@@ -129,7 +135,13 @@ export default function AuthForm() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading || githubLoading}>
+              <Button
+                type="submit"
+                variant="outline"
+                className="w-full"
+                disabled={loading || githubLoading}
+                tabIndex={3}
+              >
                 {loading ? "Sending magic link..." : "Send magic link"}
               </Button>
             </form>

@@ -48,6 +48,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-connection-offline: var(--connection-offline);
+  --color-connection-loading: var(--connection-loading);
+  --color-connection-no-auth: var(--connection-no-auth);
+  --color-connection-connected: var(--connection-connected);
 }
 
 :root {
@@ -84,6 +88,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --connection-offline: oklch(0.556 0 0);
+  --connection-loading: oklch(0.6 0.118 184.704);
+  --connection-no-auth: oklch(0.556 0 0);
+  --connection-connected: oklch(0.646 0.222 140);
 }
 
 .dark {
@@ -118,6 +126,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --connection-offline: oklch(0.556 0 0);
+  --connection-loading: oklch(0.696 0.17 162.48);
+  --connection-no-auth: oklch(0.556 0 0);
+  --connection-connected: oklch(0.769 0.188 140);
 }
 
 @layer base {

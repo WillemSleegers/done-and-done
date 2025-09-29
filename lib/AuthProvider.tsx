@@ -4,7 +4,6 @@ import { User } from "@supabase/supabase-js"
 import { createContext, useContext, useEffect, useState } from "react"
 
 import { supabase } from "./supabase"
-import { useProjectStore } from "./store/projectStore"
 
 type AuthContextType = {
   user: User | null
@@ -29,7 +28,6 @@ export const useAuth = () => {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const fetchInitialData = useProjectStore(state => state.fetchInitialData)
 
 
   useEffect(() => {
@@ -44,6 +42,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
       return
     }
+
+    // Get initial session immediately
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      const newUser = session?.user ?? null
+      setUser(newUser)
+      setLoading(false)
+      console.log("Initial auth state:", newUser?.email || 'unauthenticated')
+    }
+
+    getInitialSession()
 
     // Add timeout fallback for auth state detection
     const authTimeout = setTimeout(async () => {
@@ -70,15 +79,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (newUser) {
-        // Skip data fetching for new project creation to allow offline usage
-        const isNewProject = typeof window !== 'undefined' && window.location.search.includes('new=true')
-        if (!isNewProject) {
-          // Keep auth loading true until project data is fetched
-          await fetchInitialData()
-        } else {
-          // For new projects, just ensure store isn't in loading state
-          useProjectStore.setState({ isLoading: false })
-        }
+        // Don't wait for data fetching in auth provider - let components handle it
+        // This prevents auth from hanging if data sync fails
+        console.log('[AUTH] User authenticated, auth loading complete')
       }
 
       setLoading(false)

@@ -3,8 +3,6 @@
 import { useState } from "react"
 import type { Project } from "@/lib/services/syncService"
 import AuthGuard from "@/components/auth/AuthGuard"
-import NavigationBar from "@/components/navigation/NavigationBar"
-import SyncStatus from "@/components/system/SyncStatus"
 import ProjectGrid from "@/components/project/ProjectGrid"
 import ProjectTodoView from "@/components/project/ProjectTodoView"
 
@@ -43,15 +41,11 @@ export default function Home() {
   if (selectedProject) {
     return (
       <AuthGuard>
-        <div className="min-h-screen bg-background">
-          <NavigationBar variant="back" onBack={handleBackToGrid} />
-          <SyncStatus />
-          <ProjectTodoView
-            project={selectedProject}
-            onBack={handleBackToGrid}
-            isNewProject={isNewProject}
-          />
-        </div>
+        <ProjectTodoView
+          project={selectedProject}
+          onBack={handleBackToGrid}
+          isNewProject={isNewProject}
+        />
       </AuthGuard>
     )
   }
@@ -59,14 +53,10 @@ export default function Home() {
   // Show project grid by default
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-background">
-        <NavigationBar variant="title" title="Done and Done" />
-        <SyncStatus />
-        <ProjectGrid
-          onSelectProject={handleSelectProject}
-          onCreateProject={handleCreateNewProject}
-        />
-      </div>
+      <ProjectGrid
+        onSelectProject={handleSelectProject}
+        onCreateProject={handleCreateNewProject}
+      />
     </AuthGuard>
   )
 }

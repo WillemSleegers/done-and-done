@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/lib/AuthProvider"
+import NavigationBar from "@/components/navigation/NavigationBar"
 
 import "./globals.css"
 
@@ -38,7 +39,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <div className="h-screen bg-background flex flex-col">
+              <NavigationBar />
+              <main className="flex-1">
+                {children}
+              </main>
+            </div>
           </AuthProvider>
         </ThemeProvider>
       </body>
