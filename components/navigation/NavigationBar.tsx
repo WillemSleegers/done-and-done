@@ -25,7 +25,7 @@ export default function NavigationBar({
 
   return (
     <nav className="bg-background/95">
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex items-center justify-between px-4 py-2">
         {/* Left side - Title or Back button */}
         <div className="flex items-center">
           {variant === "title" && (
