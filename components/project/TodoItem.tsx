@@ -360,12 +360,19 @@ export default function TodoItem({
               <MoreHorizontal size={14} />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+          <DropdownMenuContent
+            align="end"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenDateDialog()
               }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
             >
               <CalendarIcon size={16} className="mr-2" />
               Set due date
@@ -375,6 +382,8 @@ export default function TodoItem({
                 e.stopPropagation()
                 startEditing()
               }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
             >
               <Edit size={16} className="mr-2" />
               Edit todo
@@ -384,6 +393,8 @@ export default function TodoItem({
                 e.stopPropagation()
                 handleDeleteTodo()
               }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className="text-destructive focus:text-destructive"
             >
               <Trash size={16} className="mr-2" />

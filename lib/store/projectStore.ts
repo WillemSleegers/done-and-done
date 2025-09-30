@@ -61,9 +61,23 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       logger.info('Fetching initial data via sync service')
       const { projects, todos } = await syncService.fetchInitialData(currentState.projects, currentState.todos)
-      const todoCounts = updateTodoCounts(todos)
+
+      // Preserve any local/syncing items that haven't been saved to the server yet
+      const localProjects = currentState.projects.filter(p => p.syncState === 'local' || p.syncState === 'syncing' || p.syncState === 'failed')
+      const mergedProjects = [...projects, ...localProjects.filter(lp => !projects.some(p => p.id === lp.id))]
+
+      const mergedTodos = { ...todos }
+      Object.entries(currentState.todos).forEach(([projectId, projectTodos]) => {
+        const localTodos = projectTodos.filter(t => t.syncState === 'local' || t.syncState === 'syncing' || t.syncState === 'failed')
+        if (localTodos.length > 0) {
+          const existingTodos = mergedTodos[projectId] || []
+          mergedTodos[projectId] = [...existingTodos, ...localTodos.filter(lt => !existingTodos.some(t => t.id === lt.id))]
+        }
+      })
+
+      const todoCounts = updateTodoCounts(mergedTodos)
       logger.info('Initial data loaded successfully')
-      set({ projects, todos, todoCounts, isLoading: false })
+      set({ projects: mergedProjects, todos: mergedTodos, todoCounts, isLoading: false })
     } catch (error) {
       logger.error('Failed to fetch initial data:', error)
       set({ isLoading: false })
@@ -140,12 +154,20 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       const newTodos = { ...state.todos }
       delete newTodos[projectId]
       const todoCounts = updateTodoCounts(newTodos)
-      
+
       return {
         projects: state.projects.filter(p => p.id !== projectId),
         todos: newTodos,
         todoCounts
       }
+    })
+
+    // Track activity
+    syncActivityTracker.addActivity({
+      id: project.id,
+      name: project.name,
+      type: 'project',
+      action: 'deleted'
     })
 
     try {

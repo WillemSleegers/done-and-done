@@ -30,7 +30,8 @@ export default function AuthGuard({ children, fallback }: AuthGuardProps) {
       logger.auth('User authenticated, fetching initial data')
       fetchInitialData()
     }
-  }, [user, loading, fetchInitialData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading])
 
   // Show loading for auth OR data loading
   if (loading || (user && isLoading)) {
