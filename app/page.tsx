@@ -1,15 +1,45 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { Project } from "@/lib/services/syncService"
 import AuthGuard from "@/components/auth/AuthGuard"
 import NavigationBar from "@/components/navigation/NavigationBar"
 import ProjectGrid from "@/components/project/ProjectGrid"
 import ProjectTodoView from "@/components/project/ProjectTodoView"
+import { useProjectStore } from "@/lib/store/projectStore"
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [isNewProject, setIsNewProject] = useState(false)
+  const projects = useProjectStore((state) => state.projects)
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search)
+      const projectId = params.get('project')
+
+      if (projectId) {
+        const project = projects.find(p => p.id === projectId)
+        if (project) {
+          setSelectedProject(project)
+          setIsNewProject(params.get('new') === 'true')
+        } else {
+          setSelectedProject(null)
+          setIsNewProject(false)
+          window.history.replaceState({}, '', '/')
+        }
+      } else {
+        setSelectedProject(null)
+        setIsNewProject(false)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [projects])
 
   const handleSelectProject = (project: Project) => {
     setSelectedProject(project)
