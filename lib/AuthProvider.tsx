@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 
 import { supabase } from "./supabase"
 import { logger } from "./logger"
+import { SYNC_TIMING } from "./constants"
 
 type AuthContextType = {
   user: User | null
@@ -78,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await supabase.auth.signOut({ scope: 'local' })
       setUser(null)
       setLoading(false)
-    }, 15000) // 15 second timeout for auth
+    }, SYNC_TIMING.AUTH_TIMEOUT)
 
     // Handle auth state changes (including initial session)
     const {

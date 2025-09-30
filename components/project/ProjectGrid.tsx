@@ -5,6 +5,7 @@ import { Plus, FolderOpen } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { Button } from "@/components/ui/button"
 import ProjectTile from "./ProjectTile"
+import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
 import {
   DndContext,
   closestCenter,
@@ -75,13 +76,13 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: DRAG_CONSTRAINTS.POINTER_DISTANCE,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 5,
+        delay: TOUCH_DELAYS.PROJECT_DRAG_ACTIVATION,
+        tolerance: DRAG_CONSTRAINTS.TOUCH_TOLERANCE,
       },
     }),
     useSensor(KeyboardSensor, {

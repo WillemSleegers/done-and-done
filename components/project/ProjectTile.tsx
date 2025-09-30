@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
 import { logger } from "@/lib/logger"
+import { TOUCH_DELAYS } from "@/lib/constants"
 import PriorityBadge from "@/components/project/PriorityBadge"
 
 interface ProjectTileProps {
@@ -95,7 +96,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
           touchStartEventRef.current as React.TouchEvent<Element>
         )
       }
-    }, 200) // Slightly longer delay for projects
+    }, TOUCH_DELAYS.PROJECT_LONG_PRESS)
   }
 
   const handleTouchEnd = () => {

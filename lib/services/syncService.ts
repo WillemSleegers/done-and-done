@@ -1,5 +1,6 @@
 import { supabase, type Project, type Todo, type SyncState } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
+import { SYNC_TIMING } from '@/lib/constants'
 
 // Re-export types for convenience
 export type { Project, Todo, SyncState }
@@ -12,14 +13,14 @@ class SyncService {
     return crypto.randomUUID()
   }
 
-  private scheduleRetry(id: string, operation: () => Promise<void>, baseDelay: number = 10000) {
+  private scheduleRetry(id: string, operation: () => Promise<void>, baseDelay: number = SYNC_TIMING.BASE_RETRY_DELAY) {
     if (this.retryTimeouts.has(id)) {
       clearTimeout(this.retryTimeouts.get(id)!)
     }
 
     // Exponential backoff: 10s, 30s, 60s, then 60s intervals
     const attempts = this.retryAttempts.get(id) || 0
-    const delay = Math.min(baseDelay * Math.pow(2, attempts), 60000)
+    const delay = Math.min(baseDelay * Math.pow(2, attempts), SYNC_TIMING.MAX_RETRY_DELAY)
 
     const timeout = setTimeout(async () => {
       this.retryTimeouts.delete(id)
@@ -40,9 +41,9 @@ class SyncService {
     logger.sync('Fetching initial data from database')
 
     try {
-      // Add 10 second timeout to prevent infinite hangs
+      // Add timeout to prevent infinite hangs
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Database connection timeout after 10 seconds')), 10000)
+        setTimeout(() => reject(new Error('Database connection timeout')), SYNC_TIMING.CONNECTION_TIMEOUT)
       })
 
       const [projectsResult, todosResult] = await Promise.race([

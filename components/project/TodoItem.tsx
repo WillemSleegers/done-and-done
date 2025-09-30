@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { type Todo } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
 import { logger } from "@/lib/logger"
+import { TOUCH_DELAYS } from "@/lib/constants"
 
 import {
   Check,
@@ -180,7 +181,7 @@ export default function TodoItem({
           touchStartEventRef.current as React.TouchEvent<Element>
         )
       }
-    }, 150) // Slightly shorter delay for todos
+    }, TOUCH_DELAYS.TODO_LONG_PRESS)
   }
 
   const handleTouchEnd = () => {

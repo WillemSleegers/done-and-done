@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { type Todo } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
+import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
 import {
   DndContext,
   closestCenter,
@@ -51,13 +52,13 @@ export default function TodoList({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: DRAG_CONSTRAINTS.POINTER_DISTANCE,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
-        tolerance: 5,
+        delay: TOUCH_DELAYS.TODO_DRAG_ACTIVATION,
+        tolerance: DRAG_CONSTRAINTS.TOUCH_TOLERANCE,
       },
     }),
     useSensor(KeyboardSensor, {

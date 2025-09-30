@@ -7,6 +7,7 @@ import {
   syncActivityTracker,
   type SyncActivity,
 } from "@/lib/syncActivityTracker"
+import { DISPLAY_LIMITS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -39,7 +40,7 @@ export default function AppStatus() {
   // Subscribe to activity tracker updates
   useEffect(() => {
     const updateActivities = () => {
-      setRecentActivities(syncActivityTracker.getRecentActivities(5))
+      setRecentActivities(syncActivityTracker.getRecentActivities(DISPLAY_LIMITS.RECENT_ACTIVITY_COUNT))
     }
 
     // Initial load
@@ -210,7 +211,7 @@ export default function AppStatus() {
                 Currently Syncing
               </h4>
               <div className="space-y-1 max-h-24 overflow-y-auto">
-                {syncingItems.slice(0, 5).map((item) => (
+                {syncingItems.slice(0, DISPLAY_LIMITS.SYNCING_ITEMS_PREVIEW).map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center gap-2 text-xs"
@@ -220,9 +221,9 @@ export default function AppStatus() {
                     <span className="text-muted-foreground">({item.type})</span>
                   </div>
                 ))}
-                {syncingItems.length > 5 && (
+                {syncingItems.length > DISPLAY_LIMITS.SYNCING_ITEMS_PREVIEW && (
                   <div className="text-xs text-muted-foreground pl-4">
-                    +{syncingItems.length - 5} more
+                    +{syncingItems.length - DISPLAY_LIMITS.SYNCING_ITEMS_PREVIEW} more
                   </div>
                 )}
               </div>
