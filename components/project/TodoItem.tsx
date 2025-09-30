@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { type Todo } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
+import { logger } from "@/lib/logger"
 
 import {
   Check,
@@ -81,7 +82,7 @@ export default function TodoItem({
     if (isEditing) return
 
     const isCompletingTodo = !todo.completed
-    console.log('[USER ACTION] Toggling todo completion:', {
+    logger.userAction('Toggling todo completion', {
       todoId: todo.id,
       todoText: todo.text,
       projectId,
@@ -94,14 +95,14 @@ export default function TodoItem({
         completed: isCompletingTodo,
         completed_at: isCompletingTodo ? new Date().toISOString() : undefined,
       })
-      console.log('[USER ACTION] Todo completion toggled successfully')
+      logger.userAction('Todo completion toggled successfully')
     } catch {
-      console.error('[ERROR] Failed to toggle todo completion')
+      logger.error('Failed to toggle todo completion')
     }
   }
 
   const startEditing = () => {
-    console.log('[USER ACTION] Starting todo edit:', {
+    logger.userAction('Starting todo edit', {
       todoId: todo.id,
       todoText: todo.text,
       projectId
@@ -116,7 +117,7 @@ export default function TodoItem({
   }
 
   const cancelEditing = () => {
-    console.log('[USER ACTION] Canceling todo edit:', {
+    logger.userAction('Canceling todo edit', {
       todoId: todo.id,
       originalText: originalEditTextRef.current,
       editedText: editText
@@ -132,7 +133,7 @@ export default function TodoItem({
       return
     }
 
-    console.log('[USER ACTION] Saving todo edit:', {
+    logger.userAction('Saving todo edit', {
       todoId: todo.id,
       originalText: originalEditTextRef.current,
       newText: editText.trim(),
@@ -141,16 +142,16 @@ export default function TodoItem({
 
     try {
       await updateTodo(todo.id, { text: editText.trim() })
-      console.log('[USER ACTION] Todo edit saved successfully')
+      logger.userAction('Todo edit saved successfully')
       setIsEditing(false)
     } catch {
-      console.error('[ERROR] Failed to save todo edit')
+      logger.error('Failed to save todo edit')
       // Keep editing state on error
     }
   }
 
   const handleDeleteTodo = async () => {
-    console.log('[USER ACTION] Deleting todo:', {
+    logger.userAction('Deleting todo', {
       todoId: todo.id,
       todoText: todo.text,
       projectId
@@ -158,9 +159,9 @@ export default function TodoItem({
 
     try {
       await deleteTodo(todo.id, projectId)
-      console.log('[USER ACTION] Todo deleted successfully')
+      logger.userAction('Todo deleted successfully')
     } catch {
-      console.error('[ERROR] Failed to delete todo')
+      logger.error('Failed to delete todo')
     }
   }
 

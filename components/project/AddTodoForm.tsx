@@ -4,6 +4,7 @@ import { useState } from "react"
 import { type Project } from "@/lib/services/syncService"
 import { Plus } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
+import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -30,7 +31,7 @@ export default function AddTodoForm({
     e.preventDefault()
     if (!newTodo.trim() || isAdding) return
 
-    console.log('[USER ACTION] Adding todo:', {
+    logger.userAction('Adding todo', {
       text: newTodo.trim(),
       projectId: project.id,
       projectName: nameValue || project.name,
@@ -43,7 +44,7 @@ export default function AddTodoForm({
       let projectToUse = project
 
       if (isNewProject) {
-        console.log('[USER ACTION] Creating new project with first todo:', {
+        logger.userAction('Creating new project with first todo', {
           projectId: project.id,
           projectName: nameValue.trim() || "Untitled Project",
           firstTodo: newTodo.trim()
@@ -63,12 +64,12 @@ export default function AddTodoForm({
       }
 
       await addTodo(projectToUse.id, newTodo.trim())
-      console.log('[USER ACTION] Todo added successfully')
+      logger.userAction('Todo added successfully')
       setNewTodo("") // Clear input after local add - let sync happen in background
     } catch (error) {
       // Even if there's an error, the optimistic update likely worked
       // Clear input so user can continue adding todos
-      console.error('[ERROR] Failed to add todo:', error)
+      logger.error('Failed to add todo:', error)
       setNewTodo("")
     } finally {
       setIsAdding(false)

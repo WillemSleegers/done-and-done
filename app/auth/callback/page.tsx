@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 
 export default function AuthCallback() {
@@ -18,7 +19,7 @@ export default function AuthCallback() {
           const { error } = await supabase.auth.exchangeCodeForSession(code)
 
           if (error) {
-            console.error('Auth callback error:', error)
+            logger.error('Auth callback error:', error)
             router.push('/auth?error=callback_error')
             return
           }
@@ -32,7 +33,7 @@ export default function AuthCallback() {
           router.push('/auth')
         }
       } catch (error) {
-        console.error('Unexpected error:', error)
+        logger.error('Unexpected error:', error)
         router.push('/auth?error=unexpected')
       }
     }

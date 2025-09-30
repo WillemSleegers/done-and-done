@@ -5,6 +5,7 @@ import { type Project } from "@/lib/services/syncService"
 import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
 import { MoreHorizontal, Trash } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
+import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -39,7 +40,7 @@ export default function ProjectHeader({
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   const handleStatusChange = (newStatus: ProjectStatus) => {
-    console.log('[USER ACTION] Changing project status:', {
+    logger.userAction('Changing project status', {
       projectId: project.id,
       projectName: project.name,
       oldStatus: project.status,
@@ -50,7 +51,7 @@ export default function ProjectHeader({
   }
 
   const handlePriorityChange = async (priority: ProjectPriority) => {
-    console.log('[USER ACTION] Changing project priority:', {
+    logger.userAction('Changing project priority', {
       projectId: project.id,
       projectName: project.name,
       oldPriority: project.priority,
@@ -59,9 +60,9 @@ export default function ProjectHeader({
 
     try {
       await updateProject(project.id, { priority })
-      console.log('[USER ACTION] Project priority changed successfully')
+      logger.userAction('Project priority changed successfully')
     } catch {
-      console.error('[ERROR] Failed to change project priority')
+      logger.error('Failed to change project priority')
     }
   }
 

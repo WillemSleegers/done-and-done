@@ -1,4 +1,5 @@
 import { supabase, type Project, type Todo, type SyncState } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 // Re-export types for convenience
 export type { Project, Todo, SyncState }
@@ -36,7 +37,7 @@ class SyncService {
   }
 
   async fetchInitialData(existingProjects: Project[] = [], existingTodos: Record<string, Todo[]> = {}): Promise<{ projects: Project[]; todos: Record<string, Todo[]> }> {
-    console.log('[SYNC] Fetching initial data from database')
+    logger.sync('Fetching initial data from database')
 
     try {
       // Add 10 second timeout to prevent infinite hangs
@@ -140,21 +141,21 @@ class SyncService {
         }
       })
 
-      console.log('[SYNC] Initial data fetched successfully:', {
+      logger.sync('Initial data fetched successfully:', {
         projectCount: projects.length,
         todoCount: Object.values(todosByProject).flat().length
       })
 
       return { projects, todos: todosByProject }
     } catch (error) {
-      console.error('[SYNC ERROR] Failed to fetch initial data:', error)
+      logger.error('Failed to fetch initial data:', error)
 
       // If it's a timeout or auth error, it might be a stale session
       if (error instanceof Error &&
           (error.message.includes('timeout') ||
            error.message.includes('JWT') ||
            error.message.includes('authentication'))) {
-        console.warn('[SYNC] Auth-related error detected, clearing session')
+        logger.warn('Auth-related error detected, clearing session')
         // Import supabase locally to avoid circular deps
         const { supabase } = await import('@/lib/supabase')
         await supabase.auth.signOut({ scope: 'local' })
@@ -167,7 +168,7 @@ class SyncService {
   async syncProject(project: Project, onUpdate: (updatedProject: Project) => void): Promise<void> {
     if (project.syncState === 'synced' || project.remoteId) return
 
-    console.log('[SYNC] Syncing project to database:', {
+    logger.sync('Syncing project to database:', {
       projectId: project.id,
       projectName: project.name
     })
@@ -189,7 +190,7 @@ class SyncService {
 
       if (error) throw error
 
-      console.log('[SYNC] Project synced successfully:', {
+      logger.sync('Project synced successfully:', {
         projectId: project.id,
         remoteId: data.id
       })
@@ -201,7 +202,7 @@ class SyncService {
         lastError: undefined
       })
     } catch (error) {
-      console.error('[SYNC ERROR] Failed to sync project:', {
+      logger.error('Failed to sync project:', {
         projectId: project.id,
         error: error instanceof Error ? error.message : 'Unknown error'
       })
@@ -224,7 +225,7 @@ class SyncService {
   ): Promise<void> {
     if (todo.syncState === 'synced' || todo.remoteId) return
     if (!projectRemoteId) {
-      console.log('[SYNC] Retrying todo sync - waiting for project remote ID:', {
+      logger.sync('Retrying todo sync - waiting for project remote ID:', {
         todoId: todo.id,
         todoText: todo.text
       })
@@ -232,7 +233,7 @@ class SyncService {
       return
     }
 
-    console.log('[SYNC] Syncing todo to database:', {
+    logger.sync('Syncing todo to database:', {
       todoId: todo.id,
       todoText: todo.text,
       projectRemoteId
@@ -255,7 +256,7 @@ class SyncService {
 
       if (error) throw error
 
-      console.log('[SYNC] Todo synced successfully:', {
+      logger.sync('Todo synced successfully:', {
         todoId: todo.id,
         remoteId: data.id
       })
@@ -267,7 +268,7 @@ class SyncService {
         lastError: undefined
       })
     } catch (error) {
-      console.error('[SYNC ERROR] Failed to sync todo:', {
+      logger.error('Failed to sync todo:', {
         todoId: todo.id,
         error: error instanceof Error ? error.message : 'Unknown error'
       })
@@ -290,7 +291,7 @@ class SyncService {
   ): Promise<void> {
     if (!todo.remoteId) return
 
-    console.log('[SYNC] Updating todo in database:', {
+    logger.sync('Updating todo in database:', {
       todoId: todo.id,
       remoteId: todo.remoteId,
       updates
@@ -306,14 +307,14 @@ class SyncService {
 
       if (error) throw error
 
-      console.log('[SYNC] Todo updated successfully:', {
+      logger.sync('Todo updated successfully:', {
         todoId: todo.id,
         remoteId: todo.remoteId
       })
 
       onUpdate({ ...todo, syncState: 'synced', lastError: undefined })
     } catch (error) {
-      console.error('[SYNC ERROR] Failed to update todo:', {
+      logger.error('Failed to update todo:', {
         todoId: todo.id,
         error: error instanceof Error ? error.message : 'Unknown error'
       })
@@ -332,7 +333,7 @@ class SyncService {
   async deleteTodo(todo: Todo): Promise<void> {
     if (!todo.remoteId) return
 
-    console.log('[SYNC] Deleting todo from database:', {
+    logger.sync('Deleting todo from database:', {
       todoId: todo.id,
       remoteId: todo.remoteId,
       todoText: todo.text
@@ -344,14 +345,14 @@ class SyncService {
       .eq('id', todo.remoteId)
 
     if (error) {
-      console.error('[SYNC ERROR] Failed to delete todo:', {
+      logger.error('Failed to delete todo:', {
         todoId: todo.id,
         error: error.message
       })
       throw new Error(error.message)
     }
 
-    console.log('[SYNC] Todo deleted successfully:', {
+    logger.sync('Todo deleted successfully:', {
       todoId: todo.id,
       remoteId: todo.remoteId
     })
@@ -406,7 +407,7 @@ class SyncService {
   async updateProject(project: Project, updates: Partial<Pick<Project, 'name' | 'notes' | 'status' | 'priority' | 'order'>>, onUpdate: (updatedProject: Project) => void): Promise<void> {
     if (!project.remoteId) return
 
-    console.log('[SYNC] Updating project in database:', {
+    logger.sync('Updating project in database:', {
       projectId: project.id,
       remoteId: project.remoteId,
       updates
@@ -422,14 +423,14 @@ class SyncService {
 
       if (error) throw error
 
-      console.log('[SYNC] Project updated successfully:', {
+      logger.sync('Project updated successfully:', {
         projectId: project.id,
         remoteId: project.remoteId
       })
 
       onUpdate({ ...project, ...updates, syncState: 'synced', lastError: undefined })
     } catch (error) {
-      console.error('[SYNC ERROR] Failed to update project:', {
+      logger.error('Failed to update project:', {
         projectId: project.id,
         error: error instanceof Error ? error.message : 'Unknown error'
       })
@@ -448,7 +449,7 @@ class SyncService {
   async deleteProject(project: Project): Promise<void> {
     if (!project.remoteId) return
 
-    console.log('[SYNC] Deleting project from database:', {
+    logger.sync('Deleting project from database:', {
       projectId: project.id,
       remoteId: project.remoteId,
       projectName: project.name
@@ -460,14 +461,14 @@ class SyncService {
       .eq('id', project.remoteId)
 
     if (error) {
-      console.error('[SYNC ERROR] Failed to delete project:', {
+      logger.error('Failed to delete project:', {
         projectId: project.id,
         error: error.message
       })
       throw new Error(error.message)
     }
 
-    console.log('[SYNC] Project deleted successfully:', {
+    logger.sync('Project deleted successfully:', {
       projectId: project.id,
       remoteId: project.remoteId
     })

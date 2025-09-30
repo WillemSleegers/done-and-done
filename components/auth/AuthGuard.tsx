@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthProvider'
 import { useProjectStore } from '@/lib/store/projectStore'
+import { logger } from '@/lib/logger'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 
 interface AuthGuardProps {
@@ -26,7 +27,7 @@ export default function AuthGuard({ children, fallback }: AuthGuardProps) {
   // Fetch initial data when user is authenticated
   useEffect(() => {
     if (!loading && user) {
-      console.log('[AUTH GUARD] User authenticated, fetching initial data')
+      logger.auth('User authenticated, fetching initial data')
       fetchInitialData()
     }
   }, [user, loading, fetchInitialData])

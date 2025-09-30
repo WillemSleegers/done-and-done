@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { format } from "date-fns"
+import { logger } from "@/lib/logger"
 import ProjectHeader from "./ProjectHeader"
 import AddTodoForm from "./AddTodoForm"
 import TodoList from "./todo-view/TodoList"
@@ -57,7 +58,7 @@ export default function ProjectTodoView({
     const trimmedName = nameValue.trim()
 
     if (isNewProject && !isNewProjectCreated && trimmedName) {
-      console.log('[USER ACTION] Creating new project via name save:', {
+      logger.userAction('Creating new project via name save', {
         projectId: project.id,
         name: trimmedName,
         status: project.status,
@@ -74,11 +75,11 @@ export default function ProjectTodoView({
           order: project.order,
         })
 
-        console.log('[USER ACTION] Project created successfully via name save')
+        logger.userAction('Project created successfully via name save')
         window.history.replaceState({}, "", `/?project=${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
-        console.error("[ERROR] Failed to create project:", error)
+        logger.error("Failed to create project:", error)
         return
       }
     } else if (
@@ -86,7 +87,7 @@ export default function ProjectTodoView({
       trimmedName &&
       trimmedName !== project.name
     ) {
-      console.log('[USER ACTION] Updating project name:', {
+      logger.userAction('Updating project name', {
         projectId: project.id,
         oldName: project.name,
         newName: trimmedName
@@ -94,9 +95,9 @@ export default function ProjectTodoView({
 
       // Update the project in the store
       await updateProject(project.id, { name: trimmedName })
-      console.log('[USER ACTION] Project name updated successfully')
+      logger.userAction('Project name updated successfully')
     } else if (!trimmedName) {
-      console.log('[USER ACTION] Resetting empty project name to original')
+      logger.userAction('Resetting empty project name to original')
       setNameValue(project.name) // Reset to original
     }
   }
@@ -108,7 +109,7 @@ export default function ProjectTodoView({
     const trimmedText = textContent.trim()
 
     if (isNewProject && !isNewProjectCreated && trimmedText) {
-      console.log('[USER ACTION] Creating new project via notes save:', {
+      logger.userAction('Creating new project via notes save', {
         projectId: project.id,
         name: nameValue.trim() || "Untitled Project",
         hasNotes: trimmedText.length > 0
@@ -124,15 +125,15 @@ export default function ProjectTodoView({
           order: project.order,
         })
 
-        console.log('[USER ACTION] Project created successfully via notes save')
+        logger.userAction('Project created successfully via notes save')
         window.history.replaceState({}, "", `/?project=${project.id}`)
         setIsNewProjectCreated(true)
       } catch (error) {
-        console.error("[ERROR] Failed to create project:", error)
+        logger.error("Failed to create project:", error)
         return
       }
     } else if (isNewProjectCreated && htmlContent !== (project.notes || "")) {
-      console.log('[USER ACTION] Updating project notes:', {
+      logger.userAction('Updating project notes', {
         projectId: project.id,
         projectName: project.name,
         hasNotes: trimmedText.length > 0,
@@ -142,7 +143,7 @@ export default function ProjectTodoView({
       updateProject(project.id, {
         notes: htmlContent || undefined,
       })
-      console.log('[USER ACTION] Project notes updated successfully')
+      logger.userAction('Project notes updated successfully')
     }
   }
 
@@ -193,7 +194,7 @@ export default function ProjectTodoView({
 
 
   const handleDeleteProject = async () => {
-    console.log('[USER ACTION] Deleting project:', {
+    logger.userAction('Deleting project', {
       projectId: project.id,
       projectName: project.name,
       todoCount: todos.length
@@ -201,10 +202,10 @@ export default function ProjectTodoView({
 
     try {
       await deleteProject(project.id)
-      console.log('[USER ACTION] Project deleted successfully')
+      logger.userAction('Project deleted successfully')
       onBack() // Navigate back to project grid after deletion
     } catch {
-      console.error('[ERROR] Failed to delete project')
+      logger.error('Failed to delete project')
       onBack()
     }
   }

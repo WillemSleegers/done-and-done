@@ -4,6 +4,7 @@ import { User } from "@supabase/supabase-js"
 import { createContext, useContext, useEffect, useState } from "react"
 
 import { supabase } from "./supabase"
+import { logger } from "./logger"
 
 type AuthContextType = {
   user: User | null
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
       !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     ) {
-      console.warn(
+      logger.warn(
         "Supabase environment variables not configured. Authentication will not work."
       )
       setLoading(false)
@@ -49,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { session }, error } = await supabase.auth.getSession()
 
         if (error) {
-          console.warn('[AUTH] Session error, clearing local session:', error.message)
+          logger.auth('Session error, clearing local session:', error.message)
           await supabase.auth.signOut({ scope: 'local' })
           setUser(null)
           setLoading(false)
@@ -59,9 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const newUser = session?.user ?? null
         setUser(newUser)
         setLoading(false)
-        console.log("Initial auth state:", newUser?.email || 'unauthenticated')
+        logger.auth("Initial auth state:", newUser?.email || 'unauthenticated')
       } catch (error) {
-        console.error('[AUTH] Failed to get initial session:', error)
+        logger.error('Failed to get initial session:', error)
         await supabase.auth.signOut({ scope: 'local' })
         setUser(null)
         setLoading(false)
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Add timeout fallback for auth state detection
     const authTimeout = setTimeout(async () => {
-      console.warn('[AUTH] Auth state detection timeout - clearing session and forcing fresh login')
+      logger.warn('Auth state detection timeout - clearing session and forcing fresh login')
       // Clear any stuck session data
       await supabase.auth.signOut({ scope: 'local' })
       setUser(null)
@@ -83,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.email)
+      logger.auth("Auth state changed:", { event, email: session?.user?.email })
       clearTimeout(authTimeout) // Clear timeout since auth state resolved
 
       const newUser = session?.user ?? null
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (newUser) {
         // Don't wait for data fetching in auth provider - let components handle it
         // This prevents auth from hanging if data sync fails
-        console.log('[AUTH] User authenticated, auth loading complete')
+        logger.auth('User authenticated, auth loading complete')
       }
 
       setLoading(false)
@@ -112,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      console.error("Error signing out:", error)
+      logger.error("Error signing out:", error)
     }
   }
 

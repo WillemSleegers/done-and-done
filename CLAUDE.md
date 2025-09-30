@@ -59,6 +59,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Development Approach
 - **ALWAYS start dev server first** - Run `npm run dev` at the beginning of ANY coding session, even for simple fixes
 - Start `npm run dev` when working on code for live preview
+- **Propose before implementing** - For significant changes to the codebase, propose the approach and get user approval before proceeding with implementation
 - Focus on guidance before implementation
 - Implement only when explicitly requested
 - **Ask clarifying questions first** - When requirements are ambiguous (e.g., "40px height" - total height or content height?), ask for clarification before implementing to avoid back-and-forth iterations

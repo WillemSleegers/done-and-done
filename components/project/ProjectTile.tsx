@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
+import { logger } from "@/lib/logger"
 
 interface ProjectTileProps {
   project: Project
@@ -123,7 +124,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
   }
 
   const handleNavigation = () => {
-    console.log('[USER ACTION] Selecting project:', {
+    logger.userAction('Selecting project', {
       projectId: project.id,
       projectName: project.name,
       todoCounts
@@ -177,7 +178,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
       {...attributes}
     >
       <div
-        className={`w-full h-22 p-4 rounded-md border transition-all duration-200 transform hover:scale-105 bg-card select-none cursor-pointer ${
+        className={`w-full h-20 p-4 rounded-md border transition-all duration-200 transform hover:scale-105 bg-card select-none cursor-pointer ${
           isDragging || isPressed ? "shadow-lg bg-accent/20" : ""
         }`}
         onTouchStart={handleTouchStart}

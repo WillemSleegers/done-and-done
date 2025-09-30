@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { syncService, type Project, type Todo } from '@/lib/services/syncService'
 import { createSlug } from '@/lib/utils'
 import { syncActivityTracker } from '@/lib/syncActivityTracker'
+import { logger } from '@/lib/logger'
 
 interface ProjectState {
   projects: Project[]
@@ -58,13 +59,13 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       set({ isLoading: true })
     }
     try {
-      console.log('[STORE] Fetching initial data via sync service')
+      logger.info('Fetching initial data via sync service')
       const { projects, todos } = await syncService.fetchInitialData(currentState.projects, currentState.todos)
       const todoCounts = updateTodoCounts(todos)
-      console.log('[STORE] Initial data loaded successfully')
+      logger.info('Initial data loaded successfully')
       set({ projects, todos, todoCounts, isLoading: false })
     } catch (error) {
-      console.error('[STORE ERROR] Failed to fetch initial data:', error)
+      logger.error('Failed to fetch initial data:', error)
       set({ isLoading: false })
     }
   },
@@ -395,7 +396,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       await syncService.updateTodosOrder(reorderedTodos)
     } catch (error) {
-      console.error('Failed to sync todo order:', error)
+      logger.error('Failed to sync todo order:', error)
       // Could add retry logic here if needed
     }
   },
@@ -421,7 +422,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       await syncService.updateProjectsOrder(reorderedProjects)
     } catch (error) {
-      console.error('Failed to sync project order:', error)
+      logger.error('Failed to sync project order:', error)
       // Could add retry logic here if needed
     }
   },
