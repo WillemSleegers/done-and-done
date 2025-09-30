@@ -54,6 +54,38 @@ const updateTodoCounts = (todos: Record<string, Todo[]>) => {
   return counts
 }
 
+const mergeWithLocalItems = (
+  serverProjects: Project[],
+  serverTodos: Record<string, Todo[]>,
+  currentProjects: Project[],
+  currentTodos: Record<string, Todo[]>
+) => {
+  // Preserve any local/syncing/failed items that haven't been saved to the server yet
+  const localProjects = currentProjects.filter(
+    (p) => p.syncState === "local" || p.syncState === "syncing" || p.syncState === "failed"
+  )
+  const mergedProjects = [
+    ...serverProjects,
+    ...localProjects.filter((lp) => !serverProjects.some((p) => p.id === lp.id)),
+  ]
+
+  const mergedTodos = { ...serverTodos }
+  Object.entries(currentTodos).forEach(([projectId, projectTodos]) => {
+    const localTodos = projectTodos.filter(
+      (t) => t.syncState === "local" || t.syncState === "syncing" || t.syncState === "failed"
+    )
+    if (localTodos.length > 0) {
+      const existingTodos = mergedTodos[projectId] || []
+      mergedTodos[projectId] = [
+        ...existingTodos,
+        ...localTodos.filter((lt) => !existingTodos.some((t) => t.id === lt.id)),
+      ]
+    }
+  })
+
+  return { mergedProjects, mergedTodos }
+}
+
 export const useProjectStore = create<ProjectStore>((set, get) => ({
   projects: [],
   todos: {},
@@ -72,28 +104,12 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         currentState.todos
       )
 
-      // Preserve any local/syncing items that haven't been saved to the server yet
-      const localProjects = currentState.projects.filter(
-        (p) => p.syncState === "local" || p.syncState === "syncing" || p.syncState === "failed"
+      const { mergedProjects, mergedTodos } = mergeWithLocalItems(
+        projects,
+        todos,
+        currentState.projects,
+        currentState.todos
       )
-      const mergedProjects = [
-        ...projects,
-        ...localProjects.filter((lp) => !projects.some((p) => p.id === lp.id)),
-      ]
-
-      const mergedTodos = { ...todos }
-      Object.entries(currentState.todos).forEach(([projectId, projectTodos]) => {
-        const localTodos = projectTodos.filter(
-          (t) => t.syncState === "local" || t.syncState === "syncing" || t.syncState === "failed"
-        )
-        if (localTodos.length > 0) {
-          const existingTodos = mergedTodos[projectId] || []
-          mergedTodos[projectId] = [
-            ...existingTodos,
-            ...localTodos.filter((lt) => !existingTodos.some((t) => t.id === lt.id)),
-          ]
-        }
-      })
 
       const todoCounts = updateTodoCounts(mergedTodos)
       logger.info("Initial data loaded successfully")
@@ -402,21 +418,13 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   reorderTodos: async (projectId, newOrder) => {
-    // Update local state immediately for optimistic UI
-    set((state) => ({
-      todos: {
-        ...state.todos,
-        [projectId]: newOrder,
-      },
-    }))
-
     // Update order values based on new position
     const reorderedTodos = newOrder.map((todo, index) => ({
       ...todo,
       order: index + 1,
     }))
 
-    // Update local state with new order values
+    // Update local state immediately for optimistic UI
     set((state) => ({
       todos: {
         ...state.todos,
@@ -434,18 +442,13 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   reorderProjects: async (newOrder) => {
-    // Update local state immediately for optimistic UI
-    set(() => ({
-      projects: newOrder,
-    }))
-
     // Update order values based on new position
     const reorderedProjects = newOrder.map((project, index) => ({
       ...project,
       order: index + 1,
     }))
 
-    // Update local state with new order values
+    // Update local state immediately for optimistic UI
     set(() => ({
       projects: reorderedProjects,
     }))

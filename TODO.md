@@ -12,17 +12,6 @@
     - `useTodoEdit()` hook
     - `useTodoDragDrop()` hook
 
-## Minor Polish Items
-
-- **Standardize import ordering**
-  - Establish consistent order:
-    1. External libraries (React, Next.js)
-    2. Type imports
-    3. Internal lib imports
-    4. Component imports
-    5. Utility imports
-    6. Style imports
-
 ## UI/UX
 
 - Improve colors
@@ -49,6 +38,6 @@
   - Consider input length limits for project names
   - Add XSS protection for rendered content
 
-## Misc.
+## Misc
 
 - Explain to me the differences between a single-page app approach and one using a separate pages architecture
