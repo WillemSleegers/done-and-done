@@ -24,6 +24,7 @@
  
 - Add project deletion to sync status component
 - Fix bug that deleting todo items completes them
+- Fix bug that on the phone added todos dissapear after locking the screen and opening the app again. The todos are synced because a refresh does show the todos being added to the project. 
 
 ## Important Issues (Address Soon)
 
