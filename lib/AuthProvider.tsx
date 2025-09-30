@@ -91,8 +91,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe()
       clearTimeout(authTimeout)
     }
-    // fetchInitialData and user intentionally excluded to prevent infinite loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const signOut = async () => {

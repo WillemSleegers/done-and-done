@@ -1,23 +1,22 @@
 'use client'
 
-import { useEffect, Suspense } from 'react'
+import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 
-function AuthCallbackContent() {
+export default function AuthCallback() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Handle the auth callback using exchangeCodeForSession for OAuth flows
         const code = searchParams.get('code')
-        
+
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code)
-          
+
           if (error) {
             console.error('Auth callback error:', error)
             router.push('/auth?error=callback_error')
@@ -25,9 +24,8 @@ function AuthCallbackContent() {
           }
         }
 
-        // Check if we have a session after the callback
         const { data: { session } } = await supabase.auth.getSession()
-        
+
         if (session) {
           router.push('/')
         } else {
@@ -43,12 +41,4 @@ function AuthCallbackContent() {
   }, [router, searchParams])
 
   return <LoadingScreen />
-}
-
-export default function AuthCallback() {
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <AuthCallbackContent />
-    </Suspense>
-  )
 }

@@ -5,7 +5,6 @@ import { useAuth } from '@/lib/AuthProvider'
 import { useProjectStore } from '@/lib/store/projectStore'
 import { syncActivityTracker, type SyncActivity } from '@/lib/syncActivityTracker'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, Clock } from 'lucide-react'
 
 export default function ConnectionStatus() {
   const { user, loading } = useAuth()

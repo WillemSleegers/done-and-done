@@ -15,14 +15,12 @@ export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [isNewProject, setIsNewProject] = useState(false)
 
-  // Check URL for selected project
   useEffect(() => {
     const projectId = searchParams.get('project')
     const isNew = searchParams.get('new') === 'true'
 
     if (projectId) {
       if (isNew) {
-        // Handle new project
         const newProject: Project = {
           id: projectId,
           name: '',
@@ -38,13 +36,11 @@ export default function Home() {
         setSelectedProject(newProject)
         setIsNewProject(true)
       } else {
-        // Find existing project
         const project = getProject(projectId)
         if (project) {
           setSelectedProject(project)
           setIsNewProject(false)
         } else {
-          // Project not found, go back to grid
           router.push('/')
         }
       }
@@ -67,7 +63,6 @@ export default function Home() {
     router.push('/')
   }
 
-  // Show project view if a project is selected
   if (selectedProject) {
     return (
       <AuthGuard>
@@ -80,7 +75,6 @@ export default function Home() {
     )
   }
 
-  // Show project grid by default
   return (
     <AuthGuard>
       <ProjectGrid

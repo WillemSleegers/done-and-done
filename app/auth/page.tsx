@@ -15,7 +15,6 @@ export default function AuthPage() {
     }
   }, [user, loading, router])
 
-  // Show loading while redirecting authenticated users
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
@@ -25,7 +24,6 @@ export default function AuthPage() {
     </div>
   }
 
-  // If user is authenticated, show loading while redirecting
   if (user) {
     return <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
@@ -35,6 +33,5 @@ export default function AuthPage() {
     </div>
   }
 
-  // Always show auth form immediately - no loading screen for unauthenticated users
   return <AuthForm />
 }
