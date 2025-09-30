@@ -21,6 +21,9 @@
 
 - **~~Fix `h-22` typo in ProjectTile:180~~** ✅ COMPLETED
   - Fixed to `h-20`
+ 
+- Add project deletion to sync status component
+- Fix bug that deleting todo items completes them
 
 ## Important Issues (Address Soon)
 
@@ -99,6 +102,7 @@
 
 - Improve colors
   - Add nice vibrant colors for tiles (project tiles, todo items)
+- Change width of sync status list to fit content
 
 ## Code Quality
 
