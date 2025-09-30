@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { syncService, type Project, type Todo } from '@/lib/services/syncService'
 import { createSlug } from '@/lib/utils'
+import { syncActivityTracker } from '@/lib/syncActivityTracker'
 
 interface ProjectState {
   projects: Project[]
@@ -89,9 +90,17 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       todos: { ...state.todos, [newProject.id]: [] }
     }))
 
+    // Track activity
+    syncActivityTracker.addActivity({
+      id: newProject.id,
+      name: newProject.name,
+      type: 'project',
+      action: 'added'
+    })
+
     syncService.syncProject(newProject, (updatedProject) => {
       set(state => ({
-        projects: state.projects.map(p => 
+        projects: state.projects.map(p =>
           p.id === updatedProject.id ? updatedProject : p
         )
       }))
@@ -188,6 +197,15 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     })
 
     const project = get().projects.find(p => p.id === projectId)
+
+    // Track activity
+    syncActivityTracker.addActivity({
+      id: newTodo.id,
+      name: text,
+      type: 'todo',
+      action: 'added',
+      projectName: project?.name
+    })
     syncService.syncTodo(newTodo, project?.remoteId, (updatedTodo) => {
       set(state => {
         const newTodos = {
@@ -224,13 +242,33 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     set(state => {
       const newTodos = {
         ...state.todos,
-        [projectId]: state.todos[projectId]?.map(t => 
+        [projectId]: state.todos[projectId]?.map(t =>
           t.id === todoId ? { ...t, ...updates } : t
         ) || []
       }
       const todoCounts = updateTodoCounts(newTodos)
       return { todos: newTodos, todoCounts }
     })
+
+    // Track activity for completion changes
+    const project = get().projects.find(p => p.id === projectId)
+    if ('completed' in updates && updates.completed !== todo.completed) {
+      syncActivityTracker.addActivity({
+        id: todo.id,
+        name: todo.text,
+        type: 'todo',
+        action: updates.completed ? 'completed' : 'uncompleted',
+        projectName: project?.name
+      })
+    } else if ('text' in updates && updates.text !== todo.text) {
+      syncActivityTracker.addActivity({
+        id: todo.id,
+        name: updates.text || todo.text,
+        type: 'todo',
+        action: 'updated',
+        projectName: project?.name
+      })
+    }
 
     if (todo.remoteId) {
       syncService.updateTodo({ ...todo, ...updates }, updates, (updatedTodo) => {
@@ -266,6 +304,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       }
       const todoCounts = updateTodoCounts(newTodos)
       return { todos: newTodos, todoCounts }
+    })
+
+    // Track activity
+    const project = get().projects.find(p => p.id === projectId)
+    syncActivityTracker.addActivity({
+      id: todo.id,
+      name: todo.text,
+      type: 'todo',
+      action: 'deleted',
+      projectName: project?.name
     })
 
     try {

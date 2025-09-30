@@ -37,7 +37,7 @@ export default function AuthGuard({ children, fallback }: AuthGuardProps) {
   }
 
   if (!user) {
-    return null // Will redirect to auth page
+    return fallback || <LoadingScreen /> // Show loading while redirecting
   }
 
   return <>{children}</>
