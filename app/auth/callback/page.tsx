@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
-import LoadingScreen from '@/components/ui/LoadingScreen'
+import LoadingScreen from '@/components/layout/LoadingScreen'
 
 export default function AuthCallback() {
   const router = useRouter()

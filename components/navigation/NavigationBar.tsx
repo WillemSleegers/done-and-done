@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/layout/ModeToggle"
 import UserMenu from "@/components/navigation/UserMenu"
-import ConnectionStatus from "@/components/system/ConnectionStatus"
+import AppStatus from "@/components/system/AppStatus"
 
 interface NavigationBarProps {
   variant?: "title" | "back"
@@ -45,7 +45,7 @@ export default function NavigationBar({
 
         {/* Right side - Controls */}
         <div className="flex items-center gap-2">
-          <ConnectionStatus />
+          <AppStatus />
           <UserMenu />
           <ModeToggle />
         </div>

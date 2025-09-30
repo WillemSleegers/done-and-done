@@ -8,7 +8,7 @@ import { useProjectStore } from "@/lib/store/projectStore"
 import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import PriorityBadge from "@/components/ui/PriorityBadge"
+import PriorityBadge from "@/components/project/PriorityBadge"
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-export default function ConnectionStatus() {
+export default function AppStatus() {
   const { user, loading } = useAuth()
   const { projects, todos, retryFailedProject, retryFailedTodo } = useProjectStore()
   const [isOnline, setIsOnline] = useState(true)

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthProvider'
 import { useProjectStore } from '@/lib/store/projectStore'
 import { logger } from '@/lib/logger'
-import LoadingScreen from '@/components/ui/LoadingScreen'
+import LoadingScreen from '@/components/layout/LoadingScreen'
 
 interface AuthGuardProps {
   children: React.ReactNode

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
 import { logger } from "@/lib/logger"
-import PriorityBadge from "@/components/ui/PriorityBadge"
+import PriorityBadge from "@/components/project/PriorityBadge"
 
 interface ProjectTileProps {
   project: Project

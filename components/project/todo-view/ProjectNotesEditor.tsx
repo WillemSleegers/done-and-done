@@ -4,7 +4,7 @@ import { useRef, forwardRef, useImperativeHandle } from "react"
 import {
   RichTextEditor,
   type RichTextEditorRef,
-} from "@/components/ui/rich-text-editor"
+} from "@/components/editor/RichTextEditor"
 
 interface ProjectNotesEditorProps {
   value: string
