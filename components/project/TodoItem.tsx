@@ -82,12 +82,12 @@ export default function TodoItem({
     if (isEditing) return
 
     const isCompletingTodo = !todo.completed
-    logger.userAction('Toggling todo completion', {
+    logger.userAction("Toggling todo completion", {
       todoId: todo.id,
       todoText: todo.text,
       projectId,
       wasCompleted: todo.completed,
-      nowCompleted: isCompletingTodo
+      nowCompleted: isCompletingTodo,
     })
 
     try {
@@ -95,17 +95,17 @@ export default function TodoItem({
         completed: isCompletingTodo,
         completed_at: isCompletingTodo ? new Date().toISOString() : undefined,
       })
-      logger.userAction('Todo completion toggled successfully')
+      logger.userAction("Todo completion toggled successfully")
     } catch (error) {
-      logger.error('Failed to toggle todo completion', error)
+      logger.error("Failed to toggle todo completion", error)
     }
   }
 
   const startEditing = () => {
-    logger.userAction('Starting todo edit', {
+    logger.userAction("Starting todo edit", {
       todoId: todo.id,
       todoText: todo.text,
-      projectId
+      projectId,
     })
 
     setIsEditing(true)
@@ -117,10 +117,10 @@ export default function TodoItem({
   }
 
   const cancelEditing = () => {
-    logger.userAction('Canceling todo edit', {
+    logger.userAction("Canceling todo edit", {
       todoId: todo.id,
       originalText: originalEditTextRef.current,
-      editedText: editText
+      editedText: editText,
     })
 
     setIsEditing(false)
@@ -133,35 +133,35 @@ export default function TodoItem({
       return
     }
 
-    logger.userAction('Saving todo edit', {
+    logger.userAction("Saving todo edit", {
       todoId: todo.id,
       originalText: originalEditTextRef.current,
       newText: editText.trim(),
-      projectId
+      projectId,
     })
 
     try {
       await updateTodo(todo.id, { text: editText.trim() })
-      logger.userAction('Todo edit saved successfully')
+      logger.userAction("Todo edit saved successfully")
       setIsEditing(false)
     } catch (error) {
-      logger.error('Failed to save todo edit', error)
+      logger.error("Failed to save todo edit", error)
       // Keep editing state on error
     }
   }
 
   const handleDeleteTodo = async () => {
-    logger.userAction('Deleting todo', {
+    logger.userAction("Deleting todo", {
       todoId: todo.id,
       todoText: todo.text,
-      projectId
+      projectId,
     })
 
     try {
       await deleteTodo(todo.id, projectId)
-      logger.userAction('Todo deleted successfully')
+      logger.userAction("Todo deleted successfully")
     } catch (error) {
-      logger.error('Failed to delete todo', error)
+      logger.error("Failed to delete todo", error)
     }
   }
 
@@ -238,61 +238,65 @@ export default function TodoItem({
       {...(!isEditing ? attributes : {})}
     >
       <div
-        className={`flex items-center gap-3 ps-3 py-1 pe-1 min-h-[40px] rounded-lg transition-all bg-card cursor-pointer hover:bg-accent/50 select-none ${
+        className={`flex items-center gap-3 ps-3 min-h-9 rounded-lg transition-all bg-card select-none ${
           isDragging || isPressed ? "shadow-lg bg-accent/20" : ""
         }`}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onTouchMove={handleTouchMove}
-        onPointerDown={handlePointerDown}
-        onPointerUp={() => setIsPressed(false)}
-        onPointerLeave={() => setIsPressed(false)}
-        onPointerCancel={() => setIsPressed(false)}
-        onClick={handleClick}
-        onKeyDown={
-          isEditing
-            ? undefined
-            : (listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>)
-        }
-        style={{
-          WebkitTapHighlightColor: "transparent",
-          WebkitUserSelect: "none",
-          WebkitTouchCallout: "none" as const,
-          userSelect: "none",
-        }}
       >
-        {/* Checkbox */}
+        {/* Clickable area for toggling todo - excludes the button */}
         <div
-          className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
-            todo.completed
-              ? "border-success text-success-foreground"
-              : "border-border hover:border-success"
-          }`}
+          className="flex items-center gap-3 flex-1 min-w-0 py-1 cursor-pointer hover:opacity-80"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchMove}
+          onPointerDown={handlePointerDown}
+          onPointerUp={() => setIsPressed(false)}
+          onPointerLeave={() => setIsPressed(false)}
+          onPointerCancel={() => setIsPressed(false)}
+          onClick={handleClick}
+          onKeyDown={
+            isEditing
+              ? undefined
+              : (listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>)
+          }
+          style={{
+            WebkitTapHighlightColor: "transparent",
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none" as const,
+            userSelect: "none",
+          }}
         >
-          {todo.completed && <Check size={14} />}
-        </div>
+          {/* Checkbox */}
+          <div
+            className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
+              todo.completed
+                ? "border-success text-success-foreground"
+                : "border-border hover:border-success"
+            }`}
+          >
+            {todo.completed && <Check size={14} />}
+          </div>
 
-        {/* Todo text content */}
-        <div className="flex-1 min-w-0 flex flex-wrap justify-between items-baseline gap-1">
-          {isEditing ? (
-            <>
-              {/* Invisible Input that looks identical to the span */}
-              <Input
-                ref={editInputRef}
-                type="text"
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    saveEditing()
-                  } else if (e.key === "Escape") {
-                    e.preventDefault()
-                    cancelEditing()
-                  }
-                }}
-                onBlur={saveEditing}
-                className={`
+          {/* Todo text content */}
+          <div className="flex-1 min-w-0 flex flex-wrap justify-between items-baseline gap-1">
+            {isEditing ? (
+              <>
+                {/* Invisible Input that looks identical to the span */}
+                <Input
+                  ref={editInputRef}
+                  type="text"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      saveEditing()
+                    } else if (e.key === "Escape") {
+                      e.preventDefault()
+                      cancelEditing()
+                    }
+                  }}
+                  onBlur={saveEditing}
+                  className={`
                   flex-1 text-base
                   border-0 shadow-none rounded-none
                   focus-visible:border-transparent focus-visible:ring-0
@@ -303,42 +307,43 @@ export default function TodoItem({
                       ? "line-through text-muted-foreground"
                       : "text-foreground"
                   }`}
-                // Layout: flex-1 text-base - Match span layout and font size
-                // Override dark mode bg: dark:bg-transparent - Override shadcn's dark:bg-input/30
-                // Remove borders/shadows: border-0 shadow-none rounded-none - Override shadcn's border/rounded-md/shadow-xs
-                // Remove focus styles: focus-visible:border-transparent focus-visible:ring-0 - Override shadcn's focus-visible classes
-                // Reset spacing: px-0 py-0 h-auto min-h-0 w-auto - Override shadcn's px-3 py-1 h-9 w-full
-                autoFocus
-              />
-              {/* Due date - keep in same position during edit */}
-              {todo.due_date && (
-                <span className="text-base text-muted-foreground shrink-0">
-                  Due {format(new Date(todo.due_date), "MMM d, yyyy")}
+                  // Layout: flex-1 text-base - Match span layout and font size
+                  // Override dark mode bg: dark:bg-transparent - Override shadcn's dark:bg-input/30
+                  // Remove borders/shadows: border-0 shadow-none rounded-none - Override shadcn's border/rounded-md/shadow-xs
+                  // Remove focus styles: focus-visible:border-transparent focus-visible:ring-0 - Override shadcn's focus-visible classes
+                  // Reset spacing: px-0 py-0 h-auto min-h-0 w-auto - Override shadcn's px-3 py-1 h-9 w-full
+                  autoFocus
+                />
+                {/* Due date - keep in same position during edit */}
+                {todo.due_date && (
+                  <span className="text-base text-muted-foreground shrink-0">
+                    Due {format(new Date(todo.due_date), "MMM d, yyyy")}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span
+                  className={`text-base break-words ${
+                    todo.completed
+                      ? "line-through text-muted-foreground"
+                      : "text-foreground"
+                  } ${isDragging ? "select-none" : ""}`}
+                >
+                  {todo.text}
                 </span>
-              )}
-            </>
-          ) : (
-            <>
-              <span
-                className={`text-base break-words ${
-                  todo.completed
-                    ? "line-through text-muted-foreground"
-                    : "text-foreground"
-                } ${isDragging ? "select-none" : ""}`}
-              >
-                {todo.text}
-              </span>
-              {/* Due date */}
-              {todo.due_date && (
-                <span className="text-base text-muted-foreground shrink-0">
-                  Due {format(new Date(todo.due_date), "MMM d, yyyy")}
-                </span>
-              )}
-            </>
-          )}
+                {/* Due date */}
+                {todo.due_date && (
+                  <span className="text-base text-muted-foreground shrink-0">
+                    Due {format(new Date(todo.due_date), "MMM d, yyyy")}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Actions dropdown */}
+        {/* Actions dropdown - extends to right edge */}
         <DropdownMenu
           open={openDropdown && !isEditing}
           onOpenChange={(open) => {
@@ -350,14 +355,14 @@ export default function TodoItem({
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex-shrink-0 size-[26px]"
+              className="flex-shrink-0 h-auto self-stretch w-12 rounded-l-none rounded-r-lg p-0"
               onClick={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               disabled={isEditing}
               tabIndex={isEditing ? -1 : 0}
             >
-              <MoreHorizontal size={14} />
+              <MoreHorizontal size={16} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent

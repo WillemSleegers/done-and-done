@@ -31,7 +31,9 @@
   - Updated fetchInitialData to merge local/syncing items with fetched data instead of replacing them
   - Preserves unsaved todos when app returns from background
 
-- Reduce accidental completion of todos by making the todo dropdown button larger (fill up more space) 
+- **~~Reduce accidental completion of todos by making the todo dropdown button larger~~** ✅ COMPLETED
+  - Increased dropdown button from 26px to 36px (size-9)
+  - Increased icon size from 14px to 16px for better visibility 
 
 
 ## Important Issues (Address Soon)
