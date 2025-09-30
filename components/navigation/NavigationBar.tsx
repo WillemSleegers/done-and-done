@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/layout/ModeToggle"
 import UserMenu from "@/components/navigation/UserMenu"
 import ConnectionStatus from "@/components/system/ConnectionStatus"
-import { useRouter, useSearchParams } from "next/navigation"
 
 interface NavigationBarProps {
   variant?: "title" | "back"
@@ -14,27 +13,13 @@ interface NavigationBarProps {
 }
 
 export default function NavigationBar({
-  variant,
-  title,
+  variant = "title",
+  title = "Done and Done",
   onBack,
 }: NavigationBarProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  // Auto-detect if we're in a project view
-  const projectId = searchParams.get('project')
-  const isProjectView = !!projectId
-
-  // Use provided variant or auto-detect
-  const actualVariant = variant || (isProjectView ? 'back' : 'title')
-  const actualTitle = title || 'Done and Done'
-
   const handleBack = () => {
     if (onBack) {
       onBack()
-    } else {
-      // Default back behavior - go to home
-      router.push('/')
     }
   }
 
@@ -43,10 +28,10 @@ export default function NavigationBar({
       <div className="flex h-14 items-center justify-between px-4">
         {/* Left side - Title or Back button */}
         <div className="flex items-center">
-          {actualVariant === "title" && (
-            <h1 className="text-2xl font-semibold text-foreground">{actualTitle}</h1>
+          {variant === "title" && (
+            <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
           )}
-          {actualVariant === "back" && (
+          {variant === "back" && (
             <Button
               variant="ghost"
               onClick={handleBack}
