@@ -2,25 +2,25 @@
 
 ## Critical Issues (Fix First)
 
-- **Remove production console.log statements (60+ instances)**
-  - `/lib/AuthProvider.tsx` (8 instances)
-  - `/lib/services/syncService.ts` (22 instances)
-  - `/lib/store/projectStore.ts` (3 instances)
-  - `/components/project/TodoItem.tsx` (11 instances)
-  - `/components/project/ProjectTodoView.tsx` (11 instances)
-  - `/components/project/ProjectHeader.tsx` (4 instances)
-  - `/components/project/AddTodoForm.tsx` (4 instances)
-  - Other files with console statements
-  - Consider creating a logger utility that can be disabled in production
+- **Convert to true single-page app (remove Next.js routing)**
+  - Currently using `router.push()` which causes inconsistent navigation delays (200-500ms)
+  - Remove router logic from `app/page.tsx` and manage `selectedProject` with React state
+  - Navigation should be instant state updates: `setSelectedProject(project)` or `setSelectedProject(null)`
+  - Optionally use `window.history.pushState()` to update URL without triggering navigation (for bookmarks/back button)
+  - Benefits: Instant navigation, predictable performance, simpler code
+  - Trade-off: Lose native URL-based navigation unless we implement custom history handling
+
+- **~~Remove production console.log statements (60+ instances)~~** ✅ COMPLETED
+  - Created logger utility that only shows errors in production
+  - Replaced all console statements across codebase
 
 - **Add error boundaries to prevent app crashes**
   - Create `app/error.tsx` for page-level errors
   - Create `components/ErrorBoundary.tsx` for reusable boundaries
   - Wrap critical sections (AuthGuard, ProjectTodoView, etc.)
 
-- **Fix `h-22` typo in ProjectTile:180**
-  - `h-22` is not a valid Tailwind class
-  - Should be `h-20` or custom height
+- **~~Fix `h-22` typo in ProjectTile:180~~** ✅ COMPLETED
+  - Fixed to `h-20`
 
 ## Important Issues (Address Soon)
 
