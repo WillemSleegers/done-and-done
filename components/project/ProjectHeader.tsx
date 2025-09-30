@@ -8,6 +8,7 @@ import { useProjectStore } from "@/lib/store/projectStore"
 import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import PriorityBadge from "@/components/ui/PriorityBadge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,8 +62,8 @@ export default function ProjectHeader({
     try {
       await updateProject(project.id, { priority })
       logger.userAction('Project priority changed successfully')
-    } catch {
-      logger.error('Failed to change project priority')
+    } catch (error) {
+      logger.error('Failed to change project priority', error)
     }
   }
 
@@ -78,15 +79,7 @@ export default function ProjectHeader({
               className="gap-2 h-9 shadow-none"
               disabled={isNewProject}
             >
-              <div
-                className={`w-3 h-3 rounded-full ${
-                  project.priority === "high"
-                    ? "bg-destructive"
-                    : project.priority === "normal"
-                    ? "bg-primary"
-                    : "bg-muted-foreground"
-                }`}
-              />
+              <PriorityBadge priority={project.priority} />
               {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
             </Button>
           </DropdownMenuTrigger>
@@ -95,22 +88,22 @@ export default function ProjectHeader({
               onClick={() => handlePriorityChange("high")}
               className={project.priority === "high" ? "bg-muted" : ""}
             >
-              <div className="w-3 h-3 bg-destructive rounded-full mr-2" />
-              High Priority
+              <PriorityBadge priority="high" />
+              <span className="ml-2">High Priority</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handlePriorityChange("normal")}
               className={project.priority === "normal" ? "bg-muted" : ""}
             >
-              <div className="w-3 h-3 bg-primary rounded-full mr-2" />
-              Normal Priority
+              <PriorityBadge priority="normal" />
+              <span className="ml-2">Normal Priority</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handlePriorityChange("low")}
               className={project.priority === "low" ? "bg-muted" : ""}
             >
-              <div className="w-3 h-3 bg-muted-foreground rounded-full mr-2" />
-              Low Priority
+              <PriorityBadge priority="low" />
+              <span className="ml-2">Low Priority</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

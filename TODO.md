@@ -2,46 +2,49 @@
 
 ## Critical Issues (Fix First)
 
-- **Convert to true single-page app (remove Next.js routing)**
-  - Currently using `router.push()` which causes inconsistent navigation delays (200-500ms)
-  - Remove router logic from `app/page.tsx` and manage `selectedProject` with React state
-  - Navigation should be instant state updates: `setSelectedProject(project)` or `setSelectedProject(null)`
-  - Optionally use `window.history.pushState()` to update URL without triggering navigation (for bookmarks/back button)
-  - Benefits: Instant navigation, predictable performance, simpler code
-  - Trade-off: Lose native URL-based navigation unless we implement custom history handling
+- **~~Convert to true single-page app (remove Next.js routing)~~** ✅ COMPLETED
+  - Replaced router.push() with React state management
+  - Using window.history.pushState() for URL updates without navigation
+  - Instant navigation with setSelectedProject() state updates
+  - No more navigation delays
 
 - **~~Remove production console.log statements (60+ instances)~~** ✅ COMPLETED
   - Created logger utility that only shows errors in production
   - Replaced all console statements across codebase
 
-- **Add error boundaries to prevent app crashes**
-  - Create `app/error.tsx` for page-level errors
-  - Create `components/ErrorBoundary.tsx` for reusable boundaries
-  - Wrap critical sections (AuthGuard, ProjectTodoView, etc.)
+- **~~Add error boundaries to prevent app crashes~~** ✅ COMPLETED
+  - Created `app/error.tsx` for page-level errors
+  - Created `components/ErrorBoundary.tsx` for reusable boundaries
 
 - **~~Fix `h-22` typo in ProjectTile:180~~** ✅ COMPLETED
   - Fixed to `h-20`
- 
-- Add project deletion to sync status component
-- Fix bug that deleting todo items completes them
-- Fix bug that on the phone added todos dissapear after locking the screen and opening the app again. The todos are synced because a refresh does show the todos being added to the project.
+
+- **~~Add project deletion to sync status component~~** ✅ COMPLETED
+  - Added activity tracker call in projectStore.ts deleteProject function
+
+- **~~Fix bug that deleting todo items completes them~~** ✅ COMPLETED
+  - Added touch event handlers (onTouchStart, onTouchEnd) with stopPropagation to dropdown menu items
+  - Prevents touch events from bubbling to parent todo row and triggering completion
+
+- **~~Fix bug that on the phone added todos disappear after locking the screen~~** ✅ COMPLETED
+  - Fixed AuthGuard to only re-fetch data on user/loading changes, not on every render
+  - Updated fetchInitialData to merge local/syncing items with fetched data instead of replacing them
+  - Preserves unsaved todos when app returns from background
 
 - Reduce accidental completion of todos by making the todo dropdown button larger (fill up more space) 
 
 
 ## Important Issues (Address Soon)
 
-- **Type catch blocks properly**
-  - Components/project/ProjectTodoView.tsx (lines 82, 132, 206, 208)
-  - Components/project/TodoItem.tsx (lines 98, 146, 163)
-  - Components/project/AddTodoForm.tsx (lines 68, 71)
-  - Add proper error typing instead of empty catches
+- **~~Type catch blocks properly~~** ✅ COMPLETED
+  - Added proper error parameters to all catch blocks
+  - Updated error logging to include error objects
 
-- **Extract duplicate logic**
-  - Create `<PriorityBadge priority={project.priority} />` component
-  - Priority dot logic duplicated in ProjectTile and ProjectHeader
-  - Create `useSyncItems()` hook for sync state calculation
-  - Logic duplicated in ConnectionStatus and SyncStatus
+- **~~Extract duplicate logic~~** ✅ PARTIALLY COMPLETED
+  - ✅ Created `<PriorityBadge priority={project.priority} />` component
+  - ✅ Replaced priority dot logic in ProjectTile and ProjectHeader
+  - Create `useSyncItems()` hook for sync state calculation (still needed)
+  - Logic duplicated in ConnectionStatus and SyncStatus (still needed)
 
 - **Split large files**
   - Split `syncService.ts` (482 lines) into:
@@ -66,9 +69,9 @@
   - Mixed single and double quotes throughout codebase
   - Configure ESLint/Prettier to enforce consistent style (recommend single quotes)
 
-- **Remove dead code**
-  - `createSlug()` function in `/lib/utils.ts` (lines 8-15)
-  - `getProjectBySlug()` function - never called after UUID-based URL switch
+- **~~Remove dead code~~** ✅ COMPLETED
+  - ✅ Removed `createSlug()` function from `/lib/utils.ts`
+  - ✅ Removed `getProjectBySlug()` function from projectStore
 
 - **Extract magic numbers to constants file**
   - Create `lib/constants.ts` with:

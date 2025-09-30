@@ -96,8 +96,8 @@ export default function TodoItem({
         completed_at: isCompletingTodo ? new Date().toISOString() : undefined,
       })
       logger.userAction('Todo completion toggled successfully')
-    } catch {
-      logger.error('Failed to toggle todo completion')
+    } catch (error) {
+      logger.error('Failed to toggle todo completion', error)
     }
   }
 
@@ -144,8 +144,8 @@ export default function TodoItem({
       await updateTodo(todo.id, { text: editText.trim() })
       logger.userAction('Todo edit saved successfully')
       setIsEditing(false)
-    } catch {
-      logger.error('Failed to save todo edit')
+    } catch (error) {
+      logger.error('Failed to save todo edit', error)
       // Keep editing state on error
     }
   }
@@ -160,8 +160,8 @@ export default function TodoItem({
     try {
       await deleteTodo(todo.id, projectId)
       logger.userAction('Todo deleted successfully')
-    } catch {
-      logger.error('Failed to delete todo')
+    } catch (error) {
+      logger.error('Failed to delete todo', error)
     }
   }
 

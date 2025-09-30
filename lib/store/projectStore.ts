@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { syncService, type Project, type Todo } from '@/lib/services/syncService'
-import { createSlug } from '@/lib/utils'
 import { syncActivityTracker } from '@/lib/syncActivityTracker'
 import { logger } from '@/lib/logger'
 
@@ -30,7 +29,6 @@ interface ProjectActions {
   getProjectTodos: (projectId: string) => Todo[]
   getProjectsSortedByOrder: () => Project[]
   getProject: (projectId: string) => Project | undefined
-  getProjectBySlug: (slug: string) => Project | undefined
 }
 
 type ProjectStore = ProjectState & ProjectActions
@@ -479,9 +477,5 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   getProject: (projectId) => {
     return get().projects.find(p => p.id === projectId)
-  },
-
-  getProjectBySlug: (slug) => {
-    return get().projects.find(p => createSlug(p.name) === slug)
   }
 }))

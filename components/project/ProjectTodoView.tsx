@@ -183,7 +183,8 @@ export default function ProjectTodoView({
       })
       setShowDateDialog(false)
       setDateDialogTodoId(null)
-    } catch {
+    } catch (error) {
+      logger.error('Failed to update todo due date', error)
     }
   }
 
@@ -204,8 +205,8 @@ export default function ProjectTodoView({
       await deleteProject(project.id)
       logger.userAction('Project deleted successfully')
       onBack() // Navigate back to project grid after deletion
-    } catch {
-      logger.error('Failed to delete project')
+    } catch (error) {
+      logger.error('Failed to delete project', error)
       onBack()
     }
   }

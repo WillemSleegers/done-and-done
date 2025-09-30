@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
 import { logger } from "@/lib/logger"
+import PriorityBadge from "@/components/ui/PriorityBadge"
 
 interface ProjectTileProps {
   project: Project
@@ -80,16 +81,6 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
     }
   }
 
-  const getPriorityDot = () => {
-    const colorClass =
-      project.priority === "high"
-        ? "bg-destructive"
-        : project.priority === "normal"
-        ? "bg-primary"
-        : "bg-muted-foreground"
-
-    return <div className={`size-3 rounded-full ${colorClass}`} />
-  }
 
   // Touch handling with delay for drag - similar to TodoItem
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -210,7 +201,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
           </h3>
 
           <div className="flex items-center gap-2 mt-1">
-            {getPriorityDot()}
+            <PriorityBadge priority={project.priority} />
             <p className="text-sm whitespace-nowrap text-card-foreground/50">
               {showTodos ? text() : "\u00A0"}
             </p>
