@@ -42,10 +42,6 @@
     5. Utility imports
     6. Style imports
 
-- **Standardize button heights**
-  - Document height standards (h-9 for compact, h-10/40px for standard)
-  - Currently mixed: h-8, h-9, h-10, h-14, min-h-[40px], h-20
-
 ## UI/UX
 
 - Improve colors
