@@ -137,7 +137,7 @@ export default function ConnectionStatus() {
           <div className={`w-3 h-3 rounded-full ${getDotColor()}`} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80">
+      <DropdownMenuContent className="w-fit min-w-48">
         <div className="p-3">
             {/* Status Header */}
             <div className={`${user && (failedItems.length > 0 || syncingItems.length > 0 || recentActivities.length > 0) ? 'mb-3 pb-2 border-b border-border' : 'mb-0'}`}>

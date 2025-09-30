@@ -32,8 +32,10 @@
   - Preserves unsaved todos when app returns from background
 
 - **~~Reduce accidental completion of todos by making the todo dropdown button larger~~** ✅ COMPLETED
-  - Increased dropdown button from 26px to 36px (size-9)
-  - Increased icon size from 14px to 16px for better visibility 
+  - Separated clickable areas (todo completion vs dropdown menu)
+  - Button extends flush to right edge with no gaps
+  - Button stretches to full height (36px min, grows with wrapped text)
+  - Increased button width from 26px to 48px for easier tapping 
 
 
 ## Important Issues (Address Soon)
@@ -97,12 +99,6 @@
     5. Utility imports
     6. Style imports
 
-- **Add performance optimizations**
-  - Add `useMemo` for sorted lists in ProjectGrid
-  - Consider `React.memo` for ProjectTile and TodoItem
-  - Debounce activity tracker updates in ConnectionStatus
-  - Memoize expensive computations in `getProjectTodos`
-
 - **Standardize button heights**
   - Document height standards (h-9 for compact, h-10/40px for standard)
   - Currently mixed: h-8, h-9, h-10, h-14, min-h-[40px], h-20
@@ -111,7 +107,8 @@
 
 - Improve colors
   - Add nice vibrant colors for tiles (project tiles, todo items)
-- Change width of sync status list to fit content
+- **~~Change width of sync status list to fit content~~** ✅ COMPLETED
+  - Changed ConnectionStatus dropdown from fixed `w-80` to `w-fit min-w-48`
 
 ## Code Quality
 
