@@ -1,16 +1,18 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { format } from "date-fns"
+import { useEffect,useRef, useState } from "react"
+
+import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
-import { format } from "date-fns"
-import { logger } from "@/lib/logger"
-import ProjectHeader from "./ProjectHeader"
+
 import AddTodoForm from "./AddTodoForm"
-import TodoList from "./todo-view/TodoList"
-import { ProjectNotesEditor, type ProjectNotesEditorRef } from "./todo-view/ProjectNotesEditor"
 import DatePickerDialog from "./dialogs/DatePickerDialog"
 import DeleteProjectDialog from "./dialogs/DeleteProjectDialog"
+import ProjectHeader from "./ProjectHeader"
+import { ProjectNotesEditor, type ProjectNotesEditorRef } from "./todo-view/ProjectNotesEditor"
+import TodoList from "./todo-view/TodoList"
 
 interface ProjectTodoViewProps {
   project: Project

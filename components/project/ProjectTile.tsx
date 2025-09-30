@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { cn } from "@/lib/utils"
-import { type Project } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
-import { logger } from "@/lib/logger"
-import { TOUCH_DELAYS } from "@/lib/constants"
+import { useEffect,useRef, useState } from "react"
+
 import PriorityBadge from "@/components/project/PriorityBadge"
+import { TOUCH_DELAYS } from "@/lib/constants"
+import { logger } from "@/lib/logger"
+import { type Project } from "@/lib/services/syncService"
+import { cn } from "@/lib/utils"
 
 interface ProjectTileProps {
   project: Project

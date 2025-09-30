@@ -1,10 +1,11 @@
 "use client"
 
 import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 import { ModeToggle } from "@/components/layout/ModeToggle"
 import UserMenu from "@/components/navigation/UserMenu"
 import AppStatus from "@/components/system/AppStatus"
+import { Button } from "@/components/ui/button"
 
 interface NavigationBarProps {
   variant?: "title" | "back"

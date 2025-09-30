@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { logger } from "@/lib/logger"
+import { useEffect } from "react"
+
 import LoadingScreen from "@/components/layout/LoadingScreen"
+import { logger } from "@/lib/logger"
+import { supabase } from "@/lib/supabase"
 
 export default function AuthCallback() {
   const router = useRouter()

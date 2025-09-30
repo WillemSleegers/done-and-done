@@ -1,9 +1,9 @@
 "use client"
 
-import { type Todo } from "@/lib/services/syncService"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { type Todo } from "@/lib/services/syncService"
 
 interface DatePickerDialogProps {
   open: boolean

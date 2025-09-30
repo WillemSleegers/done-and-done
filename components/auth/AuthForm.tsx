@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { siGithub } from "simple-icons"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { siGithub } from "simple-icons"
+import { supabase } from "@/lib/supabase"
 
 export default function AuthForm() {
   const [email, setEmail] = useState("")

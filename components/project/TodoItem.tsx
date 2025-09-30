@@ -1,22 +1,22 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { type Todo } from "@/lib/services/syncService"
 import { useSortable } from "@dnd-kit/sortable"
-import { logger } from "@/lib/logger"
-import { TOUCH_DELAYS } from "@/lib/constants"
+import { format } from "date-fns"
+import { Calendar as CalendarIcon, Check, Edit, MoreHorizontal, Trash } from "lucide-react"
+import { useEffect,useRef, useState } from "react"
 
-import { Check, MoreHorizontal, Calendar as CalendarIcon, Edit, Trash } from "lucide-react"
-import { useProjectStore } from "@/lib/store/projectStore"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { format } from "date-fns"
+import { Input } from "@/components/ui/input"
+import { TOUCH_DELAYS } from "@/lib/constants"
+import { logger } from "@/lib/logger"
+import { type Todo } from "@/lib/services/syncService"
+import { useProjectStore } from "@/lib/store/projectStore"
 
 interface TodoItemProps {
   todo: Todo

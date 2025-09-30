@@ -1,9 +1,9 @@
-import { supabase, type Project, type Todo, type SyncState } from "@/lib/supabase"
-import { logger } from "@/lib/logger"
 import { SYNC_TIMING } from "@/lib/constants"
+import { logger } from "@/lib/logger"
+import { type Project, supabase, type SyncState,type Todo } from "@/lib/supabase"
 
 // Re-export types for convenience
-export type { Project, Todo, SyncState }
+export type { Project, SyncState,Todo }
 
 class SyncService {
   private retryTimeouts = new Map<string, NodeJS.Timeout>()

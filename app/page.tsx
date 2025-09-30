@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import type { Project } from "@/lib/services/syncService"
+import { useEffect,useState } from "react"
+
 import AuthGuard from "@/components/auth/AuthGuard"
 import NavigationBar from "@/components/navigation/NavigationBar"
 import ProjectGrid from "@/components/project/ProjectGrid"
 import ProjectTodoView from "@/components/project/ProjectTodoView"
+import type { Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
 export default function Home() {

@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/AuthProvider"
-import { useProjectStore } from "@/lib/store/projectStore"
-import { logger } from "@/lib/logger"
+import { useEffect } from "react"
+
 import LoadingScreen from "@/components/layout/LoadingScreen"
+import { useAuth } from "@/lib/AuthProvider"
+import { logger } from "@/lib/logger"
+import { useProjectStore } from "@/lib/store/projectStore"
 
 interface AuthGuardProps {
   children: React.ReactNode

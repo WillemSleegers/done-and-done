@@ -1,16 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/lib/AuthProvider"
-import { useProjectStore } from "@/lib/store/projectStore"
-import { syncActivityTracker, type SyncActivity } from "@/lib/syncActivityTracker"
-import { DISPLAY_LIMITS } from "@/lib/constants"
+import { useEffect,useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/lib/AuthProvider"
+import { DISPLAY_LIMITS } from "@/lib/constants"
+import { useProjectStore } from "@/lib/store/projectStore"
+import { type SyncActivity,syncActivityTracker } from "@/lib/syncActivityTracker"
 
 export default function AppStatus() {
   const { user, loading } = useAuth()

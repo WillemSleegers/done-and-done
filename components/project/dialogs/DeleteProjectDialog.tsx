@@ -1,6 +1,5 @@
 "use client"
 
-import { type Project } from "@/lib/services/syncService"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { type Project } from "@/lib/services/syncService"
 
 interface DeleteProjectDialogProps {
   open: boolean

@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/AuthProvider"
+import { useEffect } from "react"
+
 import AuthForm from "@/components/auth/AuthForm"
 import { Spinner } from "@/components/ui/spinner"
+import { useAuth } from "@/lib/AuthProvider"
 
 export default function AuthPage() {
   const { user, loading } = useAuth()

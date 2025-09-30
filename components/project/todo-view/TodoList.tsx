@@ -1,28 +1,30 @@
 "use client"
 
-import { useState } from "react"
-import { type Todo } from "@/lib/services/syncService"
-import { useProjectStore } from "@/lib/store/projectStore"
-import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from "@dnd-kit/core"
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { ChevronDown, ChevronRight } from "lucide-react"
+import { useState } from "react"
+
 import { Button } from "@/components/ui/button"
+import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
+import { type Todo } from "@/lib/services/syncService"
+import { useProjectStore } from "@/lib/store/projectStore"
+
 import TodoItem from "../TodoItem"
 
 interface TodoListProps {

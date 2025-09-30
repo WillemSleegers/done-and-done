@@ -1,6 +1,7 @@
 "use client"
 
-import { useRef, forwardRef, useImperativeHandle } from "react"
+import { forwardRef, useImperativeHandle,useRef } from "react"
+
 import { RichTextEditor, type RichTextEditorRef } from "@/components/editor/RichTextEditor"
 
 interface ProjectNotesEditorProps {

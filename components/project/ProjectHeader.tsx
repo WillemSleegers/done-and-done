@@ -1,20 +1,21 @@
 "use client"
 
-import { useRef } from "react"
-import { type Project } from "@/lib/services/syncService"
-import { type ProjectStatus, type ProjectPriority } from "@/lib/supabase"
 import { MoreHorizontal, Trash } from "lucide-react"
-import { useProjectStore } from "@/lib/store/projectStore"
-import { logger } from "@/lib/logger"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useRef } from "react"
+
 import PriorityBadge from "@/components/project/PriorityBadge"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { logger } from "@/lib/logger"
+import { type Project } from "@/lib/services/syncService"
+import { useProjectStore } from "@/lib/store/projectStore"
+import { type ProjectPriority,type ProjectStatus } from "@/lib/supabase"
 
 interface ProjectHeaderProps {
   project: Project

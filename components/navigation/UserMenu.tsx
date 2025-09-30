@@ -1,7 +1,7 @@
 "use client"
 
-import { User, LogOut } from "lucide-react"
-import { useAuth } from "@/lib/AuthProvider"
+import { LogOut,User } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/lib/AuthProvider"
 
 export default function UserMenu() {
   const { user, signOut } = useAuth()

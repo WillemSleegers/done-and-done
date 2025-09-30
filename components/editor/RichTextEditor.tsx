@@ -1,9 +1,9 @@
 "use client"
 
-import { useEditor, EditorContent } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
 import Placeholder from "@tiptap/extension-placeholder"
-import { forwardRef, useImperativeHandle, useEffect } from "react"
+import { EditorContent,useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { forwardRef, useEffect,useImperativeHandle } from "react"
 
 export interface RichTextEditorRef {
   focus: () => void

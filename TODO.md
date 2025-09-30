@@ -14,25 +14,6 @@
 
 ## Minor Polish Items
 
-- **Standardize quote usage**
-  - Mixed single and double quotes throughout codebase
-  - Configure ESLint/Prettier to enforce consistent style (recommend single quotes)
-
-- **Extract magic numbers to constants file**
-  - Create `lib/constants.ts` with:
-    - `TOUCH_DELAYS` (200ms, 150ms variations)
-    - `SYNC_TIMING` (10s base, 60s max retry)
-    - `DISPLAY_LIMITS` (activity count, completed todos shown)
-
-- **Create reusable Spinner component**
-  - 3 different loading spinner implementations found:
-    - LoadingScreen: 4px border, border-t-transparent
-    - AuthPage: 2px border, border-b-transparent
-    - AddTodoForm: 2px border, border-t-transparent
-  - Standardize with size variants (sm, md, lg)
-  - Check positioning of loading spinners
-    - Should be placed in the same place throughout the app
-
 - **Standardize import ordering**
   - Establish consistent order:
     1. External libraries (React, Next.js)

@@ -1,27 +1,29 @@
 "use client"
 
-import { type Project } from "@/lib/services/syncService"
-import { Plus, FolderOpen } from "lucide-react"
-import { useProjectStore } from "@/lib/store/projectStore"
-import { Button } from "@/components/ui/button"
-import ProjectTile from "./ProjectTile"
-import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from "@dnd-kit/core"
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
 } from "@dnd-kit/sortable"
+import { FolderOpen,Plus } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
+import { type Project } from "@/lib/services/syncService"
+import { useProjectStore } from "@/lib/store/projectStore"
+
+import ProjectTile from "./ProjectTile"
 
 const getPriorityOrder = (priority: string): number => {
   switch (priority) {

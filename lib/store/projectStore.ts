@@ -1,7 +1,8 @@
 import { create } from "zustand"
-import { syncService, type Project, type Todo } from "@/lib/services/syncService"
-import { syncActivityTracker } from "@/lib/syncActivityTracker"
+
 import { logger } from "@/lib/logger"
+import { type Project, syncService, type Todo } from "@/lib/services/syncService"
+import { syncActivityTracker } from "@/lib/syncActivityTracker"
 
 interface ProjectState {
   projects: Project[]

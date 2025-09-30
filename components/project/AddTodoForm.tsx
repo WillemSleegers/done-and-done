@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { type Project } from "@/lib/services/syncService"
 import { Plus } from "lucide-react"
-import { useProjectStore } from "@/lib/store/projectStore"
-import { logger } from "@/lib/logger"
+import { useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { logger } from "@/lib/logger"
+import { type Project } from "@/lib/services/syncService"
+import { useProjectStore } from "@/lib/store/projectStore"
 
 interface AddTodoFormProps {
   project: Project
