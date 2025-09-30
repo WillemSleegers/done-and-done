@@ -7,6 +7,7 @@ import { useProjectStore } from "@/lib/store/projectStore"
 import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
 
 interface AddTodoFormProps {
   project: Project
@@ -92,7 +93,7 @@ export default function AddTodoForm({
           className="size-9"
         >
           {isAdding ? (
-            <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+            <Spinner size="sm" className="border-primary-foreground" />
           ) : (
             <Plus size={20} />
           )}
