@@ -45,11 +45,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Get initial session immediately
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      const newUser = session?.user ?? null
-      setUser(newUser)
-      setLoading(false)
-      console.log("Initial auth state:", newUser?.email || 'unauthenticated')
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+
+        if (error) {
+          console.warn('[AUTH] Session error, clearing local session:', error.message)
+          await supabase.auth.signOut({ scope: 'local' })
+          setUser(null)
+          setLoading(false)
+          return
+        }
+
+        const newUser = session?.user ?? null
+        setUser(newUser)
+        setLoading(false)
+        console.log("Initial auth state:", newUser?.email || 'unauthenticated')
+      } catch (error) {
+        console.error('[AUTH] Failed to get initial session:', error)
+        await supabase.auth.signOut({ scope: 'local' })
+        setUser(null)
+        setLoading(false)
+      }
     }
 
     getInitialSession()

@@ -1,18 +1,21 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/AuthProvider'
 import { useProjectStore } from '@/lib/store/projectStore'
 import { syncActivityTracker, type SyncActivity } from '@/lib/syncActivityTracker'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function ConnectionStatus() {
   const { user, loading } = useAuth()
   const { projects, todos, retryFailedProject, retryFailedTodo } = useProjectStore()
   const [isOnline, setIsOnline] = useState(true)
-  const [isExpanded, setIsExpanded] = useState(false)
   const [recentActivities, setRecentActivities] = useState<SyncActivity[]>([])
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Monitor online/offline status
   useEffect(() => {
@@ -41,18 +44,6 @@ export default function ConnectionStatus() {
     // Subscribe to changes
     const unsubscribe = syncActivityTracker.subscribe(updateActivities)
     return unsubscribe
-  }, [])
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsExpanded(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   // Calculate sync status
@@ -136,20 +127,18 @@ export default function ConnectionStatus() {
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-8 w-8 p-0 hover:bg-muted rounded-full"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className={`w-3 h-3 rounded-full ${getDotColor()}`} />
-      </Button>
-
-      {/* Dropdown */}
-      {isExpanded && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-popover border border-border rounded-lg shadow-lg z-50">
-          <div className="p-3">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 hover:bg-muted rounded-full"
+        >
+          <div className={`w-3 h-3 rounded-full ${getDotColor()}`} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-80">
+        <div className="p-3">
             {/* Status Header */}
             <div className={`${user && (failedItems.length > 0 || syncingItems.length > 0 || recentActivities.length > 0) ? 'mb-3 pb-2 border-b border-border' : 'mb-0'}`}>
               <div className="flex items-center gap-2">
@@ -248,14 +237,18 @@ export default function ConnectionStatus() {
             )}
 
             {/* Empty State */}
-            {failedItems.length === 0 && syncingItems.length === 0 && projects.length === 0 && (
+            {!user && (
+              <div className="text-center text-muted-foreground text-xs py-4">
+                Sign in to sync your projects
+              </div>
+            )}
+            {user && failedItems.length === 0 && syncingItems.length === 0 && projects.length === 0 && (
               <div className="text-center text-muted-foreground text-xs py-4">
                 No items to sync
               </div>
             )}
-          </div>
         </div>
-      )}
-    </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
