@@ -1,11 +1,5 @@
 # TODO
 
-- ~~Do we need app/error.tsx and ErrorBoundary.tsx?~~ ✅ COMPLETED - Removed both, using local error handling instead
-- ~~Remove SyncStatus.tsx?~~ ✅ COMPLETED - Removed redundant component, renamed ConnectionStatus to AppStatus
-- ~~Move components out of the ui folder and keep ui folder only for shadcn components~~ ✅ COMPLETED
-  - Moved LoadingScreen.tsx → components/layout/
-  - Moved PriorityBadge.tsx → components/project/
-  - Moved rich-text-editor.tsx → components/editor/RichTextEditor.tsx
 - Split large files?
   - Split `syncService.ts` (482 lines) into:
     - `syncClient.ts` (API calls)
@@ -17,11 +11,6 @@
   - Consider extracting hooks from `TodoItem.tsx` (397 lines):
     - `useTodoEdit()` hook
     - `useTodoDragDrop()` hook
-
-- **Create unified error handling system**
-  - Implement toast/notification system
-  - Replace console-only errors with user feedback
-  - Standardize error message patterns across components
 
 ## Minor Polish Items
 
