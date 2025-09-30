@@ -1,10 +1,7 @@
 "use client"
 
 import { useRef, forwardRef, useImperativeHandle } from "react"
-import {
-  RichTextEditor,
-  type RichTextEditorRef,
-} from "@/components/editor/RichTextEditor"
+import { RichTextEditor, type RichTextEditorRef } from "@/components/editor/RichTextEditor"
 
 interface ProjectNotesEditorProps {
   value: string
@@ -28,7 +25,7 @@ export const ProjectNotesEditor = forwardRef<ProjectNotesEditorRef, ProjectNotes
       getHTML: () => notesInputRef.current?.getHTML() || "",
       getText: () => notesInputRef.current?.getText() || "",
       setContent: (content: string) => notesInputRef.current?.setContent(content),
-      blur: () => notesInputRef.current?.blur()
+      blur: () => notesInputRef.current?.blur(),
     }))
 
     return (

@@ -36,8 +36,8 @@ export default function DeleteProjectDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Project</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete &ldquo;{project.name}&rdquo;? This
-            will also delete all its todos. This action cannot be undone.
+            Are you sure you want to delete &ldquo;{project.name}&rdquo;? This will also delete all
+            its todos. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -30,7 +30,7 @@
     - AuthPage: 2px border, border-b-transparent
     - AddTodoForm: 2px border, border-t-transparent
   - Standardize with size variants (sm, md, lg)
-  - Check positioning of loading spinners 
+  - Check positioning of loading spinners
     - Should be placed in the same place throughout the app
 
 - **Standardize import ordering**

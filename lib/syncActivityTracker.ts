@@ -2,8 +2,8 @@
 export interface SyncActivity {
   id: string
   name: string
-  type: 'project' | 'todo'
-  action: 'added' | 'updated' | 'deleted' | 'completed' | 'uncompleted'
+  type: "project" | "todo"
+  action: "added" | "updated" | "deleted" | "completed" | "uncompleted"
   projectName?: string
   timestamp: number
 }
@@ -12,10 +12,10 @@ class SyncActivityTracker {
   private activities: SyncActivity[] = []
   private listeners: Set<() => void> = new Set()
 
-  addActivity(activity: Omit<SyncActivity, 'timestamp'>) {
+  addActivity(activity: Omit<SyncActivity, "timestamp">) {
     this.activities.unshift({
       ...activity,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     // Keep only last 20 activities
@@ -38,7 +38,7 @@ class SyncActivityTracker {
   }
 
   private notifyListeners() {
-    this.listeners.forEach(listener => listener())
+    this.listeners.forEach((listener) => listener())
   }
 
   clear() {

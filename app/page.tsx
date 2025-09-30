@@ -16,17 +16,17 @@ export default function Home() {
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search)
-      const projectId = params.get('project')
+      const projectId = params.get("project")
 
       if (projectId) {
-        const project = projects.find(p => p.id === projectId)
+        const project = projects.find((p) => p.id === projectId)
         if (project) {
           setSelectedProject(project)
-          setIsNewProject(params.get('new') === 'true')
+          setIsNewProject(params.get("new") === "true")
         } else {
           setSelectedProject(null)
           setIsNewProject(false)
-          window.history.replaceState({}, '', '/')
+          window.history.replaceState({}, "", "/")
         }
       } else {
         setSelectedProject(null)
@@ -34,10 +34,10 @@ export default function Home() {
       }
     }
 
-    window.addEventListener('popstate', handlePopState)
+    window.addEventListener("popstate", handlePopState)
 
     return () => {
-      window.removeEventListener('popstate', handlePopState)
+      window.removeEventListener("popstate", handlePopState)
     }
   }, [projects])
 
@@ -45,34 +45,34 @@ export default function Home() {
     setSelectedProject(project)
     setIsNewProject(false)
     // Update URL for bookmarking without triggering navigation
-    window.history.pushState({}, '', `/?project=${project.id}`)
+    window.history.pushState({}, "", `/?project=${project.id}`)
   }
 
   const handleCreateNewProject = () => {
     const newProjectId = crypto.randomUUID()
     const newProject: Project = {
       id: newProjectId,
-      name: '',
+      name: "",
       notes: null,
-      status: 'active',
-      priority: 'normal',
+      status: "active",
+      priority: "normal",
       created_at: new Date().toISOString(),
       order: 1,
-      syncState: 'local',
+      syncState: "local",
       remoteId: undefined,
-      lastError: undefined
+      lastError: undefined,
     }
     setSelectedProject(newProject)
     setIsNewProject(true)
     // Update URL for bookmarking without triggering navigation
-    window.history.pushState({}, '', `/?project=${newProjectId}&new=true`)
+    window.history.pushState({}, "", `/?project=${newProjectId}&new=true`)
   }
 
   const handleBackToGrid = () => {
     setSelectedProject(null)
     setIsNewProject(false)
     // Update URL for bookmarking without triggering navigation
-    window.history.pushState({}, '', '/')
+    window.history.pushState({}, "", "/")
   }
 
   if (selectedProject) {

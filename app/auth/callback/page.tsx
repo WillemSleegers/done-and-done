@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { logger } from '@/lib/logger'
-import LoadingScreen from '@/components/layout/LoadingScreen'
+import { useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import { logger } from "@/lib/logger"
+import LoadingScreen from "@/components/layout/LoadingScreen"
 
 export default function AuthCallback() {
   const router = useRouter()
@@ -13,28 +13,30 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const code = searchParams.get('code')
+        const code = searchParams.get("code")
 
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code)
 
           if (error) {
-            logger.error('Auth callback error:', error)
-            router.push('/auth?error=callback_error')
+            logger.error("Auth callback error:", error)
+            router.push("/auth?error=callback_error")
             return
           }
         }
 
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
 
         if (session) {
-          router.push('/')
+          router.push("/")
         } else {
-          router.push('/auth')
+          router.push("/auth")
         }
       } catch (error) {
-        logger.error('Unexpected error:', error)
-        router.push('/auth?error=unexpected')
+        logger.error("Unexpected error:", error)
+        router.push("/auth?error=unexpected")
       }
     }
 

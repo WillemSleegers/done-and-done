@@ -54,18 +54,13 @@ interface ProjectGridProps {
 }
 
 export default function ProjectGrid({ onSelectProject, onCreateProject }: ProjectGridProps) {
-  const { projects, todoCounts, reorderProjects, getProjectsSortedByOrder } =
-    useProjectStore()
+  const { projects, todoCounts, reorderProjects, getProjectsSortedByOrder } = useProjectStore()
 
   const allProjectsSorted = getProjectsSortedByOrder()
 
   const activeProjects = allProjectsSorted.filter((p) => p.status === "active")
-  const inactiveProjects = allProjectsSorted.filter(
-    (p) => p.status === "inactive"
-  )
-  const completedProjects = allProjectsSorted.filter(
-    (p) => p.status === "complete"
-  )
+  const inactiveProjects = allProjectsSorted.filter((p) => p.status === "inactive")
+  const completedProjects = allProjectsSorted.filter((p) => p.status === "complete")
 
   const sortedInactiveProjects = sortProjectsByPriority(inactiveProjects)
 
@@ -94,19 +89,11 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     const { active, over } = event
 
     if (active.id !== over?.id) {
-      const oldIndex = activeProjects.findIndex(
-        (project) => project.id === active.id
-      )
-      const newIndex = activeProjects.findIndex(
-        (project) => project.id === over?.id
-      )
+      const oldIndex = activeProjects.findIndex((project) => project.id === active.id)
+      const newIndex = activeProjects.findIndex((project) => project.id === over?.id)
 
       const newOrder = arrayMove(activeProjects, oldIndex, newIndex)
-      await reorderProjects([
-        ...newOrder,
-        ...inactiveProjects,
-        ...completedProjects,
-      ])
+      await reorderProjects([...newOrder, ...inactiveProjects, ...completedProjects])
     }
   }
 
@@ -118,11 +105,7 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     <div className="p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Main Projects Grid */}
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <SortableContext
               items={activeProjects.map((project) => project.id)}

@@ -1,9 +1,9 @@
 "use client"
 
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
-import { forwardRef, useImperativeHandle, useEffect } from 'react'
+import { useEditor, EditorContent } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import Placeholder from "@tiptap/extension-placeholder"
+import { forwardRef, useImperativeHandle, useEffect } from "react"
 
 export interface RichTextEditorRef {
   focus: () => void
@@ -31,13 +31,13 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           link: {
             openOnClick: false,
             HTMLAttributes: {
-              class: 'text-primary underline hover:text-primary/80 cursor-pointer',
+              class: "text-primary underline hover:text-primary/80 cursor-pointer",
             },
           },
         }),
         Placeholder.configure({
-          placeholder: placeholder || 'Start typing...',
-          emptyEditorClass: 'is-editor-empty',
+          placeholder: placeholder || "Start typing...",
+          emptyEditorClass: "is-editor-empty",
           showOnlyWhenEditable: false,
         }),
       ],
@@ -50,7 +50,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
       },
       editorProps: {
         attributes: {
-          class: className || '',
+          class: className || "",
         },
         handleKeyDown: (view, event) => {
           onKeyDown?.(event)
@@ -62,8 +62,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     useImperativeHandle(ref, () => ({
       focus: () => editor?.commands.focus(),
       blur: () => editor?.commands.blur(),
-      getHTML: () => editor?.getHTML() || '',
-      getText: () => editor?.getText() || '',
+      getHTML: () => editor?.getHTML() || "",
+      getText: () => editor?.getText() || "",
       setContent: (content: string) => editor?.commands.setContent(content),
     }))
 
@@ -79,11 +79,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
     return (
       <div className="relative">
-        <div className={`rich-text-editor ${className || ''}`}>
-          <EditorContent 
-            editor={editor} 
-            placeholder={placeholder}
-          />
+        <div className={`rich-text-editor ${className || ""}`}>
+          <EditorContent editor={editor} placeholder={placeholder} />
         </div>
         <style jsx global>{`
           .rich-text-editor .ProseMirror {
@@ -134,4 +131,4 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
   }
 )
 
-RichTextEditor.displayName = 'RichTextEditor'
+RichTextEditor.displayName = "RichTextEditor"

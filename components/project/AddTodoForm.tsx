@@ -32,11 +32,11 @@ export default function AddTodoForm({
     e.preventDefault()
     if (!newTodo.trim() || isAdding) return
 
-    logger.userAction('Adding todo', {
+    logger.userAction("Adding todo", {
       text: newTodo.trim(),
       projectId: project.id,
       projectName: nameValue || project.name,
-      isNewProject
+      isNewProject,
     })
 
     setIsAdding(true)
@@ -45,10 +45,10 @@ export default function AddTodoForm({
       let projectToUse = project
 
       if (isNewProject) {
-        logger.userAction('Creating new project with first todo', {
+        logger.userAction("Creating new project with first todo", {
           projectId: project.id,
           projectName: nameValue.trim() || "Untitled Project",
-          firstTodo: newTodo.trim()
+          firstTodo: newTodo.trim(),
         })
 
         await addProject({
@@ -65,12 +65,12 @@ export default function AddTodoForm({
       }
 
       await addTodo(projectToUse.id, newTodo.trim())
-      logger.userAction('Todo added successfully')
+      logger.userAction("Todo added successfully")
       setNewTodo("") // Clear input after local add - let sync happen in background
     } catch (error) {
       // Even if there's an error, the optimistic update likely worked
       // Clear input so user can continue adding todos
-      logger.error('Failed to add todo:', error)
+      logger.error("Failed to add todo:", error)
       setNewTodo("")
     } finally {
       setIsAdding(false)
@@ -87,11 +87,7 @@ export default function AddTodoForm({
           placeholder="What needs to be done?"
           className="flex-1 px-4 shadow-none text-base"
         />
-        <Button
-          type="submit"
-          disabled={!newTodo.trim() || isAdding}
-          className="size-9"
-        >
+        <Button type="submit" disabled={!newTodo.trim() || isAdding} className="size-9">
           {isAdding ? (
             <Spinner size="sm" className="border-primary-foreground" />
           ) : (

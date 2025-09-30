@@ -1,11 +1,11 @@
-'use client'
+"use client"
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/AuthProvider'
-import { useProjectStore } from '@/lib/store/projectStore'
-import { logger } from '@/lib/logger'
-import LoadingScreen from '@/components/layout/LoadingScreen'
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/AuthProvider"
+import { useProjectStore } from "@/lib/store/projectStore"
+import { logger } from "@/lib/logger"
+import LoadingScreen from "@/components/layout/LoadingScreen"
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -20,14 +20,14 @@ export default function AuthGuard({ children, fallback }: AuthGuardProps) {
   // Redirect to auth if not authenticated
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/auth')
+      router.push("/auth")
     }
   }, [user, loading, router])
 
   // Fetch initial data when user is authenticated
   useEffect(() => {
     if (!loading && user) {
-      logger.auth('User authenticated, fetching initial data')
+      logger.auth("User authenticated, fetching initial data")
       fetchInitialData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

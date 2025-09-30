@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: "Get things done, and done.",
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export default function RootLayout({
   children,
@@ -30,9 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -40,9 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="h-screen bg-background flex flex-col">
-              {children}
-            </div>
+            <div className="h-screen bg-background flex flex-col">{children}</div>
           </AuthProvider>
         </ThemeProvider>
       </body>

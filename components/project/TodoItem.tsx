@@ -6,13 +6,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { logger } from "@/lib/logger"
 import { TOUCH_DELAYS } from "@/lib/constants"
 
-import {
-  Check,
-  MoreHorizontal,
-  Calendar as CalendarIcon,
-  Edit,
-  Trash,
-} from "lucide-react"
+import { Check, MoreHorizontal, Calendar as CalendarIcon, Edit, Trash } from "lucide-react"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,11 +24,7 @@ interface TodoItemProps {
   onOpenDateDialog: () => void
 }
 
-export default function TodoItem({
-  todo,
-  projectId,
-  onOpenDateDialog,
-}: TodoItemProps) {
+export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItemProps) {
   const { updateTodo, deleteTodo } = useProjectStore()
   const [openDropdown, setOpenDropdown] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
@@ -48,14 +38,7 @@ export default function TodoItem({
   const touchStartEventRef = useRef<React.TouchEvent | null>(null)
   const wasTouchInteractionRef = useRef(false)
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: todo.id,
     data: {
       type: "todo",
@@ -64,9 +47,7 @@ export default function TodoItem({
   })
 
   const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
   }
 
@@ -177,9 +158,7 @@ export default function TodoItem({
 
     touchTimeoutRef.current = setTimeout(() => {
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(
-          touchStartEventRef.current as React.TouchEvent<Element>
-        )
+        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
       }
     }, TOUCH_DELAYS.TODO_LONG_PRESS)
   }
@@ -206,9 +185,7 @@ export default function TodoItem({
       clearTimeout(touchTimeoutRef.current)
       touchTimeoutRef.current = null
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(
-          touchStartEventRef.current as React.TouchEvent<Element>
-        )
+        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
       }
     }
   }
@@ -303,11 +280,7 @@ export default function TodoItem({
                   focus-visible:border-transparent focus-visible:ring-0
                   px-0 py-0 h-auto min-h-0 w-auto
                   dark:bg-transparent
-                  ${
-                    todo.completed
-                      ? "line-through text-muted-foreground"
-                      : "text-foreground"
-                  }`}
+                  ${todo.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
                   // Layout: flex-1 text-base - Match span layout and font size
                   // Override dark mode bg: dark:bg-transparent - Override shadcn's dark:bg-input/30
                   // Remove borders/shadows: border-0 shadow-none rounded-none - Override shadcn's border/rounded-md/shadow-xs
@@ -326,9 +299,7 @@ export default function TodoItem({
               <>
                 <span
                   className={`text-base break-words ${
-                    todo.completed
-                      ? "line-through text-muted-foreground"
-                      : "text-foreground"
+                    todo.completed ? "line-through text-muted-foreground" : "text-foreground"
                   } ${isDragging ? "select-none" : ""}`}
                 >
                   {todo.text}

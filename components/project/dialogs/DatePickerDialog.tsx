@@ -1,12 +1,7 @@
 "use client"
 
 import { type Todo } from "@/lib/services/syncService"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 
@@ -47,12 +42,7 @@ export default function DatePickerDialog({
           <DialogTitle>Set due date</DialogTitle>
         </DialogHeader>
         <div className="px-6 pb-4">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={handleDateSelect}
-            autoFocus
-          />
+          <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} autoFocus />
         </div>
         {selectedTodo?.due_date && (
           <div className="flex justify-center px-6 pb-6">

@@ -31,11 +31,7 @@ interface TodoListProps {
   onOpenDateDialog: (todoId: string) => void
 }
 
-export default function TodoList({
-  todos,
-  projectId,
-  onOpenDateDialog,
-}: TodoListProps) {
+export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoListProps) {
   const { reorderTodos } = useProjectStore()
   const [showAllCompleted, setShowAllCompleted] = useState(false)
 
@@ -44,9 +40,7 @@ export default function TodoList({
   const completedTodos = todos.filter((todo) => todo.completed)
 
   // Show only first 3 completed todos unless expanded
-  const visibleCompletedTodos = showAllCompleted
-    ? completedTodos
-    : completedTodos.slice(0, 3)
+  const visibleCompletedTodos = showAllCompleted ? completedTodos : completedTodos.slice(0, 3)
   const hiddenCompletedCount = completedTodos.length - visibleCompletedTodos.length
 
   const sensors = useSensors(

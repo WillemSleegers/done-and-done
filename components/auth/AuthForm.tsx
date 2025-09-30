@@ -62,17 +62,13 @@ export default function AuthForm() {
     <div className="h-full bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Done and Done
-          </h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Done and Done</h1>
           <p className="text-muted-foreground">My first todo app.</p>
         </div>
 
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Sign In
-            </h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">Sign In</h2>
             <p className="text-sm text-muted-foreground">
               We&apos;ll send you a secure link to sign in.
             </p>
@@ -85,12 +81,7 @@ export default function AuthForm() {
               disabled={githubLoading || loading}
               tabIndex={1}
             >
-              <svg
-                className="mr-2 h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                role="img"
-              >
+              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" role="img">
                 <path d={siGithub.path} />
               </svg>
               {githubLoading ? "Signing in..." : "Continue with GitHub"}
@@ -101,9 +92,7 @@ export default function AuthForm() {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
-                  Or continue with email
-                </span>
+                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
               </div>
             </div>
 

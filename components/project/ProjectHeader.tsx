@@ -41,29 +41,29 @@ export default function ProjectHeader({
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   const handleStatusChange = (newStatus: ProjectStatus) => {
-    logger.userAction('Changing project status', {
+    logger.userAction("Changing project status", {
       projectId: project.id,
       projectName: project.name,
       oldStatus: project.status,
-      newStatus
+      newStatus,
     })
 
     updateProject(project.id, { status: newStatus })
   }
 
   const handlePriorityChange = async (priority: ProjectPriority) => {
-    logger.userAction('Changing project priority', {
+    logger.userAction("Changing project priority", {
       projectId: project.id,
       projectName: project.name,
       oldPriority: project.priority,
-      newPriority: priority
+      newPriority: priority,
     })
 
     try {
       await updateProject(project.id, { priority })
-      logger.userAction('Project priority changed successfully')
+      logger.userAction("Project priority changed successfully")
     } catch (error) {
-      logger.error('Failed to change project priority', error)
+      logger.error("Failed to change project priority", error)
     }
   }
 
@@ -74,11 +74,7 @@ export default function ProjectHeader({
         {/* Priority dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="gap-2 h-9 shadow-none"
-              disabled={isNewProject}
-            >
+            <Button variant="outline" className="gap-2 h-9 shadow-none" disabled={isNewProject}>
               <PriorityBadge priority={project.priority} />
               {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
             </Button>
@@ -111,11 +107,7 @@ export default function ProjectHeader({
         {/* Status dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="h-9 shadow-none"
-              disabled={isNewProject}
-            >
+            <Button variant="outline" className="h-9 shadow-none" disabled={isNewProject}>
               {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
             </Button>
           </DropdownMenuTrigger>
@@ -145,10 +137,7 @@ export default function ProjectHeader({
         {!isNewProject && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="size-9 shadow-none"
-              >
+              <Button variant="outline" className="size-9 shadow-none">
                 <MoreHorizontal size={16} />
               </Button>
             </DropdownMenuTrigger>

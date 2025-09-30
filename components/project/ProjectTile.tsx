@@ -23,14 +23,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
   const wasTouchInteractionRef = useRef(false)
   const wasDraggedRef = useRef(false)
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id,
     data: {
       type: "project",
@@ -39,9 +32,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
   })
 
   const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
   }
 
@@ -82,7 +73,6 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
     }
   }
 
-
   // Touch handling with delay for drag - similar to TodoItem
   const handleTouchStart = (e: React.TouchEvent) => {
     wasTouchInteractionRef.current = true
@@ -92,9 +82,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
 
     touchTimeoutRef.current = setTimeout(() => {
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(
-          touchStartEventRef.current as React.TouchEvent<Element>
-        )
+        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
       }
     }, TOUCH_DELAYS.PROJECT_LONG_PRESS)
   }
@@ -116,10 +104,10 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
   }
 
   const handleNavigation = () => {
-    logger.userAction('Selecting project', {
+    logger.userAction("Selecting project", {
       projectId: project.id,
       projectName: project.name,
-      todoCounts
+      todoCounts,
     })
 
     // Navigate to project using callback
@@ -144,9 +132,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
       clearTimeout(touchTimeoutRef.current)
       touchTimeoutRef.current = null
       if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(
-          touchStartEventRef.current as React.TouchEvent<Element>
-        )
+        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
       }
     }
   }
@@ -181,9 +167,7 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
         onPointerLeave={() => setIsPressed(false)}
         onPointerCancel={() => setIsPressed(false)}
         onClick={handleClick}
-        onKeyDown={
-          listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>
-        }
+        onKeyDown={listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>}
         style={{
           WebkitTapHighlightColor: "transparent",
           WebkitUserSelect: "none",

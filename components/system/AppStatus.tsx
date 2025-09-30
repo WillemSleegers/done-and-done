@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/AuthProvider"
 import { useProjectStore } from "@/lib/store/projectStore"
-import {
-  syncActivityTracker,
-  type SyncActivity,
-} from "@/lib/syncActivityTracker"
+import { syncActivityTracker, type SyncActivity } from "@/lib/syncActivityTracker"
 import { DISPLAY_LIMITS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,8 +14,7 @@ import {
 
 export default function AppStatus() {
   const { user, loading } = useAuth()
-  const { projects, todos, retryFailedProject, retryFailedTodo } =
-    useProjectStore()
+  const { projects, todos, retryFailedProject, retryFailedTodo } = useProjectStore()
   const [isOnline, setIsOnline] = useState(true)
   const [recentActivities, setRecentActivities] = useState<SyncActivity[]>([])
 
@@ -40,7 +36,9 @@ export default function AppStatus() {
   // Subscribe to activity tracker updates
   useEffect(() => {
     const updateActivities = () => {
-      setRecentActivities(syncActivityTracker.getRecentActivities(DISPLAY_LIMITS.RECENT_ACTIVITY_COUNT))
+      setRecentActivities(
+        syncActivityTracker.getRecentActivities(DISPLAY_LIMITS.RECENT_ACTIVITY_COUNT)
+      )
     }
 
     // Initial load
@@ -76,9 +74,7 @@ export default function AppStatus() {
     const allItems = [...projectItems, ...todoItems]
 
     return {
-      syncingItems: allItems.filter(
-        (item) => item.status === "syncing" || item.status === "local"
-      ),
+      syncingItems: allItems.filter((item) => item.status === "syncing" || item.status === "local"),
       failedItems: allItems.filter((item) => item.status === "failed"),
     }
   }
@@ -126,13 +122,9 @@ export default function AppStatus() {
       case "no-auth":
         return "Not signed in"
       case "sync-error":
-        return `${failedItems.length} sync ${
-          failedItems.length === 1 ? "issue" : "issues"
-        }`
+        return `${failedItems.length} sync ${failedItems.length === 1 ? "issue" : "issues"}`
       case "syncing":
-        return `Syncing ${syncingItems.length} ${
-          syncingItems.length === 1 ? "item" : "items"
-        }`
+        return `Syncing ${syncingItems.length} ${syncingItems.length === 1 ? "item" : "items"}`
       case "connected":
       default:
         return "All synced"
@@ -152,9 +144,7 @@ export default function AppStatus() {
           <div
             className={`${
               user &&
-              (failedItems.length > 0 ||
-                syncingItems.length > 0 ||
-                recentActivities.length > 0)
+              (failedItems.length > 0 || syncingItems.length > 0 || recentActivities.length > 0)
                 ? "mb-3 pb-2 border-b border-border"
                 : "mb-0"
             }`}
@@ -173,16 +163,11 @@ export default function AppStatus() {
               </h4>
               <div className="space-y-1 max-h-24 overflow-y-auto">
                 {failedItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between text-xs"
-                  >
+                  <div key={item.id} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div className="w-2 h-2 rounded-full bg-destructive flex-shrink-0" />
                       <span className="truncate">{item.name}</span>
-                      <span className="text-muted-foreground">
-                        ({item.type})
-                      </span>
+                      <span className="text-muted-foreground">({item.type})</span>
                     </div>
                     <Button
                       variant="ghost"
@@ -212,10 +197,7 @@ export default function AppStatus() {
               </h4>
               <div className="space-y-1 max-h-24 overflow-y-auto">
                 {syncingItems.slice(0, DISPLAY_LIMITS.SYNCING_ITEMS_PREVIEW).map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-2 text-xs"
-                  >
+                  <div key={item.id} className="flex items-center gap-2 text-xs">
                     <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
                     <span className="truncate flex-1">{item.name}</span>
                     <span className="text-muted-foreground">({item.type})</span>
@@ -246,12 +228,12 @@ export default function AppStatus() {
                         activity.action === "added"
                           ? "Added"
                           : activity.action === "updated"
-                          ? "Updated"
-                          : activity.action === "deleted"
-                          ? "Deleted"
-                          : activity.action === "completed"
-                          ? "Completed"
-                          : "Uncompleted"
+                            ? "Updated"
+                            : activity.action === "deleted"
+                              ? "Deleted"
+                              : activity.action === "completed"
+                                ? "Completed"
+                                : "Uncompleted"
 
                       if (activity.type === "project") {
                         return `${actionText} project: ${activity.name}`
@@ -261,10 +243,7 @@ export default function AppStatus() {
                     }
 
                     return (
-                      <div
-                        key={`${activity.id}-${activity.timestamp}`}
-                        className="text-xs"
-                      >
+                      <div key={`${activity.id}-${activity.timestamp}`} className="text-xs">
                         <span className="truncate">{getActivityText()}</span>
                       </div>
                     )
@@ -283,9 +262,7 @@ export default function AppStatus() {
             failedItems.length === 0 &&
             syncingItems.length === 0 &&
             projects.length === 0 && (
-              <div className="text-center text-muted-foreground text-xs py-4">
-                No items to sync
-              </div>
+              <div className="text-center text-muted-foreground text-xs py-4">No items to sync</div>
             )}
         </div>
       </DropdownMenuContent>

@@ -23,9 +23,7 @@ export default function UserMenu() {
           className="flex items-center gap-2 px-2 h-9 text-muted-foreground hover:text-foreground rounded-lg"
         >
           <User size={20} />
-          <span className="hidden sm:inline text-sm">
-            {user.email || "User"}
-          </span>
+          <span className="hidden sm:inline text-sm">{user.email || "User"}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
