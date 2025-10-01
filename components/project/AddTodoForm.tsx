@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { INPUT_LIMITS } from "@/lib/constants"
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
@@ -80,15 +81,16 @@ export default function AddTodoForm({
 
   return (
     <form onSubmit={handleAddTodo}>
-      <div className="flex gap-2">
+      <div className="flex gap-4">
         <Input
           type="text"
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           placeholder="What needs to be done?"
-          className="flex-1 px-4 shadow-none text-base"
+          maxLength={INPUT_LIMITS.TODO_TEXT_MAX}
+          className="flex-1 px-4 py-2 h-10 shadow-none text-base"
         />
-        <Button type="submit" disabled={!newTodo.trim() || isAdding} className="size-9">
+        <Button type="submit" disabled={!newTodo.trim() || isAdding} className="size-10">
           {isAdding ? (
             <Spinner size="sm" className="border-primary-foreground" />
           ) : (

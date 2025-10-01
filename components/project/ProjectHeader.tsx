@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { INPUT_LIMITS } from "@/lib/constants"
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
@@ -71,11 +72,11 @@ export default function ProjectHeader({
   return (
     <div className="space-y-4">
       {/* Priority, Status, and Actions buttons - left aligned */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-4">
         {/* Priority dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2 h-9 shadow-none" disabled={isNewProject}>
+            <Button variant="outline" className="gap-2 h-10 shadow-none" disabled={isNewProject}>
               <PriorityBadge priority={project.priority} />
               {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
             </Button>
@@ -108,7 +109,7 @@ export default function ProjectHeader({
         {/* Status dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 shadow-none" disabled={isNewProject}>
+            <Button variant="outline" className="h-10 shadow-none" disabled={isNewProject}>
               {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
             </Button>
           </DropdownMenuTrigger>
@@ -138,7 +139,7 @@ export default function ProjectHeader({
         {!isNewProject && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="size-9 shadow-none">
+              <Button variant="outline" className="size-10 shadow-none">
                 <MoreHorizontal size={16} />
               </Button>
             </DropdownMenuTrigger>
@@ -166,6 +167,7 @@ export default function ProjectHeader({
           onKeyDown={onNameKeyDown}
           onFocus={onNameFocus}
           spellCheck={false}
+          maxLength={INPUT_LIMITS.PROJECT_NAME_MAX}
           className="text-2xl sm:text-3xl font-bold text-foreground bg-transparent dark:bg-transparent border-none outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 w-full p-0 m-0 h-auto cursor-pointer hover:text-primary transition-colors break-words shadow-none"
           placeholder="Project name"
         />

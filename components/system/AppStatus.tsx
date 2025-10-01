@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect,useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -11,7 +11,7 @@ import {
 import { useAuth } from "@/lib/AuthProvider"
 import { DISPLAY_LIMITS } from "@/lib/constants"
 import { useProjectStore } from "@/lib/store/projectStore"
-import { type SyncActivity,syncActivityTracker } from "@/lib/syncActivityTracker"
+import { type SyncActivity, syncActivityTracker } from "@/lib/syncActivityTracker"
 
 export default function AppStatus() {
   const { user, loading } = useAuth()
@@ -135,7 +135,7 @@ export default function AppStatus() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-9 w-9 hover:bg-muted">
+        <Button variant="ghost" className="h-10 w-11 rounded-full hover:bg-muted">
           <div className={`w-3 h-3 rounded-full ${getDotColor()}`} />
         </Button>
       </DropdownMenuTrigger>

@@ -17,7 +17,6 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { ChevronDown, ChevronRight } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -100,7 +99,7 @@ export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoLis
             items={openTodos.map((todo) => todo.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-3">
+            <div className="space-y-4">
               {openTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -116,7 +115,7 @@ export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoLis
 
       {/* Completed todos section */}
       {completedTodos.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Visual separator */}
           {openTodos.length > 0 && (
             <div className="flex items-center gap-3 py-2">
@@ -129,7 +128,7 @@ export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoLis
           )}
 
           {/* Completed todos list */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {visibleCompletedTodos.map((todo) => (
               <TodoItem
                 key={todo.id}
@@ -146,18 +145,12 @@ export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoLis
               variant="ghost"
               size="sm"
               onClick={() => setShowAllCompleted(!showAllCompleted)}
-              className="w-full text-muted-foreground hover:text-foreground"
+              className="w-full h-10 text-muted-foreground hover:text-foreground"
             >
               {showAllCompleted ? (
-                <>
-                  <ChevronDown size={16} className="mr-2" />
-                  Show less completed
-                </>
+                <>Show less completed</>
               ) : (
-                <>
-                  <ChevronRight size={16} className="mr-2" />
-                  Show {hiddenCompletedCount} more completed
-                </>
+                <>Show {hiddenCompletedCount} more completed</>
               )}
             </Button>
           )}

@@ -216,13 +216,13 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
       {...(!isEditing ? attributes : {})}
     >
       <div
-        className={`flex items-center gap-3 ps-3 min-h-9 rounded-lg transition-all bg-card select-none ${
+        className={`flex items-center gap-4 ps-4 min-h-9 rounded-lg transition-all bg-card select-none ${
           isDragging || isPressed ? "shadow-lg bg-accent/20" : ""
         }`}
       >
         {/* Clickable area for toggling todo - excludes the button */}
         <div
-          className="flex items-center gap-3 flex-1 min-w-0 py-1 cursor-pointer hover:opacity-80"
+          className="flex items-center gap-4 flex-1 min-w-0 py-2 cursor-pointer hover:opacity-80"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}
