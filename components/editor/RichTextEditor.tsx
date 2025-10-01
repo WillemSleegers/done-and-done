@@ -1,9 +1,12 @@
 "use client"
 
+import CharacterCount from "@tiptap/extension-character-count"
 import Placeholder from "@tiptap/extension-placeholder"
 import { EditorContent,useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { forwardRef, useEffect,useImperativeHandle } from "react"
+
+import { INPUT_LIMITS } from "@/lib/constants"
 
 export interface RichTextEditorRef {
   focus: () => void
@@ -39,6 +42,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           placeholder: placeholder || "Start typing...",
           emptyEditorClass: "is-editor-empty",
           showOnlyWhenEditable: false,
+        }),
+        CharacterCount.configure({
+          limit: INPUT_LIMITS.NOTES_MAX,
         }),
       ],
       content,

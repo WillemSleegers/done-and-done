@@ -25,6 +25,7 @@
     "@supabase/supabase-js": "^2.57.4",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-bullet-list": "^3.4.2",
+    "@tiptap/extension-character-count": "^3.6.2",
     "@tiptap/extension-link": "^3.4.2",
     "@tiptap/extension-list-item": "^3.4.2",
     "@tiptap/extension-ordered-list": "^3.4.2",

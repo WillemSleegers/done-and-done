@@ -29,3 +29,10 @@ export const DRAG_CONSTRAINTS = {
   POINTER_DISTANCE: 8,
   TOUCH_TOLERANCE: 5,
 } as const
+
+// Input validation limits
+export const INPUT_LIMITS = {
+  PROJECT_NAME_MAX: 255,
+  TODO_TEXT_MAX: 1000,
+  NOTES_MAX: 10000,
+} as const
