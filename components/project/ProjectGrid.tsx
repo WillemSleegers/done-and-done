@@ -1,25 +1,12 @@
 "use client"
 
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable"
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core"
+import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable"
 import { FolderOpen,Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
+import { TOUCH_DELAYS } from "@/lib/constants"
+import { useDndSensors } from "@/lib/hooks/useDndSensors"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
@@ -70,22 +57,7 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   })
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: DRAG_CONSTRAINTS.POINTER_DISTANCE,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: TOUCH_DELAYS.PROJECT_DRAG_ACTIVATION,
-        tolerance: DRAG_CONSTRAINTS.TOUCH_TOLERANCE,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
+  const sensors = useDndSensors(TOUCH_DELAYS.PROJECT_DRAG_ACTIVATION)
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event

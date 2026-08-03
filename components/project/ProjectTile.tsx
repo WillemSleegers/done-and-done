@@ -1,10 +1,11 @@
 "use client"
 
 import { useSortable } from "@dnd-kit/sortable"
-import { useEffect,useRef, useState } from "react"
+import { useEffect,useRef } from "react"
 
 import PriorityBadge from "@/components/project/PriorityBadge"
 import { TOUCH_DELAYS } from "@/lib/constants"
+import { useDragTouchActivation } from "@/lib/hooks/useDragTouchActivation"
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
 import { cn } from "@/lib/utils"
@@ -16,12 +17,6 @@ interface ProjectTileProps {
 }
 
 export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTileProps) {
-  const [isPressed, setIsPressed] = useState(false)
-
-  // Touch handling refs
-  const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const touchStartEventRef = useRef<React.TouchEvent | null>(null)
-  const wasTouchInteractionRef = useRef(false)
   const wasDraggedRef = useRef(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -36,15 +31,6 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
   }
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (touchTimeoutRef.current) {
-        clearTimeout(touchTimeoutRef.current)
-      }
-    }
-  }, [])
 
   // Reset drag state when dragging ends
   useEffect(() => {
@@ -74,36 +60,6 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
     }
   }
 
-  // Touch handling with delay for drag - similar to TodoItem
-  const handleTouchStart = (e: React.TouchEvent) => {
-    wasTouchInteractionRef.current = true
-    e.preventDefault()
-
-    touchStartEventRef.current = e
-
-    touchTimeoutRef.current = setTimeout(() => {
-      if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
-      }
-    }, TOUCH_DELAYS.PROJECT_LONG_PRESS)
-  }
-
-  const handleTouchEnd = () => {
-    if (touchTimeoutRef.current) {
-      clearTimeout(touchTimeoutRef.current)
-      touchTimeoutRef.current = null
-      // If timeout was still active, it means drag didn't start, so it's a tap
-      if (!isDragging) {
-        handleNavigation()
-      }
-    }
-    touchStartEventRef.current = null
-
-    setTimeout(() => {
-      wasTouchInteractionRef.current = false
-    }, 100)
-  }
-
   const handleNavigation = () => {
     logger.userAction("Selecting project", {
       projectId: project.id,
@@ -114,6 +70,21 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
     // Navigate to project using callback
     onSelect(project)
   }
+
+  const {
+    isPressed,
+    handleTouchStart,
+    handleTouchEnd,
+    handleTouchMove,
+    handlePointerDown,
+    pointerUpHandlers,
+    noSelectStyle,
+  } = useDragTouchActivation({
+    listeners,
+    isDragging,
+    delay: TOUCH_DELAYS.PROJECT_LONG_PRESS,
+    onTap: handleNavigation,
+  })
 
   const handleClick = (e: React.MouseEvent) => {
     // Prevent navigation if we just finished dragging
@@ -126,27 +97,6 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
     // Navigate to project if it's a valid click
     e.preventDefault()
     handleNavigation()
-  }
-
-  const handleTouchMove = () => {
-    if (touchTimeoutRef.current) {
-      clearTimeout(touchTimeoutRef.current)
-      touchTimeoutRef.current = null
-      if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
-      }
-    }
-  }
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType === "touch") {
-      e.preventDefault()
-    } else if (e.pointerType === "mouse") {
-      setIsPressed(true)
-      if (listeners?.onPointerDown) {
-        listeners.onPointerDown(e as React.PointerEvent<Element>)
-      }
-    }
   }
 
   return (
@@ -164,17 +114,10 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
         onPointerDown={handlePointerDown}
-        onPointerUp={() => setIsPressed(false)}
-        onPointerLeave={() => setIsPressed(false)}
-        onPointerCancel={() => setIsPressed(false)}
+        {...pointerUpHandlers}
         onClick={handleClick}
         onKeyDown={listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>}
-        style={{
-          WebkitTapHighlightColor: "transparent",
-          WebkitUserSelect: "none",
-          WebkitTouchCallout: "none" as const,
-          userSelect: "none",
-        }}
+        style={noSelectStyle}
       >
         <div className="h-full flex flex-col justify-between">
           <h3

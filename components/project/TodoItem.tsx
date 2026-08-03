@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon, Check, Edit, MoreHorizontal, Trash } from "lucide-react"
-import { useEffect,useRef, useState } from "react"
+import { useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { TOUCH_DELAYS } from "@/lib/constants"
+import { useDragTouchActivation } from "@/lib/hooks/useDragTouchActivation"
 import { logger } from "@/lib/logger"
 import { type Todo } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
@@ -27,16 +28,10 @@ interface TodoItemProps {
 export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItemProps) {
   const { updateTodo, deleteTodo } = useProjectStore()
   const [openDropdown, setOpenDropdown] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(todo.text)
   const editInputRef = useRef<HTMLInputElement>(null)
   const originalEditTextRef = useRef(todo.text)
-
-  // Touch handling refs
-  const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const touchStartEventRef = useRef<React.TouchEvent | null>(null)
-  const wasTouchInteractionRef = useRef(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: todo.id,
@@ -50,15 +45,6 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
   }
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (touchTimeoutRef.current) {
-        clearTimeout(touchTimeoutRef.current)
-      }
-    }
-  }, [])
 
   const handleToggleTodo = async () => {
     if (isEditing) return
@@ -147,61 +133,22 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
     }
   }
 
-  // Touch handling with delay for drag
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (isEditing) return
-
-    wasTouchInteractionRef.current = true
-    e.preventDefault()
-
-    touchStartEventRef.current = e
-
-    touchTimeoutRef.current = setTimeout(() => {
-      if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
-      }
-    }, TOUCH_DELAYS.TODO_LONG_PRESS)
-  }
-
-  const handleTouchEnd = () => {
-    if (isEditing) return
-
-    if (touchTimeoutRef.current) {
-      clearTimeout(touchTimeoutRef.current)
-      touchTimeoutRef.current = null
-      if (!isDragging) {
-        handleToggleTodo()
-      }
-    }
-    touchStartEventRef.current = null
-
-    setTimeout(() => {
-      wasTouchInteractionRef.current = false
-    }, 100)
-  }
-
-  const handleTouchMove = () => {
-    if (touchTimeoutRef.current) {
-      clearTimeout(touchTimeoutRef.current)
-      touchTimeoutRef.current = null
-      if (listeners?.onTouchStart && touchStartEventRef.current) {
-        listeners.onTouchStart(touchStartEventRef.current as React.TouchEvent<Element>)
-      }
-    }
-  }
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (isEditing) return
-
-    if (e.pointerType === "touch") {
-      e.preventDefault()
-    } else if (e.pointerType === "mouse") {
-      setIsPressed(true)
-      if (listeners?.onPointerDown) {
-        listeners.onPointerDown(e as React.PointerEvent<Element>)
-      }
-    }
-  }
+  const {
+    isPressed,
+    wasTouchInteractionRef,
+    handleTouchStart,
+    handleTouchEnd,
+    handleTouchMove,
+    handlePointerDown,
+    pointerUpHandlers,
+    noSelectStyle,
+  } = useDragTouchActivation({
+    listeners,
+    isDragging,
+    delay: TOUCH_DELAYS.TODO_LONG_PRESS,
+    disabled: isEditing,
+    onTap: handleToggleTodo,
+  })
 
   const handleClick = () => {
     if (isEditing || wasTouchInteractionRef.current) return
@@ -227,21 +174,14 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}
           onPointerDown={handlePointerDown}
-          onPointerUp={() => setIsPressed(false)}
-          onPointerLeave={() => setIsPressed(false)}
-          onPointerCancel={() => setIsPressed(false)}
+          {...pointerUpHandlers}
           onClick={handleClick}
           onKeyDown={
             isEditing
               ? undefined
               : (listeners?.onKeyDown as React.KeyboardEventHandler<HTMLDivElement>)
           }
-          style={{
-            WebkitTapHighlightColor: "transparent",
-            WebkitUserSelect: "none",
-            WebkitTouchCallout: "none" as const,
-            userSelect: "none",
-          }}
+          style={noSelectStyle}
         >
           {/* Checkbox */}
           <div

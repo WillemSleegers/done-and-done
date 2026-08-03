@@ -1,26 +1,13 @@
 "use client"
 
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { DRAG_CONSTRAINTS, TOUCH_DELAYS } from "@/lib/constants"
+import { TOUCH_DELAYS } from "@/lib/constants"
+import { useDndSensors } from "@/lib/hooks/useDndSensors"
 import { type Todo } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
@@ -44,22 +31,7 @@ export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoLis
   const visibleCompletedTodos = showAllCompleted ? completedTodos : completedTodos.slice(0, 3)
   const hiddenCompletedCount = completedTodos.length - visibleCompletedTodos.length
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: DRAG_CONSTRAINTS.POINTER_DISTANCE,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: TOUCH_DELAYS.TODO_DRAG_ACTIVATION,
-        tolerance: DRAG_CONSTRAINTS.TOUCH_TOLERANCE,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
+  const sensors = useDndSensors(TOUCH_DELAYS.TODO_DRAG_ACTIVATION)
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
