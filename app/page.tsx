@@ -10,9 +10,9 @@ import type { Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
 export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [isNewProject, setIsNewProject] = useState(false)
-  const projects = useProjectStore((state) => state.projects)
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const { projects, addProject } = useProjectStore()
+  const selectedProject = projects.find((p) => p.id === selectedProjectId) || null
 
   useEffect(() => {
     const handlePopState = () => {
@@ -20,18 +20,14 @@ export default function Home() {
       const projectId = params.get("project")
 
       if (projectId) {
-        const project = projects.find((p) => p.id === projectId)
-        if (project) {
-          setSelectedProject(project)
-          setIsNewProject(params.get("new") === "true")
+        if (projects.some((p) => p.id === projectId)) {
+          setSelectedProjectId(projectId)
         } else {
-          setSelectedProject(null)
-          setIsNewProject(false)
+          setSelectedProjectId(null)
           window.history.replaceState({}, "", "/")
         }
       } else {
-        setSelectedProject(null)
-        setIsNewProject(false)
+        setSelectedProjectId(null)
       }
     }
 
@@ -43,35 +39,27 @@ export default function Home() {
   }, [projects])
 
   const handleSelectProject = (project: Project) => {
-    setSelectedProject(project)
-    setIsNewProject(false)
+    setSelectedProjectId(project.id)
     // Update URL for bookmarking without triggering navigation
     window.history.pushState({}, "", `/?project=${project.id}`)
   }
 
-  const handleCreateNewProject = () => {
-    const newProjectId = crypto.randomUUID()
-    const newProject: Project = {
-      id: newProjectId,
-      name: "",
+  const handleCreateNewProject = async () => {
+    const newProject = await addProject({
+      id: crypto.randomUUID(),
+      name: "Untitled Project",
       notes: null,
       status: "active",
       priority: "normal",
-      created_at: new Date().toISOString(),
-      order: 1,
-      syncState: "local",
-      remoteId: undefined,
-      lastError: undefined,
-    }
-    setSelectedProject(newProject)
-    setIsNewProject(true)
+      order: 0,
+    })
+    setSelectedProjectId(newProject.id)
     // Update URL for bookmarking without triggering navigation
-    window.history.pushState({}, "", `/?project=${newProjectId}&new=true`)
+    window.history.pushState({}, "", `/?project=${newProject.id}`)
   }
 
   const handleBackToGrid = () => {
-    setSelectedProject(null)
-    setIsNewProject(false)
+    setSelectedProjectId(null)
     // Update URL for bookmarking without triggering navigation
     window.history.pushState({}, "", "/")
   }
@@ -81,11 +69,7 @@ export default function Home() {
       <AuthGuard>
         <NavigationBar variant="back" onBack={handleBackToGrid} />
         <main className="flex-1">
-          <ProjectTodoView
-            project={selectedProject}
-            onBack={handleBackToGrid}
-            isNewProject={isNewProject}
-          />
+          <ProjectTodoView project={selectedProject} onBack={handleBackToGrid} />
         </main>
       </AuthGuard>
     )

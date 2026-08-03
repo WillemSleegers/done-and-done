@@ -13,20 +13,10 @@ import { useProjectStore } from "@/lib/store/projectStore"
 
 interface AddTodoFormProps {
   project: Project
-  isNewProject?: boolean
-  nameValue: string
-  notesHtml: string | null
-  onProjectCreated: () => void
 }
 
-export default function AddTodoForm({
-  project,
-  isNewProject = false,
-  nameValue,
-  notesHtml,
-  onProjectCreated,
-}: AddTodoFormProps) {
-  const { addTodo, addProject } = useProjectStore()
+export default function AddTodoForm({ project }: AddTodoFormProps) {
+  const { addTodo } = useProjectStore()
   const [newTodo, setNewTodo] = useState("")
   const [isAdding, setIsAdding] = useState(false)
 
@@ -37,36 +27,13 @@ export default function AddTodoForm({
     logger.userAction("Adding todo", {
       text: newTodo.trim(),
       projectId: project.id,
-      projectName: nameValue || project.name,
-      isNewProject,
+      projectName: project.name,
     })
 
     setIsAdding(true)
 
     try {
-      let projectToUse = project
-
-      if (isNewProject) {
-        logger.userAction("Creating new project with first todo", {
-          projectId: project.id,
-          projectName: nameValue.trim() || "Untitled Project",
-          firstTodo: newTodo.trim(),
-        })
-
-        await addProject({
-          id: project.id,
-          name: nameValue.trim() || "Untitled Project",
-          notes: notesHtml || null,
-          status: project.status,
-          priority: project.priority,
-          order: project.order,
-        })
-
-        onProjectCreated()
-        projectToUse = project // Use the same project object
-      }
-
-      await addTodo(projectToUse.id, newTodo.trim())
+      await addTodo(project.id, newTodo.trim())
       logger.userAction("Todo added successfully")
       setNewTodo("") // Clear input after local add - let sync happen in background
     } catch (error) {

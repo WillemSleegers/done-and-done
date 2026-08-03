@@ -20,7 +20,6 @@ import { type ProjectPriority,type ProjectStatus } from "@/lib/supabase"
 
 interface ProjectHeaderProps {
   project: Project
-  isNewProject?: boolean
   nameValue: string
   onNameChange: (value: string) => void
   onNameSave: () => Promise<void>
@@ -31,7 +30,6 @@ interface ProjectHeaderProps {
 
 export default function ProjectHeader({
   project,
-  isNewProject = false,
   nameValue,
   onNameChange,
   onNameSave,
@@ -76,7 +74,7 @@ export default function ProjectHeader({
         {/* Priority dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2 h-10 shadow-none" disabled={isNewProject}>
+            <Button variant="outline" className="gap-2 h-10 shadow-none">
               <PriorityBadge priority={project.priority} />
               {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
             </Button>
@@ -109,7 +107,7 @@ export default function ProjectHeader({
         {/* Status dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-10 shadow-none" disabled={isNewProject}>
+            <Button variant="outline" className="h-10 shadow-none">
               {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
             </Button>
           </DropdownMenuTrigger>
@@ -136,24 +134,22 @@ export default function ProjectHeader({
         </DropdownMenu>
 
         {/* Actions dropdown */}
-        {!isNewProject && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="size-10 shadow-none">
-                <MoreHorizontal size={16} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={onDeleteProject}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash size={16} className="mr-2" />
-                Delete Project
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="size-10 shadow-none">
+              <MoreHorizontal size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              onClick={onDeleteProject}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash size={16} className="mr-2" />
+              Delete Project
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Project title */}

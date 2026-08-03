@@ -1,7 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
-import { useEffect,useRef, useState } from "react"
+import { useRef, useState } from "react"
 
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
@@ -17,34 +17,20 @@ import TodoList from "./todo-view/TodoList"
 interface ProjectTodoViewProps {
   project: Project
   onBack: () => void
-  isNewProject?: boolean
 }
 
-export default function ProjectTodoView({
-  project,
-  onBack,
-  isNewProject = false,
-}: ProjectTodoViewProps) {
-  const { getProjectTodos, updateTodo, deleteProject, updateProject, addProject } =
-    useProjectStore()
+export default function ProjectTodoView({ project, onBack }: ProjectTodoViewProps) {
+  const { getProjectTodos, updateTodo, deleteProject, updateProject } = useProjectStore()
   const [showDateDialog, setShowDateDialog] = useState(false)
   const [dateDialogTodoId, setDateDialogTodoId] = useState<string | null>(null)
   const [nameValue, setNameValue] = useState(project.name)
   const [notesValue, setNotesValue] = useState(project.notes || "")
   const [showDeleteAlert, setShowDeleteAlert] = useState(false)
-  const [isNewProjectCreated, setIsNewProjectCreated] = useState(!isNewProject)
 
   const notesInputRef = useRef<ProjectNotesEditorRef>(null)
   const originalNameValueRef = useRef(project.name)
 
-  const todos = isNewProject && !isNewProjectCreated ? [] : getProjectTodos(project.id)
-
-  useEffect(() => {
-    if (isNewProject) {
-      setNameValue("")
-      originalNameValueRef.current = ""
-    }
-  }, [isNewProject])
+  const todos = getProjectTodos(project.id)
 
   const handleNameFocus = () => {
     originalNameValueRef.current = nameValue
@@ -53,39 +39,13 @@ export default function ProjectTodoView({
   const handleNameSave = async () => {
     const trimmedName = nameValue.trim()
 
-    if (isNewProject && !isNewProjectCreated && trimmedName) {
-      logger.userAction("Creating new project via name save", {
-        projectId: project.id,
-        name: trimmedName,
-        status: project.status,
-        priority: project.priority,
-      })
-
-      try {
-        await addProject({
-          id: project.id, // Use the existing ID from the URL
-          name: trimmedName,
-          notes: notesInputRef.current?.getHTML() || null,
-          status: project.status,
-          priority: project.priority,
-          order: project.order,
-        })
-
-        logger.userAction("Project created successfully via name save")
-        window.history.replaceState({}, "", `/?project=${project.id}`)
-        setIsNewProjectCreated(true)
-      } catch (error) {
-        logger.error("Failed to create project:", error)
-        return
-      }
-    } else if (isNewProjectCreated && trimmedName && trimmedName !== project.name) {
+    if (trimmedName && trimmedName !== project.name) {
       logger.userAction("Updating project name", {
         projectId: project.id,
         oldName: project.name,
         newName: trimmedName,
       })
 
-      // Update the project in the store
       await updateProject(project.id, { name: trimmedName })
       logger.userAction("Project name updated successfully")
     } else if (!trimmedName) {
@@ -98,38 +58,13 @@ export default function ProjectTodoView({
     // Get plain text for comparison, but save HTML
     const htmlContent = notesInputRef.current?.getHTML() || ""
     const textContent = notesInputRef.current?.getText() || ""
-    const trimmedText = textContent.trim()
 
-    if (isNewProject && !isNewProjectCreated && trimmedText) {
-      logger.userAction("Creating new project via notes save", {
-        projectId: project.id,
-        name: nameValue.trim() || "Untitled Project",
-        hasNotes: trimmedText.length > 0,
-      })
-
-      try {
-        await addProject({
-          id: project.id, // Use the existing ID from the URL
-          name: nameValue.trim() || "Untitled Project",
-          notes: htmlContent || null,
-          status: project.status,
-          priority: project.priority,
-          order: project.order,
-        })
-
-        logger.userAction("Project created successfully via notes save")
-        window.history.replaceState({}, "", `/?project=${project.id}`)
-        setIsNewProjectCreated(true)
-      } catch (error) {
-        logger.error("Failed to create project:", error)
-        return
-      }
-    } else if (isNewProjectCreated && htmlContent !== (project.notes || "")) {
+    if (htmlContent !== (project.notes || "")) {
       logger.userAction("Updating project notes", {
         projectId: project.id,
         projectName: project.name,
-        hasNotes: trimmedText.length > 0,
-        notesLength: trimmedText.length,
+        hasNotes: textContent.trim().length > 0,
+        notesLength: textContent.trim().length,
       })
 
       updateProject(project.id, {
@@ -162,10 +97,6 @@ export default function ProjectTodoView({
       notesInputRef.current?.setContent(originalContent)
       notesInputRef.current?.blur()
     }
-  }
-
-  const handleProjectCreated = () => {
-    setIsNewProjectCreated(true)
   }
 
   const handleSetDueDate = async (todoId: string, date: Date | undefined) => {
@@ -208,7 +139,6 @@ export default function ProjectTodoView({
         {/* Project header */}
         <ProjectHeader
           project={project}
-          isNewProject={isNewProject && !isNewProjectCreated}
           nameValue={nameValue}
           onNameChange={setNameValue}
           onNameSave={handleNameSave}
@@ -218,13 +148,7 @@ export default function ProjectTodoView({
         />
 
         {/* Add new todo form */}
-        <AddTodoForm
-          project={project}
-          isNewProject={isNewProject && !isNewProjectCreated}
-          nameValue={nameValue}
-          notesHtml={notesInputRef.current?.getHTML() || null}
-          onProjectCreated={handleProjectCreated}
-        />
+        <AddTodoForm project={project} />
 
         {/* Todo list */}
         <TodoList todos={todos} projectId={project.id} onOpenDateDialog={openDateDialog} />
