@@ -6,14 +6,19 @@ import * as React from "react"
 
 import { Button } from "@/components/ui/button"
 
+function subscribe() {
+  return () => {}
+}
+
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-
-  // Avoid hydration mismatch
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
+  // Avoid hydration mismatch: false on the server and on the client's first
+  // render, true once hydration has completed.
+  const mounted = React.useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false
+  )
 
   if (!mounted) {
     return (
