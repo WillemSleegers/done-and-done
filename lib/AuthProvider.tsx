@@ -27,15 +27,18 @@ export const useAuth = () => {
   return context
 }
 
+const isSupabaseConfigured = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(isSupabaseConfigured)
 
   useEffect(() => {
     // Check if Supabase is properly configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!isSupabaseConfigured) {
       logger.warn("Supabase environment variables not configured. Authentication will not work.")
-      setLoading(false)
       return
     }
 
