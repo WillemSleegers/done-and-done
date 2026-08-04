@@ -1,41 +1,54 @@
 "use client"
 
-import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core"
-import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable"
-import { FolderOpen,Plus } from "lucide-react"
+import { FolderOpen, Plus } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { TOUCH_DELAYS } from "@/lib/constants"
-import { useDndSensors } from "@/lib/hooks/useDndSensors"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
-import ProjectTile from "./ProjectTile"
+import ProjectTableSection from "./ProjectTableSection"
 
-const getPriorityOrder = (priority: string): number => {
-  switch (priority) {
-    case "high":
-      return 1
-    case "normal":
-      return 2
-    case "low":
-      return 3
-    default:
-      return 2
-  }
+type GroupByField = "status" | "priority"
+
+interface GroupBucket {
+  value: string
+  label: string
 }
 
-const sortProjectsByPriority = (projects: Project[]) => {
-  return [...projects].sort((a, b) => {
-    const priorityOrderA = getPriorityOrder(a.priority)
-    const priorityOrderB = getPriorityOrder(b.priority)
-    if (priorityOrderA !== priorityOrderB) {
-      return priorityOrderA - priorityOrderB
-    }
-
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  })
+const GROUP_BY_CONFIG: Record<
+  GroupByField,
+  { label: string; buckets: GroupBucket[]; getValue: (project: Project) => string }
+> = {
+  status: {
+    label: "Status",
+    getValue: (project) => project.status,
+    buckets: [
+      { value: "active", label: "Active Projects" },
+      { value: "inactive", label: "Inactive Projects" },
+      { value: "complete", label: "Completed Projects" },
+    ],
+  },
+  priority: {
+    label: "Priority",
+    getValue: (project) => project.priority,
+    buckets: [
+      { value: "high", label: "High Priority" },
+      { value: "normal", label: "Normal Priority" },
+      { value: "low", label: "Low Priority" },
+    ],
+  },
 }
+
+const GROUPABLE_FIELDS: GroupByField[] = ["status", "priority"]
 
 interface ProjectGridProps {
   onSelectProject: (project: Project) => void
@@ -43,117 +56,122 @@ interface ProjectGridProps {
 }
 
 export default function ProjectGrid({ onSelectProject, onCreateProject }: ProjectGridProps) {
-  const { projects, todoCounts, reorderProjects, getProjectsSortedByOrder } = useProjectStore()
+  const { projects, todoCounts, getProjectsSortedByOrder } = useProjectStore()
+  const [groupBy, setGroupBy] = useState<GroupByField[]>(["status"])
 
   const allProjectsSorted = getProjectsSortedByOrder()
 
-  const activeProjects = allProjectsSorted.filter((p) => p.status === "active")
-  const inactiveProjects = allProjectsSorted.filter((p) => p.status === "inactive")
-  const completedProjects = allProjectsSorted.filter((p) => p.status === "complete")
-
-  const sortedInactiveProjects = sortProjectsByPriority(inactiveProjects)
-
-  const sortedCompletedProjects = [...completedProjects].sort((a, b) => {
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  })
-
-  const sensors = useDndSensors(TOUCH_DELAYS.PROJECT_DRAG_ACTIVATION)
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event
-
-    if (active.id !== over?.id) {
-      const oldIndex = activeProjects.findIndex((project) => project.id === active.id)
-      const newIndex = activeProjects.findIndex((project) => project.id === over?.id)
-
-      const newOrder = arrayMove(activeProjects, oldIndex, newIndex)
-      await reorderProjects([...newOrder, ...inactiveProjects, ...completedProjects])
-    }
-  }
-
-  const handleCreateProject = () => {
-    onCreateProject()
-  }
+  const primary = groupBy[0]
+  const secondary = groupBy[1]
+  const primaryConfig = GROUP_BY_CONFIG[primary]
+  const secondaryConfig = secondary ? GROUP_BY_CONFIG[secondary] : undefined
+  const secondaryOptions = GROUPABLE_FIELDS.filter((field) => field !== primary)
 
   return (
     <div className="p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Main Projects Grid */}
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <SortableContext
-              items={activeProjects.map((project) => project.id)}
-              strategy={rectSortingStrategy}
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Group by</span>
+            <Select
+              value={primary}
+              onValueChange={(value) => {
+                const nextPrimary = value as GroupByField
+                setGroupBy(secondary && secondary !== nextPrimary ? [nextPrimary, secondary] : [nextPrimary])
+              }}
             >
-              {/* Draggable Project Tiles */}
-              {activeProjects.map((project) => {
-                const counts = todoCounts[project.id] || {
-                  total: 0,
-                  completed: 0,
-                }
-                return (
-                  <ProjectTile
-                    key={project.id}
-                    project={project}
-                    todoCounts={counts}
-                    onSelect={onSelectProject}
-                  />
-                )
-              })}
-            </SortableContext>
+              <SelectTrigger className="h-8 w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {GROUPABLE_FIELDS.map((field) => (
+                  <SelectItem key={field} value={field}>
+                    {GROUP_BY_CONFIG[field].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            {/* Add New Project Tile - Not draggable */}
-            <Button
-              variant="ghost"
-              onClick={handleCreateProject}
-              className="h-20 p-4 border-2 border-border border-dashed rounded-md hover:bg-accent/20 transition-all duration-200 transform hover:scale-105 group"
+            <span className="text-sm text-muted-foreground">then by</span>
+            <Select
+              value={secondary ?? "none"}
+              onValueChange={(value) =>
+                setGroupBy(value === "none" ? [primary] : [primary, value as GroupByField])
+              }
             >
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground group-hover:text-foreground">
-                <Plus size={24} className="mb-2" />
-                <span className="text-sm font-medium">New Project</span>
-              </div>
-            </Button>
+              <SelectTrigger className="h-8 w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {secondaryOptions.map((field) => (
+                  <SelectItem key={field} value={field}>
+                    {GROUP_BY_CONFIG[field].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </DndContext>
+          <Button size="sm" onClick={onCreateProject}>
+            <Plus size={16} />
+            New Project
+          </Button>
+        </div>
 
-        {/* Show inactive and completed projects in the main grid */}
-        {sortedInactiveProjects.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">Inactive Projects</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedInactiveProjects.map((project) => {
-                const counts = todoCounts[project.id] || { total: 0, completed: 0 }
-                return (
-                  <ProjectTile
-                    key={project.id}
-                    project={project}
-                    todoCounts={counts}
-                    onSelect={onSelectProject}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        )}
+        <div className="space-y-6">
+          {primaryConfig.buckets.map((bucket) => {
+            const bucketProjects = allProjectsSorted.filter(
+              (project) => primaryConfig.getValue(project) === bucket.value
+            )
 
-        {sortedCompletedProjects.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">Completed Projects</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedCompletedProjects.map((project) => {
-                const counts = todoCounts[project.id] || { total: 0, completed: 0 }
-                return (
-                  <ProjectTile
-                    key={project.id}
-                    project={project}
-                    todoCounts={counts}
-                    onSelect={onSelectProject}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        )}
+            if (bucketProjects.length === 0) {
+              return null
+            }
+
+            if (!secondaryConfig) {
+              return (
+                <ProjectTableSection
+                  key={bucket.value}
+                  title={bucket.label}
+                  projects={bucketProjects}
+                  todoCounts={todoCounts}
+                  onSelectProject={onSelectProject}
+                />
+              )
+            }
+
+            return (
+              <Collapsible key={bucket.value} defaultOpen>
+                <CollapsibleTrigger className="mb-4 text-lg font-semibold text-muted-foreground hover:text-foreground">
+                  {bucket.label} ({bucketProjects.length})
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-5 space-y-6">
+                  {secondaryConfig.buckets.map((subBucket) => {
+                    const subProjects = bucketProjects.filter(
+                      (project) => secondaryConfig.getValue(project) === subBucket.value
+                    )
+
+                    if (subProjects.length === 0) {
+                      return null
+                    }
+
+                    return (
+                      <ProjectTableSection
+                        key={subBucket.value}
+                        title={subBucket.label}
+                        projects={subProjects}
+                        todoCounts={todoCounts}
+                        onSelectProject={onSelectProject}
+                        nested
+                      />
+                    )
+                  })}
+                </CollapsibleContent>
+              </Collapsible>
+            )
+          })}
+        </div>
       </div>
 
       {projects.length === 0 && (

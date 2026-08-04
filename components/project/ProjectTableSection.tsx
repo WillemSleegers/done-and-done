@@ -1,0 +1,121 @@
+"use client"
+
+import { useState } from "react"
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { type Project } from "@/lib/services/syncService"
+import { cn } from "@/lib/utils"
+
+import ProjectTile from "./ProjectTile"
+
+type SortColumn = "name" | "priority" | "tasks"
+type SortDirection = "asc" | "desc"
+
+const PRIORITY_ORDER: Record<Project["priority"], number> = {
+  high: 1,
+  normal: 2,
+  low: 3,
+}
+
+interface ProjectTableSectionProps {
+  title: string
+  projects: Project[]
+  todoCounts: Record<string, { total: number; completed: number }>
+  onSelectProject: (project: Project) => void
+  nested?: boolean
+}
+
+export default function ProjectTableSection({
+  title,
+  projects,
+  todoCounts,
+  onSelectProject,
+  nested = false,
+}: ProjectTableSectionProps) {
+  const [open, setOpen] = useState(true)
+  const [sort, setSort] = useState<{ column: SortColumn | null; direction: SortDirection }>({
+    column: null,
+    direction: "asc",
+  })
+
+  if (projects.length === 0) {
+    return null
+  }
+
+  const remainingTasks = (project: Project) => {
+    const counts = todoCounts[project.id] || { total: 0, completed: 0 }
+    return counts.total - counts.completed
+  }
+
+  const toggleSort = (column: SortColumn) => {
+    setSort((prev) =>
+      prev.column === column
+        ? { column, direction: prev.direction === "asc" ? "desc" : "asc" }
+        : { column, direction: "asc" }
+    )
+  }
+
+  const sortedProjects = sort.column
+    ? [...projects].sort((a, b) => {
+        let cmp = 0
+        if (sort.column === "name") {
+          cmp = a.name.localeCompare(b.name)
+        } else if (sort.column === "priority") {
+          cmp = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
+        } else if (sort.column === "tasks") {
+          cmp = remainingTasks(a) - remainingTasks(b)
+        }
+        return sort.direction === "asc" ? cmp : -cmp
+      })
+    : projects
+
+  const headClass = (column: SortColumn) =>
+    cn("cursor-pointer select-none", sort.column === column && "text-foreground")
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger
+        className={cn(
+          "mb-4 text-muted-foreground hover:text-foreground",
+          nested ? "text-base font-medium" : "text-lg font-semibold"
+        )}
+      >
+        {title} ({projects.length})
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={headClass("name")} onClick={() => toggleSort("name")}>
+                Name
+              </TableHead>
+              <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
+                Priority
+              </TableHead>
+              <TableHead
+                className={cn(headClass("tasks"), "text-right")}
+                onClick={() => toggleSort("tasks")}
+              >
+                Tasks
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedProjects.map((project) => {
+              const counts = todoCounts[project.id] || { total: 0, completed: 0 }
+              return (
+                <ProjectTile
+                  key={project.id}
+                  project={project}
+                  todoCounts={counts}
+                  onSelect={onSelectProject}
+                />
+              )
+            })}
+          </TableBody>
+        </Table>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
