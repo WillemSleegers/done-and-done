@@ -5,7 +5,6 @@ import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +22,7 @@ import {
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
+import GroupPanel from "./GroupPanel"
 import ProjectTableSection from "./ProjectTableSection"
 
 type GroupByField = "status" | "priority"
@@ -159,52 +159,35 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     setGroupBy((prev) => [...prev, field])
   }
 
-  const renderGroups = (fields: GroupByField[], projectsInScope: Project[], nested: boolean): React.ReactNode => {
+  const renderGroups = (fields: GroupByField[], projectsInScope: Project[], depth = 0): React.ReactNode => {
     if (fields.length === 0) {
       return (
-        <ProjectTableSection
-          projects={projectsInScope}
-          todoCounts={todoCounts}
-          onSelectProject={onSelectProject}
-          nested={nested}
-        />
+        <ProjectTableSection projects={projectsInScope} todoCounts={todoCounts} onSelectProject={onSelectProject} />
       )
     }
 
     const [field, ...rest] = fields
     const config = GROUP_BY_CONFIG[field]
+    const buckets = resolveBuckets(field, allProjectsSorted)
+    const tone = depth % 2 === 0 ? "muted" : "background"
 
-    return resolveBuckets(field, allProjectsSorted).map((bucket) => {
-      const bucketProjects = projectsInScope.filter((project) => config.getValue(project) === bucket.value)
+    return (
+      <div className="space-y-6">
+        {buckets.map((bucket) => {
+          const bucketProjects = projectsInScope.filter((project) => config.getValue(project) === bucket.value)
 
-      if (bucketProjects.length === 0) {
-        return null
-      }
+          if (bucketProjects.length === 0) {
+            return null
+          }
 
-      if (rest.length === 0) {
-        return (
-          <ProjectTableSection
-            key={bucket.value}
-            title={bucket.label}
-            projects={bucketProjects}
-            todoCounts={todoCounts}
-            onSelectProject={onSelectProject}
-            nested={nested}
-          />
-        )
-      }
-
-      return (
-        <Collapsible key={bucket.value} defaultOpen>
-          <CollapsibleTrigger className="mb-4 text-lg font-semibold text-muted-foreground hover:text-foreground">
-            {bucket.label} ({bucketProjects.length})
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pl-5 space-y-6">
-            {renderGroups(rest, bucketProjects, true)}
-          </CollapsibleContent>
-        </Collapsible>
-      )
-    })
+          return (
+            <GroupPanel key={bucket.value} title={bucket.label} count={bucketProjects.length} tone={tone}>
+              {renderGroups(rest, bucketProjects, depth + 1)}
+            </GroupPanel>
+          )
+        })}
+      </div>
+    )
   }
 
   return (
@@ -320,7 +303,7 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
           </Button>
         </div>
 
-        <div className="space-y-6">{renderGroups(groupBy, visibleProjects, false)}</div>
+        {renderGroups(groupBy, visibleProjects)}
       </div>
 
       {projects.length === 0 && (

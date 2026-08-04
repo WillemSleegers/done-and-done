@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { type Project } from "@/lib/services/syncService"
 import { cn } from "@/lib/utils"
@@ -19,21 +18,16 @@ const PRIORITY_ORDER: Record<Project["priority"], number> = {
 }
 
 interface ProjectTableSectionProps {
-  title?: string
   projects: Project[]
   todoCounts: Record<string, { total: number; completed: number }>
   onSelectProject: (project: Project) => void
-  nested?: boolean
 }
 
 export default function ProjectTableSection({
-  title,
   projects,
   todoCounts,
   onSelectProject,
-  nested = false,
 }: ProjectTableSectionProps) {
-  const [open, setOpen] = useState(true)
   const [sort, setSort] = useState<{ column: SortColumn | null; direction: SortDirection }>({
     column: null,
     direction: "asc",
@@ -73,7 +67,7 @@ export default function ProjectTableSection({
   const headClass = (column: SortColumn) =>
     cn("cursor-pointer select-none", sort.column === column && "text-foreground")
 
-  const table = (
+  return (
     <Table>
       <TableHeader>
         <TableRow>
@@ -83,10 +77,7 @@ export default function ProjectTableSection({
           <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
             Priority
           </TableHead>
-          <TableHead
-            className={cn(headClass("tasks"), "text-right")}
-            onClick={() => toggleSort("tasks")}
-          >
+          <TableHead className={cn(headClass("tasks"), "text-right")} onClick={() => toggleSort("tasks")}>
             Tasks
           </TableHead>
         </TableRow>
@@ -100,23 +91,5 @@ export default function ProjectTableSection({
         })}
       </TableBody>
     </Table>
-  )
-
-  if (!title) {
-    return table
-  }
-
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger
-        className={cn(
-          "mb-4 text-muted-foreground hover:text-foreground",
-          nested ? "text-base font-medium" : "text-lg font-semibold"
-        )}
-      >
-        {title} ({projects.length})
-      </CollapsibleTrigger>
-      <CollapsibleContent>{table}</CollapsibleContent>
-    </Collapsible>
   )
 }
