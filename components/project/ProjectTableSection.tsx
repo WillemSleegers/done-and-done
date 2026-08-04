@@ -19,7 +19,7 @@ const PRIORITY_ORDER: Record<Project["priority"], number> = {
 }
 
 interface ProjectTableSectionProps {
-  title: string
+  title?: string
   projects: Project[]
   todoCounts: Record<string, { total: number; completed: number }>
   onSelectProject: (project: Project) => void
@@ -73,6 +73,39 @@ export default function ProjectTableSection({
   const headClass = (column: SortColumn) =>
     cn("cursor-pointer select-none", sort.column === column && "text-foreground")
 
+  const table = (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className={headClass("name")} onClick={() => toggleSort("name")}>
+            Name
+          </TableHead>
+          <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
+            Priority
+          </TableHead>
+          <TableHead
+            className={cn(headClass("tasks"), "text-right")}
+            onClick={() => toggleSort("tasks")}
+          >
+            Tasks
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {sortedProjects.map((project) => {
+          const counts = todoCounts[project.id] || { total: 0, completed: 0 }
+          return (
+            <ProjectTile key={project.id} project={project} todoCounts={counts} onSelect={onSelectProject} />
+          )
+        })}
+      </TableBody>
+    </Table>
+  )
+
+  if (!title) {
+    return table
+  }
+
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger
@@ -83,39 +116,7 @@ export default function ProjectTableSection({
       >
         {title} ({projects.length})
       </CollapsibleTrigger>
-      <CollapsibleContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className={headClass("name")} onClick={() => toggleSort("name")}>
-                Name
-              </TableHead>
-              <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
-                Priority
-              </TableHead>
-              <TableHead
-                className={cn(headClass("tasks"), "text-right")}
-                onClick={() => toggleSort("tasks")}
-              >
-                Tasks
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedProjects.map((project) => {
-              const counts = todoCounts[project.id] || { total: 0, completed: 0 }
-              return (
-                <ProjectTile
-                  key={project.id}
-                  project={project}
-                  todoCounts={counts}
-                  onSelect={onSelectProject}
-                />
-              )
-            })}
-          </TableBody>
-        </Table>
-      </CollapsibleContent>
+      <CollapsibleContent>{table}</CollapsibleContent>
     </Collapsible>
   )
 }
