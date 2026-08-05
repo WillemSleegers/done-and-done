@@ -60,7 +60,10 @@ const getStatusText = (
 
 export function useSyncStatus() {
   const { user, loading } = useAuth()
-  const { projects, todos, retryFailedProject, retryFailedTodo } = useProjectStore()
+  const projects = useProjectStore((s) => s.projects)
+  const todos = useProjectStore((s) => s.todos)
+  const retryFailedProject = useProjectStore((s) => s.retryFailedProject)
+  const retryFailedTodo = useProjectStore((s) => s.retryFailedTodo)
   const [isOnline, setIsOnline] = useState(
     () => typeof navigator === "undefined" || navigator.onLine
   )

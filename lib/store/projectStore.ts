@@ -8,6 +8,8 @@ import { createProjectSlice } from "./projectSlice"
 import { createTodoSlice } from "./todoSlice"
 import { type ProjectStore } from "./types"
 
+let isFetchingInitialData = false
+
 export const useProjectStore = create<ProjectStore>()((...a) => {
   const [set, get] = a
 
@@ -18,6 +20,9 @@ export const useProjectStore = create<ProjectStore>()((...a) => {
     isLoading: true,
 
     fetchInitialData: async () => {
+      if (isFetchingInitialData) return
+      isFetchingInitialData = true
+
       const currentState = get()
       if (currentState.projects.length === 0) {
         set({ isLoading: true })
@@ -42,6 +47,8 @@ export const useProjectStore = create<ProjectStore>()((...a) => {
       } catch (error) {
         logger.error("Failed to fetch initial data:", error)
         set({ isLoading: false })
+      } finally {
+        isFetchingInitialData = false
       }
     },
 

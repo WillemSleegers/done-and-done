@@ -40,6 +40,7 @@ export type Project = DatabaseProject & {
   order: number
   syncState: SyncState
   lastError?: string
+  pendingOperation?: "delete"
 }
 
 export type Todo = DatabaseTodo & {
@@ -51,4 +52,5 @@ export type Todo = DatabaseTodo & {
   order: number
   syncState: SyncState
   lastError?: string
+  pendingOperation?: "delete"
 }

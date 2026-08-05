@@ -16,7 +16,8 @@ interface AuthGuardProps {
 export default function AuthGuard({ children, fallback }: AuthGuardProps) {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const { fetchInitialData, isLoading } = useProjectStore()
+  const fetchInitialData = useProjectStore((s) => s.fetchInitialData)
+  const isLoading = useProjectStore((s) => s.isLoading)
 
   // Redirect to auth if not authenticated
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function AuthGuard({ children, fallback }: AuthGuardProps) {
       fetchInitialData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading])
+  }, [user?.id, loading])
 
   // Show loading for auth OR data loading
   if (loading || (user && isLoading)) {

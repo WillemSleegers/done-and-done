@@ -47,7 +47,8 @@ export default function ProjectHeader({
   onNameFocus,
   onDeleteProject,
 }: ProjectHeaderProps) {
-  const { updateProject, projects } = useProjectStore()
+  const updateProject = useProjectStore((s) => s.updateProject)
+  const projects = useProjectStore((s) => s.projects)
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [categoryOpen, setCategoryOpen] = useState(false)
   const [categorySearch, setCategorySearch] = useState("")

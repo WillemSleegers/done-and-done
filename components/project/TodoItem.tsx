@@ -26,7 +26,8 @@ interface TodoItemProps {
 }
 
 export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItemProps) {
-  const { updateTodo, deleteTodo } = useProjectStore()
+  const updateTodo = useProjectStore((s) => s.updateTodo)
+  const deleteTodo = useProjectStore((s) => s.deleteTodo)
   const [openDropdown, setOpenDropdown] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(todo.text)

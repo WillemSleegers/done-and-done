@@ -16,7 +16,7 @@ interface AddTodoFormProps {
 }
 
 export default function AddTodoForm({ project }: AddTodoFormProps) {
-  const { addTodo } = useProjectStore()
+  const addTodo = useProjectStore((s) => s.addTodo)
   const [newTodo, setNewTodo] = useState("")
   const [isAdding, setIsAdding] = useState(false)
 

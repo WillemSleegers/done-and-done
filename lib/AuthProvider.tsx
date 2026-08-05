@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const newUser = session?.user ?? null
-        setUser(newUser)
+        setUser((prev) => (prev?.id === newUser?.id ? prev : newUser))
         setLoading(false)
         logger.auth("Initial auth state:", newUser?.email || "unauthenticated")
       } catch (error) {
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(authTimeout) // Clear timeout since auth state resolved
 
       const newUser = session?.user ?? null
-      setUser(newUser)
+      setUser((prev) => (prev?.id === newUser?.id ? prev : newUser))
 
       // Don't show loading for token refresh events
       if (event === "TOKEN_REFRESHED") {

@@ -183,7 +183,10 @@ class SyncService {
     }
   }
 
-  async syncProject(project: Project, onUpdate: (updatedProject: Project) => void): Promise<void> {
+  async syncProject(
+    project: Project,
+    onUpdate: (patch: Partial<Project> & { id: string }) => void
+  ): Promise<void> {
     if (project.syncState === "synced" || project.remoteId) return
 
     logger.sync("Syncing project to database:", {
@@ -191,7 +194,7 @@ class SyncService {
       projectName: project.name,
     })
 
-    onUpdate({ ...project, syncState: "syncing" })
+    onUpdate({ id: project.id, syncState: "syncing" })
 
     try {
       const { data, error } = await supabase
@@ -217,7 +220,7 @@ class SyncService {
       })
 
       onUpdate({
-        ...project,
+        id: project.id,
         syncState: "synced",
         remoteId: data.id,
         lastError: undefined,
@@ -228,12 +231,9 @@ class SyncService {
         error: error instanceof Error ? error.message : "Unknown error",
       })
 
-      const updatedProject = {
-        ...project,
-        syncState: "failed" as const,
-        lastError: error instanceof Error ? error.message : "Sync failed",
-      }
-      onUpdate(updatedProject)
+      const lastError = error instanceof Error ? error.message : "Sync failed"
+      const updatedProject = { ...project, syncState: "failed" as const, lastError }
+      onUpdate({ id: project.id, syncState: "failed", lastError })
 
       this.scheduleRetry(project.id, () => this.syncProject(updatedProject, onUpdate))
     }
@@ -242,7 +242,7 @@ class SyncService {
   async syncTodo(
     todo: Todo,
     projectRemoteId: string | undefined,
-    onUpdate: (updatedTodo: Todo) => void
+    onUpdate: (patch: Partial<Todo> & { id: string }) => void
   ): Promise<void> {
     if (todo.syncState === "synced" || todo.remoteId) return
     if (!projectRemoteId) {
@@ -260,7 +260,7 @@ class SyncService {
       projectRemoteId,
     })
 
-    onUpdate({ ...todo, syncState: "syncing" })
+    onUpdate({ id: todo.id, syncState: "syncing" })
 
     try {
       const { data, error } = await supabase
@@ -285,7 +285,7 @@ class SyncService {
       })
 
       onUpdate({
-        ...todo,
+        id: todo.id,
         syncState: "synced",
         remoteId: data.id,
         lastError: undefined,
@@ -296,12 +296,9 @@ class SyncService {
         error: error instanceof Error ? error.message : "Unknown error",
       })
 
-      const updatedTodo = {
-        ...todo,
-        syncState: "failed" as const,
-        lastError: error instanceof Error ? error.message : "Sync failed",
-      }
-      onUpdate(updatedTodo)
+      const lastError = error instanceof Error ? error.message : "Sync failed"
+      const updatedTodo = { ...todo, syncState: "failed" as const, lastError }
+      onUpdate({ id: todo.id, syncState: "failed", lastError })
 
       this.scheduleRetry(todo.id, () => this.syncTodo(updatedTodo, projectRemoteId, onUpdate))
     }
@@ -310,7 +307,7 @@ class SyncService {
   async updateTodo(
     todo: Todo,
     updates: Partial<Pick<Todo, "text" | "completed" | "due_date" | "order">>,
-    onUpdate: (updatedTodo: Todo) => void
+    onUpdate: (patch: Partial<Todo> & { id: string }) => void
   ): Promise<void> {
     if (!todo.remoteId) return
 
@@ -320,7 +317,7 @@ class SyncService {
       updates,
     })
 
-    onUpdate({ ...todo, syncState: "syncing" })
+    onUpdate({ id: todo.id, syncState: "syncing" })
 
     try {
       const { error } = await supabase.from("todos").update(updates).eq("id", todo.remoteId)
@@ -332,19 +329,16 @@ class SyncService {
         remoteId: todo.remoteId,
       })
 
-      onUpdate({ ...todo, syncState: "synced", lastError: undefined })
+      onUpdate({ id: todo.id, ...updates, syncState: "synced", lastError: undefined })
     } catch (error) {
       logger.error("Failed to update todo:", {
         todoId: todo.id,
         error: error instanceof Error ? error.message : "Unknown error",
       })
 
-      const updatedTodo = {
-        ...todo,
-        syncState: "failed" as const,
-        lastError: error instanceof Error ? error.message : "Update failed",
-      }
-      onUpdate(updatedTodo)
+      const lastError = error instanceof Error ? error.message : "Update failed"
+      const updatedTodo = { ...todo, syncState: "failed" as const, lastError }
+      onUpdate({ id: todo.id, syncState: "failed", lastError })
 
       this.scheduleRetry(todo.id, () => this.updateTodo(updatedTodo, updates, onUpdate))
     }
@@ -418,7 +412,7 @@ class SyncService {
   async updateProject(
     project: Project,
     updates: Partial<Pick<Project, "name" | "notes" | "status" | "priority" | "category" | "order">>,
-    onUpdate: (updatedProject: Project) => void
+    onUpdate: (patch: Partial<Project> & { id: string }) => void
   ): Promise<void> {
     if (!project.remoteId) return
 
@@ -428,7 +422,7 @@ class SyncService {
       updates,
     })
 
-    onUpdate({ ...project, ...updates, syncState: "syncing" })
+    onUpdate({ id: project.id, ...updates, syncState: "syncing" })
 
     try {
       const { error } = await supabase.from("projects").update(updates).eq("id", project.remoteId)
@@ -440,19 +434,16 @@ class SyncService {
         remoteId: project.remoteId,
       })
 
-      onUpdate({ ...project, ...updates, syncState: "synced", lastError: undefined })
+      onUpdate({ id: project.id, ...updates, syncState: "synced", lastError: undefined })
     } catch (error) {
       logger.error("Failed to update project:", {
         projectId: project.id,
         error: error instanceof Error ? error.message : "Unknown error",
       })
 
-      const updatedProject = {
-        ...project,
-        syncState: "failed" as const,
-        lastError: error instanceof Error ? error.message : "Update failed",
-      }
-      onUpdate(updatedProject)
+      const lastError = error instanceof Error ? error.message : "Update failed"
+      const updatedProject = { ...project, syncState: "failed" as const, lastError }
+      onUpdate({ id: project.id, syncState: "failed", lastError })
 
       this.scheduleRetry(project.id, () => this.updateProject(updatedProject, updates, onUpdate))
     }

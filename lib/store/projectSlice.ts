@@ -47,8 +47,29 @@ export const createProjectSlice: StateCreator<ProjectStore, [], [], ProjectSlice
       action: "added",
     })
 
-    syncService.syncProject(newProject, (updatedProject) => {
-      set((state) => applyProjectUpdate(state, updatedProject))
+    syncService.syncProject(newProject, (patch) => {
+      set((state) => applyProjectUpdate(state, patch))
+
+      if (patch.syncState === "synced") {
+        const current = get().projects.find((p) => p.id === newProject.id)
+        if (current) {
+          const drift: Partial<
+            Pick<Project, "name" | "notes" | "status" | "priority" | "category" | "order">
+          > = {}
+          if (current.name !== newProject.name) drift.name = current.name
+          if (current.notes !== newProject.notes) drift.notes = current.notes
+          if (current.status !== newProject.status) drift.status = current.status
+          if (current.priority !== newProject.priority) drift.priority = current.priority
+          if (current.category !== newProject.category) drift.category = current.category
+          if (current.order !== newProject.order) drift.order = current.order
+
+          if (Object.keys(drift).length > 0) {
+            syncService.updateProject(current, drift, (p) =>
+              set((state) => applyProjectUpdate(state, p))
+            )
+          }
+        }
+      }
     })
 
     return newProject
@@ -63,8 +84,8 @@ export const createProjectSlice: StateCreator<ProjectStore, [], [], ProjectSlice
     }))
 
     if (project.remoteId) {
-      syncService.updateProject(project, updates, (syncedProject) => {
-        set((state) => applyProjectUpdate(state, syncedProject))
+      syncService.updateProject(project, updates, (patch) => {
+        set((state) => applyProjectUpdate(state, patch))
       })
     }
   },
@@ -97,8 +118,12 @@ export const createProjectSlice: StateCreator<ProjectStore, [], [], ProjectSlice
     try {
       await syncService.deleteProject(project)
     } catch (error) {
+      const lastError = error instanceof Error ? error.message : "Delete failed"
       set((state) => ({
-        projects: [...state.projects, project],
+        projects: [
+          ...state.projects,
+          { ...project, syncState: "failed" as const, lastError, pendingOperation: "delete" as const },
+        ],
         todos: { ...state.todos, [projectId]: todos[projectId] || [] },
       }))
       throw error
@@ -109,12 +134,36 @@ export const createProjectSlice: StateCreator<ProjectStore, [], [], ProjectSlice
     const project = get().projects.find((p) => p.id === projectId)
     if (!project || project.syncState !== "failed") return
 
-    syncService.syncProject(project, (updatedProject) => {
-      set((state) => applyProjectUpdate(state, updatedProject))
-    })
+    if (project.pendingOperation === "delete") {
+      await get().deleteProject(projectId)
+      return
+    }
+
+    if (project.remoteId) {
+      syncService.updateProject(
+        project,
+        {
+          name: project.name,
+          notes: project.notes,
+          status: project.status,
+          priority: project.priority,
+          category: project.category,
+          order: project.order,
+        },
+        (patch) => {
+          set((state) => applyProjectUpdate(state, patch))
+        }
+      )
+    } else {
+      syncService.syncProject(project, (patch) => {
+        set((state) => applyProjectUpdate(state, patch))
+      })
+    }
   },
 
   reorderProjects: async (newOrder) => {
+    const previousProjects = get().projects
+
     // Update order values based on new position
     const reorderedProjects = newOrder.map((project, index) => ({
       ...project,
@@ -126,12 +175,26 @@ export const createProjectSlice: StateCreator<ProjectStore, [], [], ProjectSlice
       projects: reorderedProjects,
     }))
 
+    // Only push the items whose order actually changed
+    const changedProjects = reorderedProjects.filter((project) => {
+      const previous = previousProjects.find((p) => p.id === project.id)
+      return previous && previous.order !== project.order
+    })
+
+    if (changedProjects.length === 0) return
+
     // Sync to server
     try {
-      await syncService.updateProjectsOrder(reorderedProjects)
+      await syncService.updateProjectsOrder(changedProjects)
     } catch (error) {
       logger.error("Failed to sync project order:", error)
-      // Could add retry logic here if needed
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p.remoteId && changedProjects.some((cp) => cp.id === p.id)
+            ? { ...p, syncState: "failed" as const, lastError: "Failed to save order" }
+            : p
+        ),
+      }))
     }
   },
 

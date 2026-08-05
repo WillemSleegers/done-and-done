@@ -20,7 +20,7 @@ interface TodoListProps {
 }
 
 export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoListProps) {
-  const { reorderTodos } = useProjectStore()
+  const reorderTodos = useProjectStore((s) => s.reorderTodos)
   const [showAllCompleted, setShowAllCompleted] = useState(false)
 
   // Split todos into open and completed

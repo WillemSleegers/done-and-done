@@ -51,8 +51,25 @@ export const createTodoSlice: StateCreator<ProjectStore, [], [], TodoSliceAction
       action: "added",
       projectName: project?.name,
     })
-    syncService.syncTodo(newTodo, project?.remoteId, (updatedTodo) => {
-      set((state) => applyTodoUpdate(state, projectId, updatedTodo))
+    syncService.syncTodo(newTodo, project?.remoteId, (patch) => {
+      set((state) => applyTodoUpdate(state, projectId, patch))
+
+      if (patch.syncState === "synced") {
+        const current = get().todos[projectId]?.find((t) => t.id === newTodo.id)
+        if (current) {
+          const drift: Partial<Pick<Todo, "text" | "completed" | "due_date" | "order">> = {}
+          if (current.text !== newTodo.text) drift.text = current.text
+          if (current.completed !== newTodo.completed) drift.completed = current.completed
+          if (current.due_date !== newTodo.due_date) drift.due_date = current.due_date
+          if (current.order !== newTodo.order) drift.order = current.order
+
+          if (Object.keys(drift).length > 0) {
+            syncService.updateTodo(current, drift, (t) =>
+              set((state) => applyTodoUpdate(state, projectId, t))
+            )
+          }
+        }
+      }
     })
 
     return newTodo
@@ -95,8 +112,8 @@ export const createTodoSlice: StateCreator<ProjectStore, [], [], TodoSliceAction
     }
 
     if (todo.remoteId) {
-      syncService.updateTodo({ ...todo, ...updates }, updates, (updatedTodo) => {
-        set((state) => applyTodoUpdate(state, projectId, updatedTodo))
+      syncService.updateTodo({ ...todo, ...updates }, updates, (patch) => {
+        set((state) => applyTodoUpdate(state, projectId, patch))
       })
     }
   },
@@ -126,13 +143,15 @@ export const createTodoSlice: StateCreator<ProjectStore, [], [], TodoSliceAction
     try {
       await syncService.deleteTodo(todo)
     } catch (error) {
+      const lastError = error instanceof Error ? error.message : "Delete failed"
       set((state) =>
         withRecomputedCounts(
           state,
           projectId,
-          [...(state.todos[projectId] || []), todo].sort(
-            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          )
+          [
+            ...(state.todos[projectId] || []),
+            { ...todo, syncState: "failed" as const, lastError, pendingOperation: "delete" as const },
+          ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         )
       )
       throw error
@@ -144,20 +163,31 @@ export const createTodoSlice: StateCreator<ProjectStore, [], [], TodoSliceAction
     const todo = todos[projectId]?.find((t) => t.id === todoId)
     if (!todo || todo.syncState !== "failed") return
 
+    if (todo.pendingOperation === "delete") {
+      await get().deleteTodo(todoId, projectId)
+      return
+    }
+
     const project = projects.find((p) => p.id === projectId)
 
     if (todo.remoteId) {
-      syncService.updateTodo(todo, { text: todo.text, completed: todo.completed }, (updatedTodo) => {
-        set((state) => applyTodoUpdate(state, projectId, updatedTodo))
-      })
+      syncService.updateTodo(
+        todo,
+        { text: todo.text, completed: todo.completed, due_date: todo.due_date, order: todo.order },
+        (patch) => {
+          set((state) => applyTodoUpdate(state, projectId, patch))
+        }
+      )
     } else {
-      syncService.syncTodo(todo, project?.remoteId, (updatedTodo) => {
-        set((state) => applyTodoUpdate(state, projectId, updatedTodo))
+      syncService.syncTodo(todo, project?.remoteId, (patch) => {
+        set((state) => applyTodoUpdate(state, projectId, patch))
       })
     }
   },
 
   reorderTodos: async (projectId, newOrder) => {
+    const previousTodos = get().todos[projectId] || []
+
     // Update order values based on new position
     const reorderedTodos = newOrder.map((todo, index) => ({
       ...todo,
@@ -172,12 +202,29 @@ export const createTodoSlice: StateCreator<ProjectStore, [], [], TodoSliceAction
       },
     }))
 
+    // Only push the items whose order actually changed
+    const changedTodos = reorderedTodos.filter((todo) => {
+      const previous = previousTodos.find((t) => t.id === todo.id)
+      return previous && previous.order !== todo.order
+    })
+
+    if (changedTodos.length === 0) return
+
     // Sync to server
     try {
-      await syncService.updateTodosOrder(reorderedTodos)
+      await syncService.updateTodosOrder(changedTodos)
     } catch (error) {
       logger.error("Failed to sync todo order:", error)
-      // Could add retry logic here if needed
+      set((state) => ({
+        todos: {
+          ...state.todos,
+          [projectId]: (state.todos[projectId] || []).map((t) =>
+            t.remoteId && changedTodos.some((ct) => ct.id === t.id)
+              ? { ...t, syncState: "failed" as const, lastError: "Failed to save order" }
+              : t
+          ),
+        },
+      }))
     }
   },
 

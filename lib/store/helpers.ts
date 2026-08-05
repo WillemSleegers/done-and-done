@@ -14,8 +14,11 @@ export const updateTodoCounts = (todos: Record<string, Todo[]>) => {
   return counts
 }
 
-export const applyProjectUpdate = (state: ProjectState, updatedProject: Project) => ({
-  projects: state.projects.map((p) => (p.id === updatedProject.id ? updatedProject : p)),
+export const applyProjectUpdate = (
+  state: ProjectState,
+  patch: Partial<Project> & { id: string }
+) => ({
+  projects: state.projects.map((p) => (p.id === patch.id ? { ...p, ...patch } : p)),
 })
 
 export const withRecomputedCounts = (
@@ -27,9 +30,13 @@ export const withRecomputedCounts = (
   return { todos, todoCounts: updateTodoCounts(todos) }
 }
 
-export const applyTodoUpdate = (state: ProjectState, projectId: string, updatedTodo: Todo) => {
+export const applyTodoUpdate = (
+  state: ProjectState,
+  projectId: string,
+  patch: Partial<Todo> & { id: string }
+) => {
   const projectTodos = (state.todos[projectId] || []).map((t) =>
-    t.id === updatedTodo.id ? updatedTodo : t
+    t.id === patch.id ? { ...t, ...patch } : t
   )
   return {
     todos: { ...state.todos, [projectId]: projectTodos },

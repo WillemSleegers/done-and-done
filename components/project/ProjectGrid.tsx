@@ -103,7 +103,9 @@ interface ProjectGridProps {
 }
 
 export default function ProjectGrid({ onSelectProject, onCreateProject }: ProjectGridProps) {
-  const { projects, todoCounts, getProjectsSortedByOrder } = useProjectStore()
+  const projects = useProjectStore((s) => s.projects)
+  const todoCounts = useProjectStore((s) => s.todoCounts)
+  const getProjectsSortedByOrder = useProjectStore((s) => s.getProjectsSortedByOrder)
   const [groupBy, setGroupBy] = useState<GroupByField[]>(DEFAULT_GROUP_BY)
   const [hidden, setHidden] = useState<Partial<Record<GroupByField, Set<string>>>>({})
   const [sort, setSort] = useState<SortState>(DEFAULT_SORT)

@@ -20,7 +20,14 @@ interface ProjectTodoViewProps {
 }
 
 export default function ProjectTodoView({ project, onBack }: ProjectTodoViewProps) {
-  const { getProjectTodos, updateTodo, deleteProject, updateProject } = useProjectStore()
+  const getProjectTodos = useProjectStore((s) => s.getProjectTodos)
+  const updateTodo = useProjectStore((s) => s.updateTodo)
+  const deleteProject = useProjectStore((s) => s.deleteProject)
+  const updateProject = useProjectStore((s) => s.updateProject)
+  // Subscribed so this component re-renders when todos change — getProjectTodos()
+  // is called below and reads live state, but the store won't notify us unless
+  // we also select the state it reads.
+  useProjectStore((s) => s.todos[project.id])
   const [showDateDialog, setShowDateDialog] = useState(false)
   const [dateDialogTodoId, setDateDialogTodoId] = useState<string | null>(null)
   const [nameValue, setNameValue] = useState(project.name)
