@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, MoreHorizontal, Plus, Tag, Trash, X } from "lucide-react"
+import { Check, MoreHorizontal, Plus, Trash, X } from "lucide-react"
 import { useRef, useState } from "react"
 
 import PriorityBadge from "@/components/project/PriorityBadge"
@@ -183,8 +183,10 @@ export default function ProjectHeader({
           }}
         >
           <PopoverTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Tag size={16} className={project.category ? "" : "text-muted-foreground"} />
+            <Button
+              variant="outline"
+              className={cn("gap-2", !project.category && "text-muted-foreground")}
+            >
               {project.category || "Add category"}
             </Button>
           </PopoverTrigger>
