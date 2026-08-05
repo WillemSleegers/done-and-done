@@ -187,7 +187,7 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
           <div
             className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
               todo.completed
-                ? "border-success text-success-foreground"
+                ? "border-success text-success"
                 : "border-border hover:border-success"
             }`}
           >

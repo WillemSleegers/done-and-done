@@ -28,7 +28,7 @@ const getActivityText = (activity: SyncActivity) => {
 export default function RecentActivitySection({ activities }: RecentActivitySectionProps) {
   return (
     <div>
-      <h4 className="text-xs font-semibold text-green-600 uppercase tracking-wide mb-2">
+      <h4 className="text-xs font-semibold text-connection-connected uppercase tracking-wide mb-2">
         Recent Activity
       </h4>
       <div className="space-y-1 max-h-24 overflow-y-auto">
