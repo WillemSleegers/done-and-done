@@ -13,20 +13,13 @@ interface ProjectTileProps {
   hiddenColumns?: TableColumn[]
 }
 
-export default function ProjectTile({ project, todoCounts, onSelect, hiddenColumns = [] }: ProjectTileProps) {
+export default function ProjectTile({
+  project,
+  todoCounts,
+  onSelect,
+  hiddenColumns = [],
+}: ProjectTileProps) {
   const remainingTodos = todoCounts.total - todoCounts.completed
-
-  const text = () => {
-    if (remainingTodos === 0 && todoCounts.total > 0) {
-      return "All tasks complete"
-    } else if (todoCounts.total === 0) {
-      return "No tasks yet"
-    } else if (remainingTodos === 1) {
-      return "1 task"
-    } else {
-      return remainingTodos + " tasks"
-    }
-  }
 
   const handleNavigation = () => {
     logger.userAction("Selecting project", {
@@ -42,7 +35,7 @@ export default function ProjectTile({ project, todoCounts, onSelect, hiddenColum
 
   return (
     <TableRow className="cursor-pointer" onClick={handleNavigation}>
-      <TableCell className="font-medium text-card-foreground truncate max-w-0 w-full pl-7">
+      <TableCell className="font-medium text-card-foreground truncate max-w-0 w-full min-w-40">
         {project.name}
       </TableCell>
       {showColumn("priority") && (
@@ -61,7 +54,7 @@ export default function ProjectTile({ project, todoCounts, onSelect, hiddenColum
         </TableCell>
       )}
       <TableCell className="text-right text-muted-foreground whitespace-nowrap">
-        {text()}
+        {remainingTodos}
       </TableCell>
     </TableRow>
   )

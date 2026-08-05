@@ -106,11 +106,13 @@ export default function ProjectsTable({
 
   const columnCount = 2 + (["priority", "category", "status"] as const).filter(showColumn).length
 
-  return (
-    <Table>
+  const isGrouped = visibleGroups.some((group) => group.title !== null)
+
+  const table = (
+    <Table className={cn(isGrouped && "ml-6 w-[calc(100%-1.5rem)]")}>
       <TableHeader>
         <TableRow>
-          <TableHead className={cn(headClass("name"), "pl-7")} onClick={() => toggleSort("name")}>
+          <TableHead className={headClass("name")} onClick={() => toggleSort("name")}>
             Name
           </TableHead>
           {showColumn("priority") && (
@@ -148,12 +150,12 @@ export default function ProjectsTable({
               >
                 <TableCell
                   colSpan={columnCount}
-                  className="relative pl-7 text-sm font-semibold text-muted-foreground"
+                  className="relative text-sm font-semibold text-muted-foreground"
                 >
                   <ChevronRight
                     size={14}
                     className={cn(
-                      "absolute left-2 top-1/2 -translate-y-1/2 transition-transform",
+                      "absolute -left-4 top-1/2 -translate-y-1/2 transition-transform",
                       !collapsed && "rotate-90"
                     )}
                   />
@@ -176,4 +178,6 @@ export default function ProjectsTable({
       })}
     </Table>
   )
+
+  return isGrouped ? <div className="-ml-6">{table}</div> : table
 }
