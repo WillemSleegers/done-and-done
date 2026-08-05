@@ -25,7 +25,7 @@ import { INPUT_LIMITS } from "@/lib/constants"
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
-import { type ProjectPriority,type ProjectStatus } from "@/lib/supabase"
+import { type ProjectPriority, type ProjectStatus } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 
 interface ProjectHeaderProps {
@@ -235,7 +235,10 @@ export default function ProjectHeader({
                     </CommandItem>
                   ))}
                   {trimmedSearch && !searchMatchesExisting && (
-                    <CommandItem value={trimmedSearch} onSelect={() => handleCategorySelect(trimmedSearch)}>
+                    <CommandItem
+                      value={trimmedSearch}
+                      onSelect={() => handleCategorySelect(trimmedSearch)}
+                    >
                       <Plus size={14} />
                       Create &ldquo;{trimmedSearch}&rdquo;
                     </CommandItem>
@@ -277,7 +280,7 @@ export default function ProjectHeader({
           onFocus={onNameFocus}
           spellCheck={false}
           maxLength={INPUT_LIMITS.PROJECT_NAME_MAX}
-          className="text-2xl sm:text-3xl font-bold text-foreground bg-transparent dark:bg-transparent border-none outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 w-full p-0 m-0 h-auto cursor-pointer hover:text-primary transition-colors break-words shadow-none"
+          className="text-2xl sm:text-3xl font-bold text-foreground bg-transparent dark:bg-transparent border-none outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 w-full p-0 m-0 h-auto wrap-break-word shadow-none"
           placeholder="Project name"
         />
       </div>
