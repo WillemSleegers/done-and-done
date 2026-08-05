@@ -7,12 +7,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 interface GroupPanelProps {
   title: string
   count: number
+  open: boolean
+  onOpenChange: (open: boolean) => void
   children: ReactNode
 }
 
-export default function GroupPanel({ title, count, children }: GroupPanelProps) {
+export default function GroupPanel({ title, count, open, onOpenChange, children }: GroupPanelProps) {
   return (
-    <Collapsible defaultOpen>
+    <Collapsible open={open} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="block w-full px-1 py-2 text-left text-sm font-semibold text-muted-foreground hover:text-foreground">
         {title} ({count})
       </CollapsibleTrigger>

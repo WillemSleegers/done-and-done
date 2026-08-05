@@ -1,15 +1,14 @@
 "use client"
 
-import { useState } from "react"
-
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { type Project } from "@/lib/services/syncService"
 import { cn } from "@/lib/utils"
 
 import ProjectTile from "./ProjectTile"
 
-type SortColumn = "name" | "priority" | "category" | "status" | "tasks"
-type SortDirection = "asc" | "desc"
+export type SortColumn = "name" | "priority" | "category" | "status" | "tasks"
+export type SortDirection = "asc" | "desc"
+export type SortState = { column: SortColumn | null; direction: SortDirection }
 
 export type TableColumn = "priority" | "category" | "status"
 
@@ -30,6 +29,8 @@ interface ProjectTableSectionProps {
   todoCounts: Record<string, { total: number; completed: number }>
   onSelectProject: (project: Project) => void
   hiddenColumns?: TableColumn[]
+  sort: SortState
+  onSortChange: (sort: SortState) => void
 }
 
 export default function ProjectTableSection({
@@ -37,12 +38,9 @@ export default function ProjectTableSection({
   todoCounts,
   onSelectProject,
   hiddenColumns = [],
+  sort,
+  onSortChange,
 }: ProjectTableSectionProps) {
-  const [sort, setSort] = useState<{ column: SortColumn | null; direction: SortDirection }>({
-    column: null,
-    direction: "asc",
-  })
-
   if (projects.length === 0) {
     return null
   }
@@ -53,9 +51,9 @@ export default function ProjectTableSection({
   }
 
   const toggleSort = (column: SortColumn) => {
-    setSort((prev) =>
-      prev.column === column
-        ? { column, direction: prev.direction === "asc" ? "desc" : "asc" }
+    onSortChange(
+      sort.column === column
+        ? { column, direction: sort.direction === "asc" ? "desc" : "asc" }
         : { column, direction: "asc" }
     )
   }

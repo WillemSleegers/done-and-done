@@ -16,7 +16,7 @@ import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
 import GroupPanel from "./GroupPanel"
-import ProjectTableSection from "./ProjectTableSection"
+import ProjectTableSection, { type SortState } from "./ProjectTableSection"
 
 type GroupByField = "status" | "priority" | "category"
 
@@ -76,11 +76,15 @@ function resolveBuckets(field: GroupByField, projects: Project[]): GroupBucket[]
 
 const DEFAULT_GROUP_BY: GroupByField[] = ["status"]
 
+const DEFAULT_SORT: SortState = { column: null, direction: "asc" }
+
 const STORAGE_KEY = "projectGrid.viewOptions"
 
 interface StoredViewOptions {
   groupBy: GroupByField[]
   hidden: Partial<Record<GroupByField, string[]>>
+  sort: SortState
+  collapsedGroups: string[]
 }
 
 function loadStoredViewOptions(): StoredViewOptions | null {
@@ -102,6 +106,8 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
   const { projects, todoCounts, getProjectsSortedByOrder } = useProjectStore()
   const [groupBy, setGroupBy] = useState<GroupByField[]>(DEFAULT_GROUP_BY)
   const [hidden, setHidden] = useState<Partial<Record<GroupByField, Set<string>>>>({})
+  const [sort, setSort] = useState<SortState>(DEFAULT_SORT)
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
@@ -115,6 +121,8 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
           Object.entries(stored.hidden).map(([field, values]) => [field, new Set(values)])
         )
       )
+      setSort(stored.sort ?? DEFAULT_SORT)
+      setCollapsedGroups(new Set(stored.collapsedGroups ?? []))
     }
     setHydrated(true)
   }, [])
@@ -126,9 +134,11 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
       hidden: Object.fromEntries(
         Object.entries(hidden).map(([field, values]) => [field, Array.from(values ?? [])])
       ),
+      sort,
+      collapsedGroups: Array.from(collapsedGroups),
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore))
-  }, [groupBy, hidden, hydrated])
+  }, [groupBy, hidden, sort, collapsedGroups, hydrated])
 
   const allProjectsSorted = getProjectsSortedByOrder()
 
@@ -160,6 +170,18 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
 
   const addGroupByField = (field: GroupByField) => {
     setGroupBy((prev) => [...prev, field])
+  }
+
+  const setGroupCollapsed = (key: string, collapsed: boolean) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev)
+      if (collapsed) {
+        next.add(key)
+      } else {
+        next.delete(key)
+      }
+      return next
+    })
   }
 
   interface GroupCombo {
@@ -200,6 +222,8 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
           todoCounts={todoCounts}
           onSelectProject={onSelectProject}
           hiddenColumns={groupBy}
+          sort={sort}
+          onSortChange={setSort}
         />
       )
     }
@@ -207,12 +231,20 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     return (
       <div className="space-y-6">
         {buildCombos(fields, projectsInScope).map((combo) => (
-          <GroupPanel key={combo.key} title={combo.title} count={combo.projects.length}>
+          <GroupPanel
+            key={combo.key}
+            title={combo.title}
+            count={combo.projects.length}
+            open={!collapsedGroups.has(combo.key)}
+            onOpenChange={(open) => setGroupCollapsed(combo.key, !open)}
+          >
             <ProjectTableSection
               projects={combo.projects}
               todoCounts={todoCounts}
               onSelectProject={onSelectProject}
               hiddenColumns={groupBy}
+              sort={sort}
+              onSortChange={setSort}
             />
           </GroupPanel>
         ))}
