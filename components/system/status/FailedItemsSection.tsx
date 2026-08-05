@@ -23,7 +23,7 @@ export default function FailedItemsSection({
         {items.map((item) => (
           <div key={item.id} className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="w-2 h-2 rounded-full bg-destructive flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-destructive shrink-0" />
               <span className="truncate">{item.name}</span>
               <span className="text-muted-foreground">({item.type})</span>
             </div>
@@ -37,7 +37,7 @@ export default function FailedItemsSection({
                   onRetryTodo(item.id, item.projectId!)
                 }
               }}
-              className="text-primary hover:text-primary/80 ml-2 flex-shrink-0 text-xs h-6 px-2"
+              className="text-primary hover:text-primary/80 ml-2 shrink-0 text-xs h-6 px-2"
             >
               Retry
             </Button>

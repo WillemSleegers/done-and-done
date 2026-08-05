@@ -19,7 +19,7 @@ export default function SyncingItemsSection({ items }: SyncingItemsSectionProps)
       <div className="space-y-1 max-h-24 overflow-y-auto">
         {visibleItems.map((item) => (
           <div key={item.id} className="flex items-center gap-2 text-xs">
-            <div className="w-2 h-2 rounded-full bg-connection-loading animate-pulse flex-shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-connection-loading animate-pulse shrink-0" />
             <span className="truncate flex-1">{item.name}</span>
             <span className="text-muted-foreground">({item.type})</span>
           </div>

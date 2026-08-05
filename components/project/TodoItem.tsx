@@ -186,10 +186,8 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
         >
           {/* Checkbox */}
           <div
-            className={`flex-shrink-0 size-4 rounded-full border-1 transition-all flex items-center justify-center ${
-              todo.completed
-                ? "border-success text-success"
-                : "border-border hover:border-success"
+            className={`shrink-0 size-4 rounded-full border transition-all flex items-center justify-center ${
+              todo.completed ? "border-success text-success" : "border-border hover:border-success"
             }`}
           >
             {todo.completed && <Check size={14} />}
@@ -239,7 +237,7 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
             ) : (
               <>
                 <span
-                  className={`text-base break-words ${
+                  className={`text-base wrap-break-word ${
                     todo.completed ? "line-through text-muted-foreground" : "text-foreground"
                   } ${isDragging ? "select-none" : ""}`}
                 >
@@ -268,7 +266,7 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex-shrink-0 h-auto self-stretch w-12 rounded-l-none rounded-r-lg p-0"
+              className="shrink-0 h-auto self-stretch w-12 rounded-l-none rounded-r-lg p-0"
               onClick={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
