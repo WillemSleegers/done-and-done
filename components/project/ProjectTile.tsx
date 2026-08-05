@@ -44,6 +44,9 @@ export default function ProjectTile({ project, todoCounts, onSelect }: ProjectTi
       <TableCell>
         <PriorityBadge priority={project.priority} />
       </TableCell>
+      <TableCell className="text-muted-foreground truncate max-w-32">
+        {project.category || "—"}
+      </TableCell>
       <TableCell className="text-right text-muted-foreground whitespace-nowrap">
         {text()}
       </TableCell>

@@ -10,6 +10,7 @@ export type Database = {
     Tables: {
       projects: {
         Row: {
+          category: string | null
           created_at: string
           notes: string | null
           id: string
@@ -19,6 +20,7 @@ export type Database = {
           status: Database["public"]["Enums"]["status"]
         }
         Insert: {
+          category?: string | null
           created_at?: string
           notes?: string | null
           id?: string
@@ -28,6 +30,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["status"]
         }
         Update: {
+          category?: string | null
           created_at?: string
           notes?: string | null
           id?: string

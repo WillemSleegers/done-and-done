@@ -18,7 +18,7 @@ import { useProjectStore } from "@/lib/store/projectStore"
 import GroupPanel from "./GroupPanel"
 import ProjectTableSection from "./ProjectTableSection"
 
-type GroupByField = "status" | "priority"
+type GroupByField = "status" | "priority" | "category"
 
 interface GroupBucket {
   value: string
@@ -51,9 +51,23 @@ const GROUP_BY_CONFIG: Record<
       { value: "low", label: "Low Priority" },
     ],
   },
+  category: {
+    label: "Category",
+    getValue: (project) => project.category || "",
+    buckets: (projects) => {
+      const categories = Array.from(
+        new Set(projects.map((project) => project.category).filter((c): c is string => !!c))
+      ).sort((a, b) => a.localeCompare(b))
+
+      return [
+        ...categories.map((category) => ({ value: category, label: category })),
+        { value: "", label: "Uncategorized" },
+      ]
+    },
+  },
 }
 
-const GROUPABLE_FIELDS: GroupByField[] = ["status", "priority"]
+const GROUPABLE_FIELDS: GroupByField[] = ["status", "priority", "category"]
 
 function resolveBuckets(field: GroupByField, projects: Project[]): GroupBucket[] {
   const { buckets } = GROUP_BY_CONFIG[field]

@@ -33,6 +33,7 @@ export const DRAG_CONSTRAINTS = {
 // Input validation limits
 export const INPUT_LIMITS = {
   PROJECT_NAME_MAX: 255,
+  CATEGORY_MAX: 100,
   TODO_TEXT_MAX: 1000,
   NOTES_MAX: 10000,
 } as const

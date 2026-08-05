@@ -49,6 +49,7 @@ export default function Home() {
       id: crypto.randomUUID(),
       name: "Untitled Project",
       notes: null,
+      category: null,
       status: "active",
       priority: "normal",
       order: 0,

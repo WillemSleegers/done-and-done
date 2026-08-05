@@ -83,6 +83,7 @@ class SyncService {
           remoteId: remote.id,
           name: remote.name,
           notes: remote.notes,
+          category: remote.category,
           status: remote.status || "active",
           priority: remote.priority || "normal",
           created_at: remote.created_at,
@@ -199,6 +200,7 @@ class SyncService {
           {
             name: project.name,
             notes: project.notes,
+            category: project.category,
             status: project.status,
             priority: project.priority,
             order: project.order,
@@ -415,7 +417,7 @@ class SyncService {
 
   async updateProject(
     project: Project,
-    updates: Partial<Pick<Project, "name" | "notes" | "status" | "priority" | "order">>,
+    updates: Partial<Pick<Project, "name" | "notes" | "status" | "priority" | "category" | "order">>,
     onUpdate: (updatedProject: Project) => void
   ): Promise<void> {
     if (!project.remoteId) return

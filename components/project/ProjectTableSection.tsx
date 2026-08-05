@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 
 import ProjectTile from "./ProjectTile"
 
-type SortColumn = "name" | "priority" | "tasks"
+type SortColumn = "name" | "priority" | "category" | "tasks"
 type SortDirection = "asc" | "desc"
 
 const PRIORITY_ORDER: Record<Project["priority"], number> = {
@@ -57,6 +57,8 @@ export default function ProjectTableSection({
           cmp = a.name.localeCompare(b.name)
         } else if (sort.column === "priority") {
           cmp = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
+        } else if (sort.column === "category") {
+          cmp = (a.category || "").localeCompare(b.category || "")
         } else if (sort.column === "tasks") {
           cmp = remainingTasks(a) - remainingTasks(b)
         }
@@ -76,6 +78,9 @@ export default function ProjectTableSection({
           </TableHead>
           <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
             Priority
+          </TableHead>
+          <TableHead className={headClass("category")} onClick={() => toggleSort("category")}>
+            Category
           </TableHead>
           <TableHead className={cn(headClass("tasks"), "text-right")} onClick={() => toggleSort("tasks")}>
             Tasks

@@ -16,7 +16,7 @@ export interface ProjectActions {
   ) => Promise<Project>
   updateProject: (
     projectId: string,
-    updates: Partial<Pick<Project, "name" | "notes" | "status" | "priority">>
+    updates: Partial<Pick<Project, "name" | "notes" | "status" | "priority" | "category">>
   ) => Promise<void>
   deleteProject: (projectId: string) => Promise<void>
   retryFailedProject: (projectId: string) => Promise<void>

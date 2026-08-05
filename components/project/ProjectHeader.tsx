@@ -1,10 +1,18 @@
 "use client"
 
-import { MoreHorizontal, Trash } from "lucide-react"
-import { useRef } from "react"
+import { Check, MoreHorizontal, Plus, Tag, Trash, X } from "lucide-react"
+import { useRef, useState } from "react"
 
 import PriorityBadge from "@/components/project/PriorityBadge"
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { INPUT_LIMITS } from "@/lib/constants"
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 import { type ProjectPriority,type ProjectStatus } from "@/lib/supabase"
+import { cn } from "@/lib/utils"
 
 interface ProjectHeaderProps {
   project: Project
@@ -37,8 +47,38 @@ export default function ProjectHeader({
   onNameFocus,
   onDeleteProject,
 }: ProjectHeaderProps) {
-  const { updateProject } = useProjectStore()
+  const { updateProject, projects } = useProjectStore()
   const nameInputRef = useRef<HTMLInputElement>(null)
+  const [categoryOpen, setCategoryOpen] = useState(false)
+  const [categorySearch, setCategorySearch] = useState("")
+
+  const categorySuggestions = Array.from(
+    new Set(projects.map((p) => p.category).filter((category): category is string => !!category))
+  ).sort((a, b) => a.localeCompare(b))
+
+  const trimmedSearch = categorySearch.trim()
+  const searchMatchesExisting = categorySuggestions.some(
+    (category) => category.toLowerCase() === trimmedSearch.toLowerCase()
+  )
+
+  const handleCategorySelect = async (category: string | null) => {
+    logger.userAction("Changing project category", {
+      projectId: project.id,
+      projectName: project.name,
+      oldCategory: project.category,
+      newCategory: category,
+    })
+
+    setCategoryOpen(false)
+    setCategorySearch("")
+
+    try {
+      await updateProject(project.id, { category })
+      logger.userAction("Project category changed successfully")
+    } catch (error) {
+      logger.error("Failed to change project category", error)
+    }
+  }
 
   const handleStatusChange = (newStatus: ProjectStatus) => {
     logger.userAction("Changing project status", {
@@ -132,6 +172,78 @@ export default function ProjectHeader({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Category combobox */}
+        <Popover
+          open={categoryOpen}
+          onOpenChange={(open) => {
+            setCategoryOpen(open)
+            if (!open) setCategorySearch("")
+          }}
+        >
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Tag size={16} className={project.category ? "" : "text-muted-foreground"} />
+              {project.category || "Add category"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-56 p-0">
+            <Command>
+              <CommandInput
+                placeholder="Search or create category..."
+                value={categorySearch}
+                onValueChange={setCategorySearch}
+                maxLength={INPUT_LIMITS.CATEGORY_MAX}
+              />
+              <CommandList>
+                <CommandEmpty>
+                  {trimmedSearch ? (
+                    <button
+                      type="button"
+                      onClick={() => handleCategorySelect(trimmedSearch)}
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <Plus size={14} />
+                      Create &ldquo;{trimmedSearch}&rdquo;
+                    </button>
+                  ) : (
+                    <span className="text-muted-foreground">No categories yet</span>
+                  )}
+                </CommandEmpty>
+                <CommandGroup>
+                  {!trimmedSearch && project.category && (
+                    <CommandItem
+                      onSelect={() => handleCategorySelect(null)}
+                      className="text-muted-foreground"
+                    >
+                      <X size={14} />
+                      No category
+                    </CommandItem>
+                  )}
+                  {categorySuggestions.map((category) => (
+                    <CommandItem
+                      key={category}
+                      value={category}
+                      onSelect={() => handleCategorySelect(category)}
+                    >
+                      <Check
+                        size={14}
+                        className={cn(category === project.category ? "opacity-100" : "opacity-0")}
+                      />
+                      {category}
+                    </CommandItem>
+                  ))}
+                  {trimmedSearch && !searchMatchesExisting && (
+                    <CommandItem value={trimmedSearch} onSelect={() => handleCategorySelect(trimmedSearch)}>
+                      <Plus size={14} />
+                      Create &ldquo;{trimmedSearch}&rdquo;
+                    </CommandItem>
+                  )}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
 
         {/* Actions dropdown */}
         <DropdownMenu>
