@@ -4,18 +4,10 @@ A todo management app with smart organization and background synchronization.
 
 ## Features
 
-- **Project organization**: Group todos by projects with priorities and status
-- **Project notes**: Add notes with rich text formatting
-- **Drag-and-drop reordering**: Organize projects and active todos using drag-and-drop
+- **Project organization**: Group todos by projects with priorities, status, and category
+- **Sortable, groupable project table**: View projects in a table with per-column sort and multi-level grouping by status, priority, or category, configurable from a view-options popover
+- **Custom project categories**: Tag projects with free-text categories via a creatable combobox
+- **Project notes**: Add notes with rich text formatting to a project
 - **Due dates**: Set due dates with a calendar picker
-- **Smart todo sorting**: Open todos first, completed last (sorted by completion date)
 - **Collapsible completed todos**: Show recent completions with expand/collapse
 - **Real-time sync**: Background sync with Supabase
-
-## Tech Stack
-
-- Next.js 15 with App Router and TypeScript
-- Supabase (database, auth, real-time sync)
-- Tailwind CSS v4 and Shadcn/ui components
-- Zustand for state management
-- @dnd-kit for drag-and-drop
