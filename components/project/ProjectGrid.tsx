@@ -237,7 +237,7 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
             New Project
           </Button>
 
-          <Popover>
+          <Popover modal>
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon" className="relative">
                 <SlidersHorizontal size={16} />
