@@ -2,7 +2,14 @@
 
 import { ChevronRight } from "lucide-react"
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { type Project } from "@/lib/services/syncService"
 import { cn } from "@/lib/utils"
 
@@ -121,7 +128,10 @@ export default function ProjectsTable({
               Status
             </TableHead>
           )}
-          <TableHead className={cn(headClass("tasks"), "text-right")} onClick={() => toggleSort("tasks")}>
+          <TableHead
+            className={cn(headClass("tasks"), "text-right")}
+            onClick={() => toggleSort("tasks")}
+          >
             Tasks
           </TableHead>
         </TableRow>
@@ -136,7 +146,10 @@ export default function ProjectsTable({
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => onToggleGroupCollapsed(group.key)}
               >
-                <TableCell colSpan={columnCount} className="relative pl-7 text-sm font-semibold text-muted-foreground">
+                <TableCell
+                  colSpan={columnCount}
+                  className="relative pl-7 text-sm font-semibold text-muted-foreground"
+                >
                   <ChevronRight
                     size={14}
                     className={cn(
@@ -144,7 +157,7 @@ export default function ProjectsTable({
                       !collapsed && "rotate-90"
                     )}
                   />
-                  {group.title} ({group.projects.length})
+                  {group.title}
                 </TableCell>
               </TableRow>
             )}
