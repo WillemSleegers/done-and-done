@@ -15,8 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
-import GroupPanel from "./GroupPanel"
-import ProjectTableSection, { type SortState } from "./ProjectTableSection"
+import ProjectsTable, { type ProjectGroup, type SortState } from "./ProjectsTable"
 
 type GroupByField = "status" | "priority" | "category"
 
@@ -216,42 +215,16 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     })
   }
 
-  const renderGroups = (fields: GroupByField[], projectsInScope: Project[]): React.ReactNode => {
+  const buildGroups = (fields: GroupByField[], projectsInScope: Project[]): ProjectGroup[] => {
     if (fields.length === 0) {
-      return (
-        <ProjectTableSection
-          projects={projectsInScope}
-          todoCounts={todoCounts}
-          onSelectProject={onSelectProject}
-          hiddenColumns={groupBy}
-          sort={sort}
-          onSortChange={setSort}
-        />
-      )
+      return [{ key: "all", title: null, projects: projectsInScope }]
     }
 
-    return (
-      <div className="space-y-6">
-        {buildCombos(fields, projectsInScope).map((combo) => (
-          <GroupPanel
-            key={combo.key}
-            title={combo.title}
-            count={combo.projects.length}
-            open={!collapsedGroups.has(combo.key)}
-            onOpenChange={(open) => setGroupCollapsed(combo.key, !open)}
-          >
-            <ProjectTableSection
-              projects={combo.projects}
-              todoCounts={todoCounts}
-              onSelectProject={onSelectProject}
-              hiddenColumns={groupBy}
-              sort={sort}
-              onSortChange={setSort}
-            />
-          </GroupPanel>
-        ))}
-      </div>
-    )
+    return buildCombos(fields, projectsInScope)
+  }
+
+  const toggleGroupCollapsed = (key: string) => {
+    setGroupCollapsed(key, !collapsedGroups.has(key))
   }
 
   return (
@@ -342,7 +315,16 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
           </Popover>
         </div>
 
-        {renderGroups(groupBy, visibleProjects)}
+        <ProjectsTable
+          groups={buildGroups(groupBy, visibleProjects)}
+          todoCounts={todoCounts}
+          onSelectProject={onSelectProject}
+          hiddenColumns={groupBy}
+          sort={sort}
+          onSortChange={setSort}
+          collapsedGroups={collapsedGroups}
+          onToggleGroupCollapsed={toggleGroupCollapsed}
+        />
       </div>
 
       {projects.length === 0 && (

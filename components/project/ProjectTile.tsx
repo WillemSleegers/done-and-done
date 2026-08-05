@@ -1,7 +1,7 @@
 "use client"
 
 import PriorityBadge from "@/components/project/PriorityBadge"
-import { type TableColumn } from "@/components/project/ProjectTableSection"
+import { type TableColumn } from "@/components/project/ProjectsTable"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { logger } from "@/lib/logger"
 import { type Project } from "@/lib/services/syncService"
@@ -42,7 +42,7 @@ export default function ProjectTile({ project, todoCounts, onSelect, hiddenColum
 
   return (
     <TableRow className="cursor-pointer" onClick={handleNavigation}>
-      <TableCell className="font-medium text-card-foreground truncate max-w-0 w-full">
+      <TableCell className="font-medium text-card-foreground truncate max-w-0 w-full pl-7">
         {project.name}
       </TableCell>
       {showColumn("priority") && (
