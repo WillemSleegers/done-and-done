@@ -57,7 +57,7 @@ export default function AddTodoForm({ project }: AddTodoFormProps) {
           maxLength={INPUT_LIMITS.TODO_TEXT_MAX}
           className="flex-1 px-4 py-2 h-10 shadow-none text-base"
         />
-        <Button type="submit" disabled={!newTodo.trim() || isAdding} className="size-10">
+        <Button type="submit" disabled={!newTodo.trim() || isAdding} size="icon">
           {isAdding ? (
             <Spinner size="sm" className="border-primary-foreground" />
           ) : (

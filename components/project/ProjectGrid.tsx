@@ -212,14 +212,14 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Toolbar */}
         <div className="flex items-center justify-end gap-2">
-          <Button size="sm" onClick={onCreateProject}>
+          <Button onClick={onCreateProject}>
             <Plus size={16} />
             New Project
           </Button>
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="relative size-8">
+              <Button variant="outline" size="icon" className="relative">
                 <SlidersHorizontal size={16} />
                 {hasActiveFilters && (
                   <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary" />

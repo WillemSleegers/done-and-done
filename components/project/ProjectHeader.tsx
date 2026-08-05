@@ -74,7 +74,7 @@ export default function ProjectHeader({
         {/* Priority dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2 h-10 shadow-none">
+            <Button variant="outline" className="gap-2">
               <PriorityBadge priority={project.priority} />
               {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
             </Button>
@@ -107,7 +107,7 @@ export default function ProjectHeader({
         {/* Status dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-10 shadow-none">
+            <Button variant="outline">
               {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
             </Button>
           </DropdownMenuTrigger>
@@ -136,7 +136,7 @@ export default function ProjectHeader({
         {/* Actions dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="size-10 shadow-none">
+            <Button variant="outline" size="icon">
               <MoreHorizontal size={16} />
             </Button>
           </DropdownMenuTrigger>
