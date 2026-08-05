@@ -12,13 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { type Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
@@ -147,10 +140,6 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
 
   const remainingFields = GROUPABLE_FIELDS.filter((field) => !groupBy.includes(field))
 
-  const setGroupByFieldAt = (index: number, field: GroupByField) => {
-    setGroupBy((prev) => prev.map((f, i) => (i === index ? field : f)))
-  }
-
   const removeGroupByFieldAt = (index: number) => {
     setGroupBy((prev) => prev.filter((_, i) => i !== index))
   }
@@ -231,49 +220,24 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
               <div className="space-y-2">
                 <p className="text-sm font-medium">Group by</p>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {groupBy.map((field, index) => {
-                    const swapOptions = GROUPABLE_FIELDS.filter(
-                      (f) => f === field || remainingFields.includes(f)
-                    )
-
-                    return (
-                      <div
-                        key={`${field}-${index}`}
-                        className="flex h-7 items-center gap-0.5 rounded-full border bg-muted/50 pl-2.5 pr-1"
-                      >
-                        <Select
-                          value={field}
-                          onValueChange={(value) => setGroupByFieldAt(index, value as GroupByField)}
-                        >
-                          <SelectTrigger className="h-auto gap-1 border-0 bg-transparent p-0 text-xs shadow-none focus-visible:ring-0">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {swapOptions.map((f) => (
-                              <SelectItem key={f} value={f}>
-                                {GROUP_BY_CONFIG[f].label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <button
-                          type="button"
-                          onClick={() => removeGroupByFieldAt(index)}
-                          className="rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        >
-                          <X size={12} />
-                          <span className="sr-only">Remove {GROUP_BY_CONFIG[field].label} grouping</span>
-                        </button>
-                      </div>
-                    )
-                  })}
+                  {groupBy.map((field, index) => (
+                    <button
+                      key={`${field}-${index}`}
+                      type="button"
+                      onClick={() => removeGroupByFieldAt(index)}
+                      className="flex h-8 items-center gap-1.5 rounded-full border bg-muted/50 px-3 text-xs text-foreground hover:bg-muted"
+                    >
+                      {GROUP_BY_CONFIG[field].label}
+                      <X size={12} className="text-muted-foreground" />
+                    </button>
+                  ))}
 
                   {remainingFields.length > 0 && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className="flex h-7 items-center gap-1 rounded-full border border-dashed px-2.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                          className="flex h-8 items-center gap-1.5 rounded-full border border-dashed px-3 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
                         >
                           <Plus size={12} />
                           Add group
