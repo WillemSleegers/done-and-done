@@ -3,31 +3,20 @@
 import { type ReactNode } from "react"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { cn } from "@/lib/utils"
 
 interface GroupPanelProps {
   title: string
   count: number
-  tone?: "muted" | "background"
   children: ReactNode
 }
 
-export default function GroupPanel({ title, count, tone = "muted", children }: GroupPanelProps) {
-  const toneClass = tone === "muted" ? "bg-muted" : "bg-background"
-
+export default function GroupPanel({ title, count, children }: GroupPanelProps) {
   return (
     <Collapsible defaultOpen>
-      <div className={cn("overflow-hidden rounded-lg border", toneClass)}>
-        <CollapsibleTrigger
-          className={cn(
-            "block w-full px-3 py-2 text-left text-sm font-semibold text-muted-foreground hover:text-foreground",
-            toneClass
-          )}
-        >
-          {title} ({count})
-        </CollapsibleTrigger>
-        <CollapsibleContent className={cn("px-4 pb-4", toneClass)}>{children}</CollapsibleContent>
-      </div>
+      <CollapsibleTrigger className="block w-full px-1 py-2 text-left text-sm font-semibold text-muted-foreground hover:text-foreground">
+        {title} ({count})
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-1 pb-4">{children}</CollapsibleContent>
     </Collapsible>
   )
 }

@@ -159,33 +159,50 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     setGroupBy((prev) => [...prev, field])
   }
 
-  const renderGroups = (fields: GroupByField[], projectsInScope: Project[], depth = 0): React.ReactNode => {
+  interface GroupCombo {
+    key: string
+    title: string
+    projects: Project[]
+  }
+
+  const buildCombos = (fields: GroupByField[], projectsInScope: Project[]): GroupCombo[] => {
+    const [field, ...rest] = fields
+    const config = GROUP_BY_CONFIG[field]
+    const buckets = resolveBuckets(field, allProjectsSorted)
+
+    return buckets.flatMap((bucket) => {
+      const bucketProjects = projectsInScope.filter((project) => config.getValue(project) === bucket.value)
+
+      if (bucketProjects.length === 0) {
+        return []
+      }
+
+      if (rest.length === 0) {
+        return [{ key: bucket.value, title: bucket.label, projects: bucketProjects }]
+      }
+
+      return buildCombos(rest, bucketProjects).map((combo) => ({
+        key: `${bucket.value}-${combo.key}`,
+        title: `${bucket.label} - ${combo.title}`,
+        projects: combo.projects,
+      }))
+    })
+  }
+
+  const renderGroups = (fields: GroupByField[], projectsInScope: Project[]): React.ReactNode => {
     if (fields.length === 0) {
       return (
         <ProjectTableSection projects={projectsInScope} todoCounts={todoCounts} onSelectProject={onSelectProject} />
       )
     }
 
-    const [field, ...rest] = fields
-    const config = GROUP_BY_CONFIG[field]
-    const buckets = resolveBuckets(field, allProjectsSorted)
-    const tone = depth % 2 === 0 ? "muted" : "background"
-
     return (
       <div className="space-y-6">
-        {buckets.map((bucket) => {
-          const bucketProjects = projectsInScope.filter((project) => config.getValue(project) === bucket.value)
-
-          if (bucketProjects.length === 0) {
-            return null
-          }
-
-          return (
-            <GroupPanel key={bucket.value} title={bucket.label} count={bucketProjects.length} tone={tone}>
-              {renderGroups(rest, bucketProjects, depth + 1)}
-            </GroupPanel>
-          )
-        })}
+        {buildCombos(fields, projectsInScope).map((combo) => (
+          <GroupPanel key={combo.key} title={combo.title} count={combo.projects.length}>
+            <ProjectTableSection projects={combo.projects} todoCounts={todoCounts} onSelectProject={onSelectProject} />
+          </GroupPanel>
+        ))}
       </div>
     )
   }
@@ -194,7 +211,12 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
     <div className="p-6">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Toolbar */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end gap-2">
+          <Button size="sm" onClick={onCreateProject}>
+            <Plus size={16} />
+            New Project
+          </Button>
+
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon" className="relative size-8">
@@ -205,7 +227,7 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
                 <span className="sr-only">View options</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-72 space-y-4">
+            <PopoverContent align="end" className="w-72 space-y-4">
               <div className="space-y-2">
                 <p className="text-sm font-medium">Group by</p>
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -296,11 +318,6 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
               </div>
             </PopoverContent>
           </Popover>
-
-          <Button size="sm" onClick={onCreateProject}>
-            <Plus size={16} />
-            New Project
-          </Button>
         </div>
 
         {renderGroups(groupBy, visibleProjects)}
