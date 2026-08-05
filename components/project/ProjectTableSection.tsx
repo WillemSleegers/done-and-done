@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils"
 
 import ProjectTile from "./ProjectTile"
 
-type SortColumn = "name" | "priority" | "category" | "tasks"
+type SortColumn = "name" | "priority" | "category" | "status" | "tasks"
 type SortDirection = "asc" | "desc"
+
+export type TableColumn = "priority" | "category" | "status"
 
 const PRIORITY_ORDER: Record<Project["priority"], number> = {
   high: 1,
@@ -17,16 +19,24 @@ const PRIORITY_ORDER: Record<Project["priority"], number> = {
   low: 3,
 }
 
+const STATUS_ORDER: Record<Project["status"], number> = {
+  active: 1,
+  inactive: 2,
+  complete: 3,
+}
+
 interface ProjectTableSectionProps {
   projects: Project[]
   todoCounts: Record<string, { total: number; completed: number }>
   onSelectProject: (project: Project) => void
+  hiddenColumns?: TableColumn[]
 }
 
 export default function ProjectTableSection({
   projects,
   todoCounts,
   onSelectProject,
+  hiddenColumns = [],
 }: ProjectTableSectionProps) {
   const [sort, setSort] = useState<{ column: SortColumn | null; direction: SortDirection }>({
     column: null,
@@ -59,6 +69,8 @@ export default function ProjectTableSection({
           cmp = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
         } else if (sort.column === "category") {
           cmp = (a.category || "").localeCompare(b.category || "")
+        } else if (sort.column === "status") {
+          cmp = STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
         } else if (sort.column === "tasks") {
           cmp = remainingTasks(a) - remainingTasks(b)
         }
@@ -69,6 +81,8 @@ export default function ProjectTableSection({
   const headClass = (column: SortColumn) =>
     cn("cursor-pointer select-none", sort.column === column && "text-foreground")
 
+  const showColumn = (column: TableColumn) => !hiddenColumns.includes(column)
+
   return (
     <Table>
       <TableHeader>
@@ -76,12 +90,21 @@ export default function ProjectTableSection({
           <TableHead className={headClass("name")} onClick={() => toggleSort("name")}>
             Name
           </TableHead>
-          <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
-            Priority
-          </TableHead>
-          <TableHead className={headClass("category")} onClick={() => toggleSort("category")}>
-            Category
-          </TableHead>
+          {showColumn("priority") && (
+            <TableHead className={headClass("priority")} onClick={() => toggleSort("priority")}>
+              Priority
+            </TableHead>
+          )}
+          {showColumn("category") && (
+            <TableHead className={headClass("category")} onClick={() => toggleSort("category")}>
+              Category
+            </TableHead>
+          )}
+          {showColumn("status") && (
+            <TableHead className={headClass("status")} onClick={() => toggleSort("status")}>
+              Status
+            </TableHead>
+          )}
           <TableHead className={cn(headClass("tasks"), "text-right")} onClick={() => toggleSort("tasks")}>
             Tasks
           </TableHead>
@@ -91,7 +114,13 @@ export default function ProjectTableSection({
         {sortedProjects.map((project) => {
           const counts = todoCounts[project.id] || { total: 0, completed: 0 }
           return (
-            <ProjectTile key={project.id} project={project} todoCounts={counts} onSelect={onSelectProject} />
+            <ProjectTile
+              key={project.id}
+              project={project}
+              todoCounts={counts}
+              onSelect={onSelectProject}
+              hiddenColumns={hiddenColumns}
+            />
           )
         })}
       </TableBody>

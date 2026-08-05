@@ -195,7 +195,12 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
   const renderGroups = (fields: GroupByField[], projectsInScope: Project[]): React.ReactNode => {
     if (fields.length === 0) {
       return (
-        <ProjectTableSection projects={projectsInScope} todoCounts={todoCounts} onSelectProject={onSelectProject} />
+        <ProjectTableSection
+          projects={projectsInScope}
+          todoCounts={todoCounts}
+          onSelectProject={onSelectProject}
+          hiddenColumns={groupBy}
+        />
       )
     }
 
@@ -203,7 +208,12 @@ export default function ProjectGrid({ onSelectProject, onCreateProject }: Projec
       <div className="space-y-6">
         {buildCombos(fields, projectsInScope).map((combo) => (
           <GroupPanel key={combo.key} title={combo.title} count={combo.projects.length}>
-            <ProjectTableSection projects={combo.projects} todoCounts={todoCounts} onSelectProject={onSelectProject} />
+            <ProjectTableSection
+              projects={combo.projects}
+              todoCounts={todoCounts}
+              onSelectProject={onSelectProject}
+              hiddenColumns={groupBy}
+            />
           </GroupPanel>
         ))}
       </div>
