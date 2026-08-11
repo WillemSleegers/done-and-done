@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon, Check, Edit, MoreHorizontal, Trash } from "lucide-react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -86,6 +86,15 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
   }
 
   const cancelEditing = () => {
+    // A todo created blank (via the floating add button) has nothing to revert
+    // to - discard it instead of leaving an empty row in the list
+    if (!originalEditTextRef.current.trim()) {
+      logger.userAction("Discarding blank todo", { todoId: todo.id, projectId })
+      setIsEditing(false)
+      deleteTodo(todo.id, projectId)
+      return
+    }
+
     logger.userAction("Canceling todo edit", {
       todoId: todo.id,
       originalText: originalEditTextRef.current,
@@ -95,6 +104,17 @@ export default function TodoItem({ todo, projectId, onOpenDateDialog }: TodoItem
     setIsEditing(false)
     setEditText(originalEditTextRef.current) // Reset to original value when editing started
   }
+
+  // Auto-enter edit mode for a todo created blank (via the floating add
+  // button) so the keyboard is already up and ready for input
+  useEffect(() => {
+    if (todo.text === "") {
+      // One-time auto-edit for a todo created blank via the floating add button.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      startEditing()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const saveEditing = async () => {
     if (!editText.trim()) {

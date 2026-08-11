@@ -117,7 +117,9 @@ export default function ProjectHeader({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-2">
               <PriorityBadge priority={project.priority} />
-              {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+              <span className="hidden sm:inline">
+                {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">

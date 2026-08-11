@@ -10,6 +10,7 @@ import { useProjectStore } from "@/lib/store/projectStore"
 import AddTodoForm from "./AddTodoForm"
 import DatePickerDialog from "./dialogs/DatePickerDialog"
 import DeleteProjectDialog from "./dialogs/DeleteProjectDialog"
+import FloatingAddTodoButton from "./FloatingAddTodoButton"
 import ProjectHeader from "./ProjectHeader"
 import { ProjectNotesEditor, type ProjectNotesEditorRef } from "./todo-view/ProjectNotesEditor"
 import TodoList from "./todo-view/TodoList"
@@ -154,11 +155,16 @@ export default function ProjectTodoView({ project, onBack }: ProjectTodoViewProp
           onDeleteProject={() => setShowDeleteAlert(true)}
         />
 
-        {/* Add new todo form */}
-        <AddTodoForm project={project} />
+        {/* Add new todo form - hidden on mobile in favor of the floating button */}
+        <div className="hidden sm:block">
+          <AddTodoForm project={project} />
+        </div>
 
         {/* Todo list */}
         <TodoList todos={todos} projectId={project.id} onOpenDateDialog={openDateDialog} />
+
+        {/* Floating add button - mobile only */}
+        <FloatingAddTodoButton project={project} />
 
         {/* Notes section */}
         <ProjectNotesEditor
