@@ -60,7 +60,9 @@ export default function Home() {
   }
 
   const handleBackToGrid = () => {
-    window.history.back()
+    setSelectedProjectId(null)
+    // Update URL for bookmarking without triggering navigation
+    window.history.pushState({}, "", "/")
   }
 
   if (selectedProject) {
