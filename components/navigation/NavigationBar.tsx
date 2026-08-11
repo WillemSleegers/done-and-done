@@ -47,8 +47,12 @@ export default function NavigationBar({
         {/* Right side - Controls */}
         <div className="flex items-center gap-4">
           <AppStatus />
-          <UserMenu />
-          <ModeToggle />
+          {variant !== "back" && (
+            <>
+              <UserMenu />
+              <ModeToggle />
+            </>
+          )}
         </div>
       </div>
     </nav>

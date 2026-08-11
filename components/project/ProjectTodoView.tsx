@@ -142,7 +142,7 @@ export default function ProjectTodoView({ project, onBack }: ProjectTodoViewProp
   }
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-4 pb-24 sm:p-6">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Project header */}
         <ProjectHeader

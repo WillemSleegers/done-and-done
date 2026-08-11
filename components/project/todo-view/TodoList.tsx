@@ -92,9 +92,7 @@ export default function TodoList({ todos, projectId, onOpenDateDialog }: TodoLis
           {openTodos.length > 0 && (
             <div className="flex items-center gap-3 py-2">
               <div className="flex-1 h-px bg-border"></div>
-              <span className="text-sm text-muted-foreground font-medium">
-                Completed ({completedTodos.length})
-              </span>
+              <span className="text-sm text-muted-foreground font-medium">Completed</span>
               <div className="flex-1 h-px bg-border"></div>
             </div>
           )}
