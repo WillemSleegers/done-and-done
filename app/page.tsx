@@ -70,7 +70,7 @@ export default function Home() {
       <AuthGuard>
         <NavigationBar variant="back" onBack={handleBackToGrid} />
         <main className="flex-1">
-          <ProjectTodoView project={selectedProject} onBack={handleBackToGrid} />
+          <ProjectTodoView key={selectedProject.id} project={selectedProject} onBack={handleBackToGrid} />
         </main>
       </AuthGuard>
     )
