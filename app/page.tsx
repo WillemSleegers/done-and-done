@@ -14,24 +14,20 @@ export default function Home() {
   const { projects, addProject } = useProjectStore()
   const selectedProject = projects.find((p) => p.id === selectedProjectId) || null
 
-  // iOS PWAs restore the previous session's URL and history, so start from a
-  // clean grid entry instead of a stale ?project= that never got rendered
   useEffect(() => {
-    window.history.replaceState({ projectId: null }, "", "/")
-  }, [])
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search)
+      const projectId = params.get("project")
 
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      const projectId =
-        (event.state as { projectId?: string | null } | null)?.projectId ?? null
-
-      if (projectId && projects.some((p) => p.id === projectId)) {
-        setSelectedProjectId(projectId)
+      if (projectId) {
+        if (projects.some((p) => p.id === projectId)) {
+          setSelectedProjectId(projectId)
+        } else {
+          setSelectedProjectId(null)
+          window.history.replaceState({}, "", "/")
+        }
       } else {
         setSelectedProjectId(null)
-        if (window.location.search) {
-          window.history.replaceState({ projectId: null }, "", "/")
-        }
       }
     }
 
@@ -45,7 +41,7 @@ export default function Home() {
   const handleSelectProject = (project: Project) => {
     setSelectedProjectId(project.id)
     // Update URL for bookmarking without triggering navigation
-    window.history.pushState({ projectId: project.id }, "", `/?project=${project.id}`)
+    window.history.pushState({}, "", `/?project=${project.id}`)
   }
 
   const handleCreateNewProject = async () => {
@@ -60,7 +56,7 @@ export default function Home() {
     })
     setSelectedProjectId(newProject.id)
     // Update URL for bookmarking without triggering navigation
-    window.history.pushState({ projectId: newProject.id }, "", `/?project=${newProject.id}`)
+    window.history.pushState({}, "", `/?project=${newProject.id}`)
   }
 
   const handleBackToGrid = () => {
