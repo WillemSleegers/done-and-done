@@ -6,6 +6,7 @@ import AuthGuard from "@/components/auth/AuthGuard"
 import NavigationBar from "@/components/navigation/NavigationBar"
 import ProjectGrid from "@/components/project/ProjectGrid"
 import ProjectTodoView from "@/components/project/ProjectTodoView"
+import { debugLog, describeLocation, shortId } from "@/lib/debugLog"
 import type { Project } from "@/lib/services/syncService"
 import { useProjectStore } from "@/lib/store/projectStore"
 
@@ -15,9 +16,39 @@ export default function Home() {
   const selectedProject = projects.find((p) => p.id === selectedProjectId) || null
 
   useEffect(() => {
+    const nav = performance.getEntriesByType("navigation")[0] as
+      | PerformanceNavigationTiming
+      | undefined
+    debugLog(
+      `MOUNT nav=${nav?.type ?? "?"} at=${describeLocation()} histLen=${history.length} state=${JSON.stringify(history.state)}`
+    )
+
+    const onPageShow = (e: PageTransitionEvent) =>
+      debugLog(`PAGESHOW persisted=${e.persisted} at=${describeLocation()}`)
+    const onPageHide = (e: PageTransitionEvent) =>
+      debugLog(`PAGEHIDE persisted=${e.persisted} at=${describeLocation()}`)
+
+    window.addEventListener("pageshow", onPageShow)
+    window.addEventListener("pagehide", onPageHide)
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow)
+      window.removeEventListener("pagehide", onPageHide)
+    }
+  }, [])
+
+  useEffect(() => {
+    debugLog(`RENDER ${selectedProjectId ? `project ${shortId(selectedProjectId)}` : "grid"}`)
+  }, [selectedProjectId])
+
+  useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search)
       const projectId = params.get("project")
+
+      debugLog(
+        `POPSTATE at=${describeLocation()} param=${shortId(projectId)} state=${JSON.stringify(history.state)}`
+      )
 
       if (projectId) {
         if (projects.some((p) => p.id === projectId)) {
@@ -39,6 +70,7 @@ export default function Home() {
   }, [projects])
 
   const handleSelectProject = (project: Project) => {
+    debugLog(`SELECT ${shortId(project.id)} "${project.name}" histLen=${history.length}`)
     setSelectedProjectId(project.id)
     // Update URL for bookmarking without triggering navigation
     window.history.pushState({}, "", `/?project=${project.id}`)
@@ -60,6 +92,7 @@ export default function Home() {
   }
 
   const handleBackToGrid = () => {
+    debugLog(`BACK pressed at=${describeLocation()} histLen=${history.length}`)
     window.history.back()
   }
 
