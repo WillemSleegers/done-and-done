@@ -39,12 +39,16 @@ export default function Home() {
   }, [projects])
 
   const handleSelectProject = (project: Project) => {
+    // The window is the scroll container, so the grid's offset would otherwise
+    // carry over into the todo list
+    window.scrollTo(0, 0)
     setSelectedProjectId(project.id)
     // Update URL for bookmarking without triggering navigation
     window.history.pushState({}, "", `/?project=${project.id}`)
   }
 
   const handleCreateNewProject = async () => {
+    window.scrollTo(0, 0)
     const newProject = await addProject({
       id: crypto.randomUUID(),
       name: "Untitled Project",
