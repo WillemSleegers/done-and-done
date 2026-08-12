@@ -42,6 +42,10 @@ export default function Home() {
     setSelectedProjectId(project.id)
     // Update URL for bookmarking without triggering navigation
     window.history.pushState({}, "", `/?project=${project.id}`)
+    // Push first: the browser records the grid's scroll offset against the
+    // entry being left, so going back still restores it. Only then reset, or
+    // the grid's position carries over into the todo list
+    window.scrollTo(0, 0)
   }
 
   const handleCreateNewProject = async () => {
@@ -57,6 +61,7 @@ export default function Home() {
     setSelectedProjectId(newProject.id)
     // Update URL for bookmarking without triggering navigation
     window.history.pushState({}, "", `/?project=${newProject.id}`)
+    window.scrollTo(0, 0)
   }
 
   const handleBackToGrid = () => {
