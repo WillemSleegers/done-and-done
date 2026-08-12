@@ -3,7 +3,6 @@ import "./globals.css"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
-import DebugPanel from "@/components/debug/DebugPanel"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/lib/AuthProvider"
 
@@ -58,7 +57,6 @@ export default function RootLayout({
         >
           <AuthProvider>
             <div className="h-screen bg-background flex flex-col">{children}</div>
-            <DebugPanel />
           </AuthProvider>
         </ThemeProvider>
       </body>
